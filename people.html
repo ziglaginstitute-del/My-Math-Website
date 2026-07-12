@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ziglag Institute | Our People & Organization Members</title>
+  <meta name="description" content="Meet the teachers, advisers, and developers of the Ziglag Institute math learning ecosystem.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="glow-orb glow-orb-primary" style="top: 15%; right: 10%;"></div>
+  <div class="glow-orb glow-orb-secondary" style="top: 60%; left: 5%;"></div>
+
+  <div class="app-container">
+    
+    <!-- Navbar -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="people.html" class="active">People</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </nav>
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <a href="contact.html" class="btn btn-primary btn-sm">Get In Touch</a>
+      </div>
+    </header>
+
+    <!-- Header Banner -->
+    <section class="section-wrapper" style="padding-bottom: 0.5rem; animation: fade-in 0.6s ease-out;">
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">The Brain Trust</span>
+      <h1 style="font-size: 3rem;">Our People</h1>
+      <p style="margin-top: 0.5rem; max-width: 700px;">
+        Meet the educators, creators, and subject matter experts working to make mathematics understandable, engaging, and powerful for students worldwide.
+      </p>
+    </section>
+
+    <!-- Team Section Grid -->
+    <section class="section-wrapper" style="padding-top: 1rem;">
+      <div class="people-grid" id="people-render-grid">
+        <!-- Members will be dynamically loaded here -->
+        <div class="glass-card" style="grid-column: 1/-1; padding: 4rem; text-align: center;">
+          <span style="font-size: 2rem; display: block; margin-bottom: 1rem;">⏳</span>
+          <h3>Loading Organization Members...</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            A premier mathematics hub catering to international schools, college students, and self-taught professionals globally.
+          </p>
+          <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
+            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="LinkedIn Profile">🔗 LinkedIn</a>
+            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="GitHub Profile">💻 GitHub</a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4>Portal Hub</h4>
+          <ul>
+            <li><a href="index.html">Dashboard Home</a></li>
+            <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="tutoring.html">1-on-1 Coaching</a></li>
+            <li><a href="vault.html">Resource Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Spheres of Study</h4>
+          <ul>
+            <li><a href="courses.html?sphere=secondary">Secondary Algebra</a></li>
+            <li><a href="courses.html?sphere=exams">AP Calculus & Stats</a></li>
+            <li><a href="courses.html?sphere=exams">IGCSE/GCSE Mathematics</a></li>
+            <li><a href="courses.html?sphere=undergrad">Advanced Linear Algebra</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Organization</h4>
+          <ul>
+            <li><a href="people.html">Our People</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="tutoring.html">Book 1-on-1 Session</a></li>
+            <li><a href="courses.html">Browse Syllabus</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 Ziglag Institute. Engineered with passion for math educators and students.</p>
+        <p>Built as a Premium Web App & Google Sites Toolkit</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Fallback static dataset in case the file is run directly without a Flask server
+    const FALLBACK_MEMBERS = [
+      {
+        name: "Isaac Olusola",
+        role: "Founder & Managing Director",
+        bio: "Isaac is the visionary behind Ziglag Institute, dedicated to providing premium and accessible STEM education. He guides the institute's strategic curriculum development and partnerships.",
+        avatar: "🚀",
+        email: "isaac.olusola@ziglaginstitute.com",
+        linkedin: "https://www.linkedin.com/in/isaac-olusola-2a2b2218b",
+        github: "https://github.com/ziglaginstitute-del",
+        youtube: "https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn"
+      },
+      {
+        name: "Dr. Adrian Thorne",
+        role: "Head of Pure Mathematics",
+        bio: "Adrian holds a PhD in Pure Mathematics. He specializes in making abstract concepts (like vector spaces and real analysis) intuitive and deeply interesting for undergraduate students.",
+        avatar: "👨‍🏫",
+        email: "adrian.thorne@ziglaginstitute.com",
+        linkedin: "https://linkedin.com",
+        github: "https://github.com"
+      },
+      {
+        name: "Sarah Jenkins, MSc",
+        role: "Lead Exam Prep Coach & Coordinator",
+        bio: "Sarah is a passionate high school educator with 10+ years of tutoring. She focuses on confidence-building and breaking down exam techniques for WASSCE, JAMB, AP, and IGCSE.",
+        avatar: "👩‍🏫",
+        email: "sarah.jenkins@ziglaginstitute.com",
+        linkedin: "https://linkedin.com",
+        github: "https://github.com"
+      },
+      {
+        name: "Prof. Marcus Vance",
+        role: "Emeritus Advisor & Content Author",
+        bio: "Marcus is a retired professor and author of calculus textbooks. His role at Ziglag focuses on verifying core mathematical proof sheets and undergraduate syllabus excellence.",
+        avatar: "👨‍💻",
+        email: "marcus.vance@ziglaginstitute.com",
+        linkedin: "https://linkedin.com",
+        github: "https://github.com"
+      }
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadMembers();
+    });
+
+    async function loadMembers() {
+      const grid = document.getElementById("people-render-grid");
+      
+      try {
+        // Try fetching from the Flask backend API
+        const response = await fetch("/api/people");
+        if (!response.ok) {
+          throw new Error("API call failed, falling back to static data.");
+        }
+        const data = await response.json();
+        renderMembersList(data);
+      } catch (err) {
+        console.warn(err.message);
+        // Fall back to offline static data
+        renderMembersList(FALLBACK_MEMBERS);
+      }
+    }
+
+    function renderMembersList(members) {
+      const grid = document.getElementById("people-render-grid");
+      grid.innerHTML = "";
+
+      if (!members || members.length === 0) {
+        grid.innerHTML = `
+          <div class="glass-card" style="grid-column: 1/-1; padding: 4rem; text-align: center;">
+            <h3>No organization members registered yet</h3>
+            <p style="margin-top: 0.5rem;">Check database migrations or seed scripts.</p>
+          </div>
+        `;
+        return;
+      }
+
+      members.forEach(m => {
+        const card = document.createElement("div");
+        card.className = "sphere-card glass-card people-card";
+        
+        // Build social links
+        let socialHtml = "";
+        if (m.email) {
+          socialHtml += `<a href="mailto:${m.email}" class="people-social-link" title="Email Address">✉️ Email</a>`;
+        }
+        if (m.linkedin && m.linkedin !== "https://linkedin.com") {
+          socialHtml += `<a href="${m.linkedin}" target="_blank" rel="noopener" class="people-social-link" title="LinkedIn Profile">🔗 LinkedIn</a>`;
+        }
+        if (m.github && m.github !== "https://github.com") {
+          socialHtml += `<a href="${m.github}" target="_blank" rel="noopener" class="people-social-link" title="GitHub profile">💻 GitHub</a>`;
+        }
+        if (m.youtube) {
+          socialHtml += `<a href="${m.youtube}" target="_blank" rel="noopener" class="people-social-link" title="YouTube Channel">🎥 YouTube</a>`;
+        }
+
+        card.innerHTML = `
+          <div>
+            <div class="people-avatar-box">
+              ${m.avatar || '👨‍🏫'}
+            </div>
+            <h3 class="people-name">${m.name}</h3>
+            <div class="people-role">${m.role}</div>
+            <p class="people-bio">${m.bio}</p>
+          </div>
+          <div class="people-socials">
+            ${socialHtml || '<span style="font-size:0.8rem; color:var(--text-muted);">Ziglag Institute Member</span>'}
+          </div>
+        `;
+        
+        grid.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>

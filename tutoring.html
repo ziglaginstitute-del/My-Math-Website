@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ziglag Institute | 1-on-1 Tutor Scheduling</title>
+  <meta name="description" content="Schedule private whiteboard sessions with phd university professors and curriculum prep experts for advanced and high school mathematics.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="glow-orb glow-orb-primary" style="bottom: 10%; right: 5%;"></div>
+  <div class="glow-orb glow-orb-secondary" style="top: 20%; left: -5%;"></div>
+
+  <div class="app-container">
+    
+    <!-- Navbar -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="tutoring.html" class="active">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="people.html">People</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </nav>
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <a href="courses.html" class="btn btn-secondary btn-sm">Catalog Hub</a>
+      </div>
+    </header>
+
+    <!-- Header Title Banner -->
+    <section class="section-wrapper" style="padding-bottom: 0.5rem; animation: fade-in 0.6s ease-out;">
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">Expert Interactive Guidance</span>
+      <h1 style="font-size: 3rem;">1-on-1 Tutoring Sessions</h1>
+      <p style="margin-top: 0.5rem; max-width: 700px;">
+        Book personalized mathematics mentoring. Select an expert coach, schedule your specific calendar slot, and coordinate topic priorities to prepare for assessments.
+      </p>
+    </section>
+
+    <!-- Interactive Grid Area -->
+    <section class="section-wrapper" style="padding-top: 1rem;">
+      <div class="tutoring-grid" id="main-tutoring-interface">
+        
+        <!-- Interactive Booking Form Left Column -->
+        <div style="display:flex; flex-direction:column; gap:2rem;">
+          
+          <!-- Step 1: Tutor Selection -->
+          <div class="glass-card">
+            <h3 style="margin-bottom: 1rem; color:var(--primary-color);">Step 1: Choose Your Expert Tutor</h3>
+            <div style="display:flex; flex-direction:column; gap:1.25rem;" id="tutor-cards-container">
+              <!-- Dynamically rendered via app.js dataset -->
+            </div>
+          </div>
+
+          <!-- Step 2: Date and Hour Selection -->
+          <div class="glass-card booking-calendar-card">
+            <h3 style="color:var(--primary-color);">Step 2: Choose Date & Time Slot</h3>
+            
+            <!-- Calendar Grid -->
+            <div>
+              <div class="calendar-header" style="margin-bottom:1rem;">
+                <h4 id="calendar-month-year" style="font-size: 1.1rem; color: var(--text-main);">June 2026</h4>
+                <div style="display:flex; gap:0.5rem;">
+                  <button class="btn btn-secondary btn-sm" onclick="alert('Viewing Previous Month (Simulation Only)')" style="padding:0.25rem 0.5rem;">◀</button>
+                  <button class="btn btn-secondary btn-sm" onclick="alert('Viewing Next Month (Simulation Only)')" style="padding:0.25rem 0.5rem;">▶</button>
+                </div>
+              </div>
+              
+              <div class="calendar-grid">
+                <!-- Day Names -->
+                <div class="calendar-day-label">Su</div>
+                <div class="calendar-day-label">Mo</div>
+                <div class="calendar-day-label">Tu</div>
+                <div class="calendar-day-label">We</div>
+                <div class="calendar-day-label">Th</div>
+                <div class="calendar-day-label">Fr</div>
+                <div class="calendar-day-label">Sa</div>
+                
+                <!-- Day Cells Injected -->
+                <!-- First week blanks -->
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day disabled">1</div>
+                <div class="calendar-day disabled">2</div>
+                <div class="calendar-day disabled">3</div>
+                <div class="calendar-day disabled">4</div>
+                <div class="calendar-day disabled">5</div>
+                <div class="calendar-day disabled">6</div>
+                
+                <!-- Week 2 -->
+                <div class="calendar-day disabled">7</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 8)">8</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 9)">9</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 10)">10</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 11)">11</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 12)">12</div>
+                <div class="calendar-day disabled">13</div>
+                
+                <!-- Week 3 -->
+                <div class="calendar-day disabled">14</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 15)">15</div>
+                <div class="calendar-day active" onclick="selectCalendarDate(this, 16)">16</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 17)">17</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 18)">18</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 19)">19</div>
+                <div class="calendar-day disabled">20</div>
+
+                <!-- Week 4 -->
+                <div class="calendar-day disabled">21</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 22)">22</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 23)">23</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 24)">24</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 25)">25</div>
+                <div class="calendar-day" onclick="selectCalendarDate(this, 26)">26</div>
+                <div class="calendar-day disabled">27</div>
+              </div>
+            </div>
+
+            <!-- Available Time Slots -->
+            <div style="border-top:1px solid var(--border-color); padding-top:1rem;">
+              <h4 style="margin-bottom:0.5rem;">Available Hourly Slots (June <span id="slot-day-display">16</span>)</h4>
+              <div class="slots-grid" id="slots-render-box">
+                <button class="slot-btn active" onclick="selectTimeSlot(this, '09:00 AM')">09:00 AM</button>
+                <button class="slot-btn" onclick="selectTimeSlot(this, '11:00 AM')">11:00 AM</button>
+                <button class="slot-btn disabled" disabled>01:00 PM</button>
+                <button class="slot-btn" onclick="selectTimeSlot(this, '03:00 PM')">03:00 PM</button>
+                <button class="slot-btn" onclick="selectTimeSlot(this, '05:00 PM')">05:00 PM</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Priority Details -->
+          <div class="glass-card">
+            <h3 style="margin-bottom: 1rem; color:var(--primary-color);">Step 3: Define Priority Focus Topic</h3>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                  <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Math Level / Exam</label>
+                  <select id="booking-level" style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface-hover); color:var(--text-main); border:1px solid var(--border-color); font-family:var(--font-body); font-size:0.95rem;">
+                    <option value="AP Calculus BC">AP Calculus BC</option>
+                    <option value="Linear Algebra">Undergrad Linear Algebra</option>
+                    <option value="IGCSE Math Extended">IGCSE Math Extended</option>
+                    <option value="GCSE Mathematics">GCSE Mathematics</option>
+                    <option value="Secondary School Trig">Secondary Trigonometry</option>
+                  </select>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                  <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Lesson Duration</label>
+                  <select id="booking-hours" onchange="recalculatePrice()" style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface-hover); color:var(--text-main); border:1px solid var(--border-color); font-family:var(--font-body); font-size:0.95rem;">
+                    <option value="1">1.0 Hour</option>
+                    <option value="1.5">1.5 Hours</option>
+                    <option value="2" selected>2.0 Hours</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">What specific concepts or questions do you want to cover?</label>
+                <textarea id="booking-notes" placeholder="Example: Reviewing eigenvalue eigenvectors proof formulas, or IGCSE vectors past paper questions..." style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface-hover); color:var(--text-main); border:1px solid var(--border-color); min-height:100px; resize:vertical; font-family:var(--font-body); outline:none; font-size:0.95rem;"></textarea>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Price Panel Right Column -->
+        <div style="position:sticky; top:100px; display:flex; flex-direction:column; gap:1.5rem;">
+          
+          <div class="glass-card card-header-accent" style="--primary-color: var(--accent-color);">
+            <h3 style="margin-bottom:1.25rem;">Appointment Receipt</h3>
+            
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+                <span style="color:var(--text-muted);">Tutor Selection:</span>
+                <strong id="receipt-tutor-name" style="color:var(--text-main);">Dr. Adrian Thorne</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+                <span style="color:var(--text-muted);">Hourly Rate:</span>
+                <span id="receipt-hourly-rate" style="color:var(--text-main); font-family:var(--font-mono); font-weight:600;">$65 / hr</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+                <span style="color:var(--text-muted);">Appointment Date:</span>
+                <span id="receipt-date" style="color:var(--text-main);">June 16, 2026</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+                <span style="color:var(--text-muted);">Time Slot Selected:</span>
+                <span id="receipt-slot" style="color:var(--text-main);">09:00 AM</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+                <span style="color:var(--text-muted);">Syllabus / Exam:</span>
+                <span id="receipt-exam-level" style="color:var(--text-main);">AP Calculus BC</span>
+              </div>
+              
+              <!-- Coupon Area -->
+              <div style="border-top:1px solid var(--border-color); border-bottom:1px solid var(--border-color); padding: 1rem 0; display:flex; gap:0.5rem;">
+                <input type="text" id="coupon-input" placeholder="Promo Code (MATH50)" style="flex:1; padding:0.5rem; background:rgba(0,0,0,0.15); border:1px solid var(--border-color); color:var(--text-main); font-family:var(--font-body); border-radius:var(--radius-sm); font-size:0.85rem; outline:none;">
+                <button class="btn btn-secondary btn-sm" onclick="applyPromoCode()">Apply</button>
+              </div>
+
+              <!-- Price Totals -->
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1.1rem; font-weight:700;">Grand Total:</span>
+                <div style="text-align:right;">
+                  <span id="receipt-slashed-total" style="color:#f87171; text-decoration:line-through; font-family:var(--font-mono); font-size:1rem; display:none; margin-right: 0.5rem;">$130.00</span>
+                  <span id="receipt-total" style="font-size:1.8rem; font-weight:800; color:var(--accent-color); font-family:var(--font-mono);">$130.00</span>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" onclick="confirmAppointment()" style="padding:1rem; width:100%; font-size:1.1rem; margin-top:0.5rem;">Confirm & Reserve Session</button>
+              <p style="font-size:0.75rem; text-align:center; color:var(--text-muted);">Free cancellations up to 24 hours prior to appointment.</p>
+            </div>
+          </div>
+
+          <!-- Existing Active Bookings Card -->
+          <div class="glass-card" style="max-height:250px; overflow-y:auto;">
+            <h4 style="margin-bottom:0.75rem;">Your Scheduled Sessions</h4>
+            <div id="active-bookings-list" style="display:flex; flex-direction:column; gap:0.75rem;">
+              <p style="font-size:0.85rem; color:var(--text-muted);">No current sessions booked. Reserve a slot above!</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      
+      <!-- Success Booking Confirmed Screen -->
+      <div id="booking-success-screen" class="glass-card card-header-accent" style="display:none; max-width:600px; margin: 4rem auto; text-align:center; padding:3rem; --primary-color: var(--accent-color); animation: slide-up 0.5s ease-out;">
+        <span style="font-size:4rem; display:block; margin-bottom:1rem; animation: pulse-slow 2s infinite alternate;">🎉</span>
+        <h2 style="color:var(--accent-color); margin-bottom:1rem;">Booking Confirmed!</h2>
+        <p style="margin-bottom:2rem;">
+          Your 1-on-1 interactive math whiteboard session has been secured in our scheduler system. Check your receipt parameters below:
+        </p>
+        
+        <div class="glass-card" style="text-align:left; background:rgba(0,0,0,0.15); margin-bottom:2rem; padding:1.5rem; display:flex; flex-direction:column; gap:0.75rem; font-size:0.95rem;">
+          <div><strong style="color:var(--text-muted);">Coach:</strong> <span id="succ-tutor" style="float:right; font-weight:600; color:var(--text-main);"></span></div>
+          <div><strong style="color:var(--text-muted);">Date & Time:</strong> <span id="succ-datetime" style="float:right; color:var(--text-main);"></span></div>
+          <div><strong style="color:var(--text-muted);">Math Priority:</strong> <span id="succ-subject" style="float:right; color:var(--text-main);"></span></div>
+          <div><strong style="color:var(--text-muted);">Receipt total:</strong> <span id="succ-total" style="float:right; font-weight:700; color:var(--accent-color); font-family:var(--font-mono);"></span></div>
+        </div>
+
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:2rem;">
+          A calendar invite with the whiteboard classroom link has been prepared and sent to your email address.
+        </p>
+
+        <div style="display:flex; gap:1rem; justify-content:center;">
+          <button class="btn btn-primary" onclick="resetBookingFlow()">Book Another Session</button>
+          <a href="index.html" class="btn btn-secondary">Return to Dashboard</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            A premier mathematics hub catering to international schools, college students, and self-taught professionals globally.
+          </p>
+          <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
+            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="LinkedIn Profile">🔗 LinkedIn</a>
+            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="GitHub Profile">💻 GitHub</a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4>Portal Hub</h4>
+          <ul>
+            <li><a href="index.html">Dashboard Home</a></li>
+            <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="tutoring.html">1-on-1 Coaching</a></li>
+            <li><a href="vault.html">Resource Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Spheres of Study</h4>
+          <ul>
+            <li><a href="courses.html?sphere=secondary">Secondary Algebra</a></li>
+            <li><a href="courses.html?sphere=exams">AP Calculus & Stats</a></li>
+            <li><a href="courses.html?sphere=exams">IGCSE/GCSE Mathematics</a></li>
+            <li><a href="courses.html?sphere=undergrad">Advanced Linear Algebra</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Organization</h4>
+          <ul>
+            <li><a href="people.html">Our People</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="tutoring.html">Book 1-on-1 Session</a></li>
+            <li><a href="courses.html">Browse Syllabus</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 Ziglag Institute. Engineered with passion for math educators and students.</p>
+        <p>Built as a Premium Web App & Google Sites Toolkit</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Tutoring Page Specific Controller
+    let selectedTutor = null;
+    let selectedDate = "June 16, 2026";
+    let selectedTime = "09:00 AM";
+    let appliedPromoDiscount = 0; // percentage, e.g. 0.5 for 50%
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Default select first tutor
+      selectedTutor = MATH_DATABASE.tutors[0];
+      
+      renderTutors();
+      recalculatePrice();
+      renderBookingsList();
+    });
+
+    function renderTutors() {
+      const container = document.getElementById("tutor-cards-container");
+      container.innerHTML = "";
+      
+      MATH_DATABASE.tutors.forEach(t => {
+        const isSelected = selectedTutor.id === t.id;
+        const card = document.createElement("div");
+        card.className = "glass-card";
+        card.style.cursor = "pointer";
+        card.style.display = "flex";
+        card.style.gap = "1.5rem";
+        card.style.alignItems = "center";
+        card.style.borderColor = isSelected ? "var(--primary-color)" : "var(--border-color)";
+        card.style.background = isSelected ? "rgba(99, 102, 241, 0.05)" : "var(--surface-color)";
+        card.onclick = () => selectTutor(t.id);
+        
+        card.innerHTML = `
+          <div style="font-size: 2.5rem; background: rgba(255,255,255,0.05); width:64px; height:64px; border-radius:50%; display:flex; justify-content:center; align-items:center; border:1px solid var(--border-color);">
+            ${t.avatar}
+          </div>
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h4 style="font-size: 1.15rem; color: ${isSelected ? 'var(--primary-color)' : 'var(--text-main)'};">${t.name}</h4>
+              <span style="font-weight: 700; color: var(--accent-color); font-family: var(--font-mono);">$${t.hourlyRate} / hr</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--accent-color); font-weight: 600; margin-bottom: 0.25rem;">${t.title}</p>
+            <p style="font-size: 0.85rem; line-height:1.4; margin-bottom: 0.5rem;">${t.bio}</p>
+            <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+              ${t.specialties.map(spec => `<span class="sphere-tag" style="font-size:0.7rem; padding: 0.15rem 0.5rem;">${spec}</span>`).join('')}
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(card);
+      });
+    }
+
+    function selectTutor(tutorId) {
+      selectedTutor = MATH_DATABASE.tutors.find(t => t.id === tutorId);
+      renderTutors();
+      recalculatePrice();
+    }
+
+    function selectCalendarDate(element, day) {
+      // Deactivate siblings
+      const days = document.querySelectorAll(".calendar-day");
+      days.forEach(d => d.classList.remove("active"));
+      
+      element.classList.add("active");
+      selectedDate = `June ${day}, 2026`;
+      document.getElementById("slot-day-display").innerText = day;
+      
+      // Update receipt
+      document.getElementById("receipt-date").innerText = selectedDate;
+    }
+
+    function selectTimeSlot(element, slot) {
+      const slots = document.querySelectorAll(".slot-btn");
+      slots.forEach(s => s.classList.remove("active"));
+      
+      element.classList.add("active");
+      selectedTime = slot;
+      
+      // Update receipt
+      document.getElementById("receipt-slot").innerText = selectedTime;
+    }
+
+    function recalculatePrice() {
+      if (!selectedTutor) return;
+      
+      const durationHours = parseFloat(document.getElementById("booking-hours").value);
+      const baseCost = selectedTutor.hourlyRate * durationHours;
+      
+      document.getElementById("receipt-tutor-name").innerText = selectedTutor.name;
+      document.getElementById("receipt-hourly-rate").innerText = `$${selectedTutor.hourlyRate} / hr`;
+      document.getElementById("receipt-exam-level").innerText = document.getElementById("booking-level").value;
+      
+      let grandTotal = baseCost;
+      if (appliedPromoDiscount > 0) {
+        grandTotal = baseCost * (1 - appliedPromoDiscount);
+        
+        document.getElementById("receipt-slashed-total").innerText = `$${baseCost.toFixed(2)}`;
+        document.getElementById("receipt-slashed-total").style.display = "inline";
+      } else {
+        document.getElementById("receipt-slashed-total").style.display = "none";
+      }
+      
+      document.getElementById("receipt-total").innerText = `$${grandTotal.toFixed(2)}`;
+    }
+
+    function applyPromoCode() {
+      const code = document.getElementById("coupon-input").value.trim().toUpperCase();
+      if (code === "MATH50") {
+        appliedPromoDiscount = 0.50; // 50% discount
+        alert("Coupon Applied successfully! 50% Discount has been deducted.");
+        recalculatePrice();
+      } else if (code !== "") {
+        alert("Invalid promo code. Enter 'MATH50' to get 50% off details!");
+      }
+    }
+
+    function confirmAppointment() {
+      if (!selectedTutor) return;
+      
+      const durationHours = parseFloat(document.getElementById("booking-hours").value);
+      const baseCost = selectedTutor.hourlyRate * durationHours;
+      const totalCost = appliedPromoDiscount > 0 ? baseCost * (1 - appliedPromoDiscount) : baseCost;
+      
+      const subjectSelected = document.getElementById("booking-level").value;
+      
+      const bookingRecord = {
+        tutorName: selectedTutor.name,
+        avatar: selectedTutor.avatar,
+        dateTime: `${selectedDate} at ${selectedTime}`,
+        subject: subjectSelected,
+        totalPaid: `$${totalCost.toFixed(2)}`
+      };
+      
+      // Save utilizing AppState helper
+      AppState.addBooking(bookingRecord);
+      
+      // Success screen injection
+      document.getElementById("succ-tutor").innerText = bookingRecord.tutorName;
+      document.getElementById("succ-datetime").innerText = bookingRecord.dateTime;
+      document.getElementById("succ-subject").innerText = bookingRecord.subject;
+      document.getElementById("succ-total").innerText = bookingRecord.totalPaid;
+      
+      document.getElementById("main-tutoring-interface").style.display = "none";
+      document.getElementById("booking-success-screen").style.display = "block";
+      
+      renderBookingsList();
+    }
+
+    function resetBookingFlow() {
+      document.getElementById("main-tutoring-interface").style.display = "grid";
+      document.getElementById("booking-success-screen").style.display = "none";
+      appliedPromoDiscount = 0;
+      document.getElementById("coupon-input").value = "";
+      recalculatePrice();
+    }
+
+    function renderBookingsList() {
+      const list = document.getElementById("active-bookings-list");
+      list.innerHTML = "";
+      
+      if (AppState.bookings.length === 0) {
+        list.innerHTML = `<p style="font-size:0.85rem; color:var(--text-muted);">No current sessions booked. Reserve a slot above!</p>`;
+        return;
+      }
+      
+      AppState.bookings.forEach(b => {
+        const item = document.createElement("div");
+        item.style.padding = "0.75rem";
+        item.style.background = "rgba(255,255,255,0.03)";
+        item.style.border = "1px solid var(--border-color)";
+        item.style.borderRadius = "var(--radius-sm)";
+        item.style.fontSize = "0.85rem";
+        item.style.display = "flex";
+        item.style.alignItems = "center";
+        item.style.gap = "0.75rem";
+        
+        item.innerHTML = `
+          <div style="font-size: 1.5rem; background:rgba(255,255,255,0.05); width:32px; height:32px; border-radius:50%; display:flex; justify-content:center; align-items:center;">
+            ${b.avatar}
+          </div>
+          <div style="flex:1;">
+            <p style="font-weight:600; margin:0; color:var(--text-main);">${b.tutorName}</p>
+            <span style="font-size:0.75rem; color:var(--accent-color);">${b.subject}</span>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">${b.dateTime}</p>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+  </script>
+</body>
+</html>

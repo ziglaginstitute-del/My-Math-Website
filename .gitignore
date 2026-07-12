@@ -1,0 +1,24 @@
+# Local Configuration & Secrets
+.env
+instance/
+math_portal.db
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# Python Cache & Compilation
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

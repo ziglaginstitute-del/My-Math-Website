@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ziglag Institute | Contact Us & Info Sessions</title>
+  <meta name="description" content="Reach out to Ziglag Institute. Schedule an information session, ask complex maths questions, or secure tutoring help.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="glow-orb glow-orb-primary" style="top: 10%; left: 5%;"></div>
+  <div class="glow-orb glow-orb-secondary" style="bottom: 10%; right: 5%;"></div>
+
+  <div class="app-container">
+    
+    <!-- Navbar -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="people.html">People</a></li>
+          <li><a href="contact.html" class="active">Contact Us</a></li>
+        </ul>
+      </nav>
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <a href="courses.html" class="btn btn-secondary btn-sm">Browse Syllabus</a>
+      </div>
+    </header>
+
+    <!-- Banner -->
+    <section class="section-wrapper" style="padding-bottom: 0.5rem; animation: fade-in 0.6s ease-out;">
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">Have Questions? We Have Answers.</span>
+      <h1 style="font-size: 3rem;">Information Session & Contact</h1>
+      <p style="margin-top: 0.5rem; max-width: 700px;">
+        Submit your inquiries, request custom tutoring details, or ask specific math questions. Our team will review your requests and reach out via email.
+      </p>
+    </section>
+
+    <!-- Layout Container -->
+    <section class="section-wrapper" style="padding-top: 1rem;">
+      <div class="contact-layout">
+        
+        <!-- Left Column: Info Panels -->
+        <div class="contact-info-panel">
+          
+          <div class="glass-card" style="padding: 2rem;">
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary-color);">Reach Out Directly</h3>
+            <p style="font-size: 0.95rem; margin-bottom: 2rem;">
+              Whether you are a secondary school student looking to boost confidence or an undergrad mastering multivariable calculus, we are here to support you.
+            </p>
+            
+            <div style="display:flex; flex-direction:column; gap:1.5rem;">
+              <!-- Email Card -->
+              <div class="contact-method-card glass-card" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.04);">
+                <div class="contact-method-icon">✉️</div>
+                <div class="contact-method-details">
+                  <h4>Email Support</h4>
+                  <a href="mailto:info@ziglaginstitute.com">info@ziglaginstitute.com</a>
+                  <p style="font-size: 0.75rem; margin-top: 0.25rem;">We reply within 12 hours.</p>
+                </div>
+              </div>
+              
+              <!-- Location Card -->
+              <div class="contact-method-card glass-card" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.04);">
+                <div class="contact-method-icon">📍</div>
+                <div class="contact-method-details">
+                  <h4>Office Location</h4>
+                  <p>9, Oriade Close, Lagos, Nigeria</p>
+                  <p style="font-size: 0.75rem; margin-top: 0.25rem;">Available for booked advisory meetups.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tip Card -->
+          <div class="glass-card" style="padding: 1.5rem; border-color: var(--border-highlight); background: rgba(99, 102, 241, 0.03);">
+            <h4 style="color: var(--accent-color); margin-bottom: 0.5rem; display:flex; align-items:center; gap:0.5rem;">
+              <span>💡</span> What happens next?
+            </h4>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: var(--text-muted);">
+              When you submit this wizard, your questions are automatically saved to our portal database and logged directly to our admin staff's inbox. An expert tutor matching your math sphere will contact you.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Interactive Form Card -->
+        <div class="glass-card wizard-form" id="contact-wizard-container">
+          
+          <!-- Progress Bar Indicators -->
+          <div class="wizard-progress-bar-container">
+            <div class="wizard-progress-line" id="wizard-progress-line"></div>
+            <div class="wizard-progress-step active" id="step-dot-1">1</div>
+            <div class="wizard-progress-step" id="step-dot-2">2</div>
+            <div class="wizard-progress-step" id="step-dot-3">3</div>
+          </div>
+
+          <!-- STEP 1 PANEL -->
+          <div class="wizard-step-panel active" id="step-panel-1">
+            <h3 class="wizard-step-title">Select Your Focus</h3>
+            <p class="wizard-step-desc">Help us match you with the right mathematics specialist.</p>
+            
+            <div class="form-group">
+              <label>What sphere of mathematics are you focused on?</label>
+              <div class="card-selectors-grid">
+                <div class="selector-card active" onclick="selectMathSphere(this, 'secondary')">
+                  <div class="selector-card-icon">📐</div>
+                  <div class="selector-card-title">Secondary Math</div>
+                </div>
+                <div class="selector-card" onclick="selectMathSphere(this, 'exams')">
+                  <div class="selector-card-icon">🎓</div>
+                  <div class="selector-card-title">Exam Prep</div>
+                </div>
+                <div class="selector-card" onclick="selectMathSphere(this, 'undergrad')">
+                  <div class="selector-card-icon">🌌</div>
+                  <div class="selector-card-title">Undergrad Univ</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 2rem;">
+              <label>Select inquiry type</label>
+              <div class="card-selectors-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+                <div class="selector-card active" onclick="selectInquiryType(this, 'tutoring')">
+                  <span style="font-size: 1.5rem;">👨‍🏫</span>
+                  <span style="font-size: 0.85rem; font-weight: 600;">Tutoring Session</span>
+                </div>
+                <div class="selector-card" onclick="selectInquiryType(this, 'question')">
+                  <span style="font-size: 1.5rem;">❓</span>
+                  <span style="font-size: 0.85rem; font-weight: 600;">Math Question</span>
+                </div>
+                <div class="selector-card" onclick="selectInquiryType(this, 'general')">
+                  <span style="font-size: 1.5rem;">💬</span>
+                  <span style="font-size: 0.85rem; font-weight: 600;">General Help</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2 PANEL -->
+          <div class="wizard-step-panel" id="step-panel-2">
+            <h3 class="wizard-step-title">Tell Us More</h3>
+            <p class="wizard-step-desc">Detail your mathematical queries, assignments, or study needs.</p>
+            
+            <div class="form-group">
+              <label for="form-message">Describe your questions or requirements (Required)</label>
+              <textarea class="contact-input" id="form-message" placeholder="Include as much detail as possible. E.g. I need help proving matrix eigenvalues or resolving AP Calculus homework limits..." oninput="validateStep2()"></textarea>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+              <label for="form-preferred-contact">Preferred method of follow-up contact</label>
+              <select class="contact-input" id="form-preferred-contact">
+                <option value="Email">Email Notification</option>
+                <option value="Phone">Phone / WhatsApp</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- STEP 3 PANEL -->
+          <div class="wizard-step-panel" id="step-panel-3">
+            <h3 class="wizard-step-title">Contact Information</h3>
+            <p class="wizard-step-desc">Almost there! Provide your name and email to receive responses.</p>
+            
+            <div class="form-group">
+              <label for="form-name">Your Full Name (Required)</label>
+              <input type="text" class="contact-input" id="form-name" placeholder="John Doe" oninput="validateStep3()">
+            </div>
+
+            <div class="form-group">
+              <label for="form-email">Email Address (Required)</label>
+              <input type="email" class="contact-input" id="form-email" placeholder="john.doe@example.com" oninput="validateStep3()">
+            </div>
+
+            <div class="form-group">
+              <label for="form-phone">Phone Number (Optional)</label>
+              <input type="tel" class="contact-input" id="form-phone" placeholder="+234 80 1234 5678">
+            </div>
+          </div>
+
+          <!-- Actions Footer Row -->
+          <div class="wizard-actions">
+            <button class="btn btn-secondary" id="btn-back" onclick="navigateStep(-1)" style="display: none;">◀ Previous</button>
+            <span style="font-size: 0.85rem; color: var(--text-muted);" id="step-indicator-text">Step 1 of 3</span>
+            <button class="btn btn-primary" id="btn-next" onclick="navigateStep(1)">Next Step ▶</button>
+          </div>
+
+        </div>
+
+        <!-- Submission Success Container (Hidden initially) -->
+        <div class="glass-card contact-success-card" id="contact-success-screen" style="display: none;">
+          <span class="contact-success-icon">✨</span>
+          <h2 style="font-family: var(--font-display); margin-bottom: 1rem;">Submission Successful!</h2>
+          <p style="max-width: 450px; margin: 0 auto 2rem auto; line-height: 1.6;" id="success-desc-text">
+            Your inquiry has been successfully received and saved to our PostgreSQL database. We will reply to your registered email address shortly.
+          </p>
+          <button class="btn btn-primary" onclick="resetWizard()">Submit Another Inquiry</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            A premier mathematics hub catering to international schools, college students, and self-taught professionals globally.
+          </p>
+          <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
+            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="LinkedIn Profile">🔗 LinkedIn</a>
+            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="GitHub Profile">💻 GitHub</a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4>Portal Hub</h4>
+          <ul>
+            <li><a href="index.html">Dashboard Home</a></li>
+            <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="tutoring.html">1-on-1 Coaching</a></li>
+            <li><a href="vault.html">Resource Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Spheres of Study</h4>
+          <ul>
+            <li><a href="courses.html?sphere=secondary">Secondary Algebra</a></li>
+            <li><a href="courses.html?sphere=exams">AP Calculus & Stats</a></li>
+            <li><a href="courses.html?sphere=exams">IGCSE/GCSE Mathematics</a></li>
+            <li><a href="courses.html?sphere=undergrad">Advanced Linear Algebra</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Organization</h4>
+          <ul>
+            <li><a href="people.html">Our People</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="tutoring.html">Book 1-on-1 Session</a></li>
+            <li><a href="courses.html">Browse Syllabus</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 Ziglag Institute. Engineered with passion for math educators and students.</p>
+        <p>Built as a Premium Web App & Google Sites Toolkit</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Wizard Data State
+    let currentStep = 1;
+    let selectedSphere = "secondary";
+    let selectedType = "tutoring";
+
+    function selectMathSphere(element, sphere) {
+      // Remove active class from sibling cards in sphere grid
+      const parent = element.parentElement;
+      parent.querySelectorAll(".selector-card").forEach(c => c.classList.remove("active"));
+      element.classList.add("active");
+      selectedSphere = sphere;
+    }
+
+    function selectInquiryType(element, type) {
+      const parent = element.parentElement;
+      parent.querySelectorAll(".selector-card").forEach(c => c.classList.remove("active"));
+      element.classList.add("active");
+      selectedType = type;
+    }
+
+    function navigateStep(direction) {
+      if (direction === 1) {
+        // Validate before moving forward
+        if (currentStep === 2 && !validateStep2()) return;
+        if (currentStep === 3) {
+          if (!validateStep3()) return;
+          submitContactForm();
+          return;
+        }
+      }
+
+      currentStep += direction;
+      updateWizardUI();
+    }
+
+    function updateWizardUI() {
+      // Hide all panels
+      document.querySelectorAll(".wizard-step-panel").forEach(p => p.classList.remove("active"));
+      // Show active panel
+      document.getElementById(`step-panel-${currentStep}`).classList.add("active");
+
+      // Update dots
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById(`step-dot-${i}`);
+        if (i < currentStep) {
+          dot.className = "wizard-progress-step completed";
+          dot.innerHTML = "✓";
+        } else if (i === currentStep) {
+          dot.className = "wizard-progress-step active";
+          dot.innerHTML = i;
+        } else {
+          dot.className = "wizard-progress-step";
+          dot.innerHTML = i;
+        }
+      }
+
+      // Update progress line
+      const linePercent = ((currentStep - 1) / 2) * 100;
+      document.getElementById("wizard-progress-line").style.width = `${linePercent}%`;
+
+      // Update buttons visibility and text
+      document.getElementById("btn-back").style.display = currentStep > 1 ? "block" : "none";
+      document.getElementById("step-indicator-text").innerText = `Step ${currentStep} of 3`;
+      
+      const nextBtn = document.getElementById("btn-next");
+      if (currentStep === 3) {
+        nextBtn.innerText = "Submit Request ✓";
+        nextBtn.disabled = !validateStep3();
+      } else {
+        nextBtn.innerText = "Next Step ▶";
+        nextBtn.disabled = currentStep === 2 ? !validateStep2() : false;
+      }
+    }
+
+    function validateStep2() {
+      const msg = document.getElementById("form-message").value.trim();
+      const isValid = msg.length >= 10;
+      const nextBtn = document.getElementById("btn-next");
+      if (currentStep === 2) {
+        nextBtn.disabled = !isValid;
+      }
+      return isValid;
+    }
+
+    function validateStep3() {
+      const name = document.getElementById("form-name").value.trim();
+      const email = document.getElementById("form-email").value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      
+      const isValid = name.length >= 2 && emailRegex.test(email);
+      const nextBtn = document.getElementById("btn-next");
+      if (currentStep === 3) {
+        nextBtn.disabled = !isValid;
+      }
+      return isValid;
+    }
+
+    async function submitContactForm() {
+      const submitBtn = document.getElementById("btn-next");
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Submitting...";
+
+      const payload = {
+        name: document.getElementById("form-name").value.trim(),
+        email: document.getElementById("form-email").value.trim(),
+        phone: document.getElementById("form-phone").value.trim(),
+        sphere: selectedSphere,
+        question_type: selectedType,
+        message: document.getElementById("form-message").value.trim(),
+        preferred_contact: document.getElementById("form-preferred-contact").value
+      };
+
+      try {
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          showSuccess(data.message);
+        } else {
+          throw new Error(data.message || "Failed to submit request.");
+        }
+      } catch (err) {
+        console.warn("Contact API submission failed:", err.message);
+        // Offline / static file mock success fallback
+        showSuccess(`Offline simulation: Submission succeeded for ${payload.name}! Logged questions: "${payload.message.substring(0, 40)}..."`);
+      }
+    }
+
+    function showSuccess(msg) {
+      document.getElementById("success-desc-text").innerText = msg;
+      document.getElementById("contact-wizard-container").style.display = "none";
+      document.getElementById("contact-success-screen").style.display = "block";
+    }
+
+    function resetWizard() {
+      currentStep = 1;
+      document.getElementById("form-message").value = "";
+      document.getElementById("form-name").value = "";
+      document.getElementById("form-email").value = "";
+      document.getElementById("form-phone").value = "";
+      document.getElementById("form-preferred-contact").value = "Email";
+      
+      selectedSphere = "secondary";
+      selectedType = "tutoring";
+      
+      document.querySelectorAll(".card-selectors-grid").forEach(parent => {
+        parent.querySelectorAll(".selector-card").forEach((c, idx) => {
+          if (idx === 0) c.classList.add("active");
+          else c.classList.remove("active");
+        });
+      });
+
+      document.getElementById("contact-wizard-container").style.display = "block";
+      document.getElementById("contact-success-screen").style.display = "none";
+      updateWizardUI();
+    }
+  </script>
+</body>
+</html>

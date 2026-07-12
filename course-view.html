@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ziglag Institute | Study Room Player</title>
+  <meta name="description" content="Access course materials, watch lectures, write custom mathematical equations, and check knowledge in practice quizes.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Navbar -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="people.html">People</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </nav>
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <a href="courses.html" class="btn btn-secondary btn-sm">Catalog Hub</a>
+      </div>
+    </header>
+
+    <!-- Study Layout -->
+    <main class="study-layout">
+      
+      <!-- Primary Learning Columns -->
+      <section class="study-primary">
+        
+        <!-- Video Player Frame -->
+        <div class="video-container">
+          <div class="mock-video-player" id="video-player">
+            <!-- Native HTML5 Video Player for local/direct video paths -->
+            <video id="actual-video-player" style="position:absolute; top:0; left:0; width:100%; height:100%; display:none; background:#000; border-radius:var(--radius-md); object-fit:contain; z-index:15;" controls>
+              <source id="actual-video-source" src="" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            
+            <!-- Iframe embed container for YouTube videos -->
+            <iframe id="iframe-video-player" style="position:absolute; top:0; left:0; width:100%; height:100%; display:none; background:#000; border:none; border-radius:var(--radius-md); z-index:15;" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+            <!-- Icon Play Overlay -->
+            <div id="video-overlay" style="display:flex; flex-direction:column; align-items:center; gap:1rem; z-index:10;">
+              <div class="play-center-btn" onclick="startMockPlayback()">▶</div>
+              <span id="video-status" style="font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Start Lecture Video</span>
+            </div>
+            
+            <!-- Graphic dynamic blackboard container -->
+            <div id="video-blackboard" style="position:absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; padding: 2rem; background: radial-gradient(circle, #0D1B2A 0%, #010811 100%);">
+              <span style="position:absolute; top:1rem; left:1.5rem; color:var(--accent-color); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em;">Lecture Session Active</span>
+              <div style="font-size: 5rem; animation: pulse-slow 2s infinite alternate;">📝</div>
+              <h2 id="video-blackboard-title" style="margin-top:1rem; margin-bottom: 0.5rem; font-size:1.8rem; color: var(--text-main); text-align: center;">Vector Spaces Overview</h2>
+              <p style="color:var(--text-muted); font-size:0.95rem;" id="video-timer">Progress: 00:00 / 12:45</p>
+            </div>
+            
+            <!-- Controls bar -->
+            <div id="mock-controls-bar" style="position:absolute; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.7); display:flex; justify-content:space-between; align-items:center; padding:0.5rem 1rem; z-index:20; border-top:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex; gap:1rem; align-items:center;">
+                <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.5rem; border:none; background:transparent;" onclick="togglePlayPause()">⏸</button>
+                <span id="mini-time-display" style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-mono);">00:00 / 12:45</span>
+              </div>
+              <div style="flex:1; margin:0 1rem; height:4px; background:rgba(255,255,255,0.2); border-radius:2px; position:relative; cursor:pointer;" onclick="seekVideo(event)">
+                <div id="video-progress-bar" style="background:var(--primary-color); width:0%; height:100%; border-radius:2px; transition: width 0.1s linear;"></div>
+              </div>
+              <span style="font-size:0.9rem; cursor:pointer; color:var(--text-muted);" onclick="alert('Entering Fullscreen (Simulated)')">📺</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Details Area -->
+        <div class="study-details">
+          <div class="tabs-header">
+            <button class="tab-btn active" id="tab-overview" onclick="switchStudyTab('overview')">Modules Overview</button>
+            <button class="tab-btn" id="tab-scratchpad" onclick="switchStudyTab('scratchpad')">Math Scratchpad</button>
+            <button class="tab-btn" id="tab-quiz" onclick="switchStudyTab('quiz')">Practice Quiz</button>
+          </div>
+
+          <!-- Overview Container -->
+          <div class="tab-content" id="content-overview">
+            <h3 style="margin-bottom: 0.75rem;" id="overview-course-title">Linear Algebra & Matrix Theory</h3>
+            <p style="margin-bottom: 1.5rem;" id="overview-course-desc">Dive into vector coordinates, spaces and matrices.</p>
+            
+            <h4 style="margin-bottom: 0.5rem; color:var(--accent-color);">What You Will Learn</h4>
+            <div class="glass-card" style="padding: 1.5rem;">
+              <ul id="overview-modules-list" style="list-style: none; display:flex; flex-direction:column; gap:0.75rem;">
+                <!-- Dynamically populated -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- Scratchpad Container -->
+          <div class="tab-content" id="content-scratchpad" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+              <div>
+                <h3>Math scratchpad</h3>
+                <p>Take notes and write formulas. Use shortcuts below to insert operators.</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="clearScratchpad()">Clear Notes</button>
+            </div>
+            
+            <!-- Shortcuts toolbar -->
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.75rem; background:rgba(0,0,0,0.15); padding:0.5rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+              <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.55rem; font-size:0.8rem;" onclick="insertMathSymbol('∫')">∫ Integral</button>
+              <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.55rem; font-size:0.8rem;" onclick="insertMathSymbol('√')">√ Sqrt</button>
+              <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.55rem; font-size:0.8rem;" onclick="insertMathSymbol('π')">π Pi</button>
+              <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.55rem; font-size:0.8rem;" onclick="insertMathSymbol('Σ')">Σ Sigma</button>
+              <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.55rem; font-size:0.8rem;" onclick="insertMathSymbol('λ')">λ Lambda</button>
+              <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.55rem; font-size:0.8rem;" onclick="insertMathSymbol('θ')">θ Theta</button>
+              <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.55rem; font-size:0.8rem;" onclick="insertMathSymbol('²')">x² Power</button>
+              <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.55rem; font-size:0.8rem;" onclick="insertMathSymbol('±')">± PlusMinus</button>
+              <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.55rem; font-size:0.8rem;" onclick="insertMathSymbol('≠')">≠ Not Equal</button>
+            </div>
+            
+            <textarea class="scratchpad" id="math-notes" placeholder="Start taking mathematical notes here... Linear transformation maps V -> W. e^iπ + 1 = 0..."></textarea>
+          </div>
+
+          <!-- Quiz Container -->
+          <div class="tab-content" id="content-quiz" style="display:none;">
+            <h3>Practice Checkpoint</h3>
+            <p style="margin-bottom: 1.5rem;">Solve this target problem to solidify your understanding of this lecture.</p>
+            
+            <div class="glass-card" style="padding: 1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
+              <h4 id="quiz-question-title" style="color:var(--text-main);">Practice Question</h4>
+              
+              <!-- Math card container -->
+              <div class="math-block" id="quiz-math-container">
+                <!-- Injected formula equations -->
+              </div>
+              
+              <div style="display:flex; flex-direction:column; gap:0.75rem;" id="quiz-answers-container">
+                <!-- Answer options -->
+              </div>
+              
+              <div id="quiz-feedback-box" class="glass-card" style="padding: 1rem; border-color:var(--border-color); display:none;">
+                <p id="quiz-feedback-text" style="font-size:0.9rem; font-weight:500;"></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Sidebar Lectures Playlist -->
+      <aside class="study-sidebar">
+        
+        <!-- Progress Counter -->
+        <div class="glass-card" style="padding:1.25rem;">
+          <h4 style="margin-bottom:0.5rem;">Study Room Progress</h4>
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">
+            <span>Completed</span>
+            <span id="study-progress-text">0 / 5 Lectures (0%)</span>
+          </div>
+          <div style="background:rgba(255,255,255,0.06); height:6px; border-radius:3px; overflow:hidden;">
+            <div id="study-progress-bar" style="background:linear-gradient(90deg, var(--primary-color), var(--accent-color)); width:0%; height:100%; border-radius:3px; transition: width var(--transition-normal);"></div>
+          </div>
+        </div>
+
+        <!-- Playlist Card -->
+        <div class="glass-card playlist-card">
+          <h3 class="playlist-header">Course Lectures</h3>
+          <ul class="playlist-items" id="lecture-playlist-items">
+            <!-- Populated via script -->
+          </ul>
+        </div>
+
+        <!-- Materials Vault Card -->
+        <div class="glass-card" style="display:flex; flex-direction:column; gap:1rem;">
+          <h3>Study Notes Bundle</h3>
+          <p style="font-size:0.85rem;">Includes printable lecture outlines, solved exam solutions, and reference cheat sheets.</p>
+          <a href="vault.html" class="btn btn-secondary btn-sm" style="justify-content:center;">📥 Download Notes Vault</a>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            A premier mathematics hub catering to international schools, college students, and self-taught professionals globally.
+          </p>
+          <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
+            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="LinkedIn Profile">🔗 LinkedIn</a>
+            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="GitHub Profile">💻 GitHub</a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4>Portal Hub</h4>
+          <ul>
+            <li><a href="index.html">Dashboard Home</a></li>
+            <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="tutoring.html">1-on-1 Coaching</a></li>
+            <li><a href="vault.html">Resource Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Spheres of Study</h4>
+          <ul>
+            <li><a href="courses.html?sphere=secondary">Secondary Algebra</a></li>
+            <li><a href="courses.html?sphere=exams">AP Calculus & Stats</a></li>
+            <li><a href="courses.html?sphere=exams">IGCSE/GCSE Mathematics</a></li>
+            <li><a href="courses.html?sphere=undergrad">Advanced Linear Algebra</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Organization</h4>
+          <ul>
+            <li><a href="people.html">Our People</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="tutoring.html">Book 1-on-1 Session</a></li>
+            <li><a href="courses.html">Browse Syllabus</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 Ziglag Institute. Engineered with passion for math educators and students.</p>
+        <p>Built as a Premium Web App & Google Sites Toolkit</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Study Room logic
+    let activeCourse = null;
+    let activeLectureIndex = 0;
+    
+    // Playback state variables
+    let playbackInterval = null;
+    let playbackCurrent = 0;
+    let playbackLength = 765; // 12:45 in seconds
+    let isPlaying = false;
+
+    // Rich Lectures Data for playlist mapping
+    const COURSE_LECTURES = {
+      'linear-algebra': [
+        // Developer Tip: To play local MP4 or YouTube files, match the paths under 'videoUrl'.
+        { title: "L1: Introduction to Vector Spaces", length: "12:45", seconds: 765, videoUrl: "render 4k.mp4" },
+        { title: "L2: Subspaces & Vector Spans", length: "15:20", seconds: 920, videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" }, // Rickroll template YouTube example
+        { title: "L3: Linear Transformations & Kernel", length: "18:10", seconds: 1090 },
+        { title: "L4: Bases & Coordinate Systems", length: "14:40", seconds: 880 },
+        { title: "L5: Eigenvalues & Vectors Proofs", length: "21:05", seconds: 1265 }
+      ],
+      'ap-calculus-bc': [
+        { title: "L1: Complex Limits and L'Hôpital", length: "14:30", seconds: 870 },
+        { title: "L2: Integration by Parts Technique", length: "18:15", seconds: 1095 },
+        { title: "L3: Arc Lengths & Polar Geometry", length: "16:40", seconds: 1000 },
+        { title: "L4: Taylor & Maclaurin Series Intro", length: "22:10", seconds: 1330 },
+        { title: "L5: Infinite Series Convergence Tests", length: "24:50", seconds: 1490 }
+      ],
+      'igcse-extended': [
+        { title: "L1: Number Sequences & Indices", length: "10:15", seconds: 615 },
+        { title: "L2: Solving Complex Quadratics", length: "13:40", seconds: 820 },
+        { title: "L3: Coordinate Geometry Rules", length: "11:50", seconds: 710 },
+        { title: "L4: Circular Arc Sectors & Radians", length: "15:05", seconds: 905 },
+        { title: "L5: Stats & Cumulative Frequency", length: "12:30", seconds: 750 }
+      ],
+      'calculus-three': [
+        { title: "L1: Vector Space Operations in 3D", length: "14:50", seconds: 890 },
+        { title: "L2: Partial Derivatives & Gradient", length: "18:30", seconds: 1110 },
+        { title: "L3: Iterated Double Integrals", length: "20:15", seconds: 1215 },
+        { title: "L4: Line Integrals & Vector Fields", length: "17:40", seconds: 1060 },
+        { title: "L5: Green's Theorem Formulation", length: "22:15", seconds: 1335 }
+      ],
+      'secondary-trig': [
+        { title: "L1: Unit Circle & Angles Definition", length: "09:40", seconds: 580 },
+        { title: "L2: Graphing Trigonometric Waves", length: "12:20", seconds: 740 },
+        { title: "L3: Core Trigonometric Identities", length: "14:15", seconds: 855 },
+        { title: "L4: Law of Sines & Cosines Proofs", length: "11:55", seconds: 715 },
+        { title: "L5: 3D Trigonometry Word Questions", length: "13:30", seconds: 810 }
+      ],
+      'ap-statistics': [
+        { title: "L1: Describing One-Variable Datasets", length: "11:45", seconds: 705 },
+        { title: "L2: Correlation and Linear Regression", length: "14:10", seconds: 850 },
+        { title: "L3: Sampling & Experimental Designs", length: "13:50", seconds: 830 },
+        { title: "L4: Probability Rules & Independence", length: "17:25", seconds: 1045 },
+        { title: "L5: Binomial and Geometric Variables", length: "15:10", seconds: 910 }
+      ],
+      'wassce-math': [
+        { title: "L1: Number Bases & Operations", length: "12:15", seconds: 735 },
+        { title: "L2: Modular Arithmetic Mastery", length: "14:40", seconds: 880 },
+        { title: "L3: Graphing Simultaneous Systems", length: "16:05", seconds: 965 },
+        { title: "L4: Circle Geometry Rules & Proofs", length: "19:50", seconds: 1190 },
+        { title: "L5: Bearings & Trigonometric Heights", length: "21:30", seconds: 1290 }
+      ],
+      'jamb-math': [
+        { title: "L1: Indices, Surds & Logarithms", length: "11:50", seconds: 710 },
+        { title: "L2: Sets, Maps and Venn Diagrams", length: "13:10", seconds: 790 },
+        { title: "L3: Limits & Derivatives Speedruns", length: "15:40", seconds: 940 },
+        { title: "L4: Definite Integrals Shortcuts", length: "16:15", seconds: 975 },
+        { title: "L5: Coordinate Lines & Conic Sections", length: "18:05", seconds: 1085 }
+      ],
+      'gce-math': [
+        { title: "L1: Proof by Induction Principles", length: "15:30", seconds: 930 },
+        { title: "L2: Partial Fractions Expansion", length: "17:45", seconds: 1065 },
+        { title: "L3: Vector Dot & Cross Products", length: "19:10", seconds: 1150 },
+        { title: "L4: Advanced Integration by Parts", length: "22:40", seconds: 1360 },
+        { title: "L5: Advanced Differential Equations", length: "24:15", seconds: 1455 }
+      ]
+    };
+
+    // Course interactive Practice Quizzes
+    const COURSE_QUIZZES = {
+      'linear-algebra': {
+        q: "Let V be a vector space, and S = {v₁, v₂} be linear independent. Which of the following defines a spanning set of a subspace?",
+        formula: `<span class="math-symbol">U</span> <span class="math-op">=</span> <span class="math-symbol">span</span>({<span class="math-symbol">v₁</span> <span class="math-op">+</span> <span class="math-symbol">v₂</span>, <span class="math-symbol">v₁</span> <span class="math-op">-</span> <span class="math-symbol">v₂</span>})`,
+        options: [
+          "U has a dimension of 1 because adding elements reduces independent rank.",
+          "U has a dimension of 2 because vector sum/difference are linearly independent.",
+          "U is not a subspace because span boundaries are open.",
+          "U spans the zero vector only."
+        ],
+        answer: 1,
+        explain: "Adding and subtracting two independent vectors v₁ and v₂ produces a linear system whose rank remains exactly 2. Thus, the span retains dimension = 2."
+      },
+      'ap-calculus-bc': {
+        q: "Evaluate the Taylor Series convergence limit of the given expansion:",
+        formula: `<span class="math-symbol">∑</span><sub style="margin-left:-18px; font-size:0.6rem; vertical-align:sub;">n=1</sub><sup style="margin-left:-15px; font-size:0.6rem; vertical-align:super;">∞</sup> <div class="math-frac" style="font-size:0.8rem;"><span class="math-num">(<span class="math-op">-</span>1)ⁿ <span class="math-symbol">x</span>²ⁿ⁺¹</span><span class="math-den">(2<span class="math-symbol">n</span> + 1)!</span></div>`,
+        options: [
+          "It converges absolutely for all real values of x to sin(x).",
+          "It converges only in the interval (-1, 1).",
+          "It defines the standard expansion for cos(x).",
+          "It diverges due to factorial growth."
+        ],
+        answer: 0,
+        explain: "The given formula represents the standard infinite Maclaurin expansion of the sine function sin(x). According to the ratio test, factorials grow infinitely faster than exponents, yielding an infinite radius of convergence."
+      },
+      'igcse-extended': {
+        q: "Find the algebraic solutions for the quadratic polynomial roots:",
+        formula: `<span class="math-symbol">x</span>² <span class="math-op">-</span> <span style="font-size:1.1rem;">5</span><span class="math-symbol">x</span> <span class="math-op">+</span> <span style="font-size:1.1rem;">6</span> <span class="math-op">=</span> <span style="font-size:1.1rem;">0</span>`,
+        options: [
+          "x = -2 and x = -3",
+          "x = 5 and x = 6",
+          "x = 2 and x = 3",
+          "x = 1 and x = 5"
+        ],
+        answer: 2,
+        explain: "Factoring the equation gives (x - 2)(x - 3) = 0. Solving for x yields roots at x = 2 and x = 3."
+      },
+      'wassce-math': {
+        q: "If x is a base-10 integer, solve for x in the modular congruence equation:",
+        formula: `<span class="math-symbol">3x</span> <span class="math-op">≡</span> <span style="font-size:1.1rem;">4</span> <span class="math-symbol">(mod 5)</span>`,
+        options: [
+          "x = 1",
+          "x = 3",
+          "x = 2",
+          "x = 4"
+        ],
+        answer: 1,
+        explain: "We check the options: 3(3) = 9 ≡ 4 (mod 5). Thus, x = 3 is the correct congruence solution."
+      },
+      'jamb-math': {
+        q: "Evaluate the logarithmic equation for the real variable y:",
+        formula: `<span class="math-symbol">log</span><sub style="margin-left:-28px; font-size:0.75rem; vertical-align:sub; position:relative; top:8px;">2</sub>(<span class="math-symbol">y</span>² <span class="math-op">-</span> <span style="font-size:1.1rem;">1</span>) <span class="math-op">=</span> <span style="font-size:1.1rem;">3</span>`,
+        options: [
+          "y = ±3",
+          "y = ±2",
+          "y = ±4",
+          "y = ±9"
+        ],
+        answer: 0,
+        explain: "Converting the logarithm to exponential form yields: y² - 1 = 2³ = 8. So, y² = 9, which means y = ±3."
+      },
+      'gce-math': {
+        q: "Find the integral of the given algebraic fractional expansion:",
+        formula: `<span class="math-integral">∫</span> <div class="math-frac" style="font-size:0.8rem;"><span class="math-num">1</span><span class="math-den"><span class="math-symbol">x</span>² <span class="math-op">-</span> <span style="font-size:0.85rem;">1</span></span></div> <span class="math-symbol">dx</span>`,
+        options: [
+          "0.5 ln |(x-1)/(x+1)| + C",
+          "ln |x² - 1| + C",
+          "arctan(x) + C",
+          "0.5 ln |(x+1)/(x-1)| + C"
+        ],
+        answer: 0,
+        explain: "Applying partial fraction decomposition yields 1/(x²-1) = 0.5[1/(x-1) - 1/(x+1)]. Integrating both terms gives 0.5 [ln|x-1| - ln|x+1|] + C = 0.5 ln|(x-1)/(x+1)| + C."
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Find course parameters
+      const params = new URLSearchParams(window.location.search);
+      const cid = params.get("id") || "linear-algebra";
+      
+      activeCourse = MATH_DATABASE.courses.find(c => c.id === cid) || MATH_DATABASE.courses[0];
+      
+      // Inject course content details
+      document.getElementById("overview-course-title").innerText = activeCourse.title;
+      document.getElementById("overview-course-desc").innerText = activeCourse.shortDesc;
+      
+      const modulesList = document.getElementById("overview-modules-list");
+      modulesList.innerHTML = activeCourse.syllabus.map(m => `
+        <li style="display:flex; align-items:center; gap:0.75rem;">
+          <span style="background:rgba(99,102,241,0.1); width:28px; height:28px; border-radius:50%; display:flex; justify-content:center; align-items:center; color:var(--primary-color); font-weight:bold; font-size:0.85rem;">✓</span>
+          <span style="color:var(--text-main); font-weight:500;">${m}</span>
+        </li>
+      `).join('');
+
+      // Listen to real video ended events to auto-complete the lesson
+      const videoPlayer = document.getElementById("actual-video-player");
+      videoPlayer.addEventListener("ended", () => {
+        const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['linear-algebra'];
+        if (lectures[activeLectureIndex]) {
+          AppState.toggleLessonComplete(activeCourse.id, `lec-${activeLectureIndex}`);
+          renderPlaylist();
+          updateProgressUI();
+          alert("Lecture completed! Progress saved.");
+        }
+      });
+
+      renderPlaylist();
+      renderQuiz();
+      updateProgressUI();
+    });
+
+    function renderPlaylist() {
+      const list = document.getElementById("lecture-playlist-items");
+      list.innerHTML = "";
+      
+      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['linear-algebra'];
+      
+      // Sync playlist progress state with local storage
+      const completedList = AppState.completedLessons[activeCourse.id] || [];
+
+      lectures.forEach((l, index) => {
+        const item = document.createElement("li");
+        const isCompleted = completedList.includes(`lec-${index}`);
+        const isActive = activeLectureIndex === index;
+        
+        item.className = `playlist-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`;
+        item.onclick = () => selectLecture(index);
+        
+        item.innerHTML = `
+          <div class="playlist-status"></div>
+          <div style="flex:1;">
+            <p style="font-weight: 500; font-size: 0.9rem; color: var(--text-main); margin:0;">${l.title}</p>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Duration: ${l.length} mins</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" style="padding:0.2rem 0.4rem; border:none; background:transparent; font-size: 0.8rem;" onclick="toggleComplete(event, ${index})">
+            ${isCompleted ? '↩ Reset' : '✓ Done'}
+          </button>
+        `;
+        
+        list.appendChild(item);
+      });
+    }
+
+    function selectLecture(index) {
+      activeLectureIndex = index;
+      
+      // Stop ongoing mock video playback
+      stopMockPlayback();
+      
+      // Pause and hide actual HTML5 video and YouTube iframe players
+      const videoPlayer = document.getElementById("actual-video-player");
+      videoPlayer.pause();
+      videoPlayer.style.display = "none";
+      
+      const iframePlayer = document.getElementById("iframe-video-player");
+      iframePlayer.src = "";
+      iframePlayer.style.display = "none";
+      
+      // Show controls bar by default
+      document.getElementById("mock-controls-bar").style.display = "flex";
+      
+      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['linear-algebra'];
+      const lecture = lectures[index];
+      
+      playbackLength = lecture.seconds;
+      playbackCurrent = 0;
+      
+      document.getElementById("video-status").innerText = "Start: " + lecture.title;
+      document.getElementById("video-blackboard-title").innerText = lecture.title;
+      document.getElementById("mini-time-display").innerText = "00:00 / " + lecture.length;
+      document.getElementById("video-timer").innerText = "Progress: 00:00 / " + lecture.length;
+      document.getElementById("video-progress-bar").style.width = "0%";
+
+      // Reset Active Class
+      const items = document.querySelectorAll(".playlist-item");
+      items.forEach((item, idx) => {
+        if (idx === index) {
+          item.classList.add("active");
+        } else {
+          item.classList.remove("active");
+        }
+      });
+
+      // Handle real video or YouTube embed playback if videoUrl is supplied
+      if (lecture.videoUrl) {
+        document.getElementById("video-overlay").style.display = "none";
+        document.getElementById("video-blackboard").style.display = "none";
+        document.getElementById("mock-controls-bar").style.display = "none";
+        
+        if (lecture.videoUrl.includes("youtube.com") || lecture.videoUrl.includes("youtu.be") || lecture.videoUrl.includes("embed")) {
+          iframePlayer.style.display = "block";
+          iframePlayer.src = lecture.videoUrl;
+        } else {
+          videoPlayer.style.display = "block";
+          videoPlayer.src = lecture.videoUrl;
+          videoPlayer.load();
+          videoPlayer.play().catch(e => console.log("Playback failed or was blocked by browser autoplay rules: ", e));
+        }
+      } else {
+        // Restore standard mock overlay view
+        document.getElementById("video-overlay").style.display = "flex";
+      }
+    }
+
+    function toggleComplete(event, index) {
+      event.stopPropagation();
+      const didComplete = AppState.toggleLessonComplete(activeCourse.id, `lec-${index}`);
+      
+      renderPlaylist();
+      updateProgressUI();
+    }
+
+    function updateProgressUI() {
+      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['linear-algebra'];
+      const total = lectures.length;
+      const done = AppState.getCompletedCount(activeCourse.id);
+      const percent = Math.round((done / total) * 100);
+
+      document.getElementById("study-progress-text").innerText = `${done} / ${total} Lectures (${percent}%)`;
+      document.getElementById("study-progress-bar").style.width = `${percent}%`;
+    }
+
+    // Video playback mocks
+    function startMockPlayback() {
+      document.getElementById("video-overlay").style.display = "none";
+      document.getElementById("video-blackboard").style.display = "flex";
+      
+      isPlaying = true;
+      playbackInterval = setInterval(() => {
+        if (playbackCurrent < playbackLength) {
+          playbackCurrent++;
+          updatePlaybackUI();
+        } else {
+          stopMockPlayback();
+          // Automatically mark lecture as complete!
+          AppState.toggleLessonComplete(activeCourse.id, `lec-${activeLectureIndex}`);
+          renderPlaylist();
+          updateProgressUI();
+          alert("Lecture completed! Progress saved.");
+        }
+      }, 1000);
+    }
+
+    function stopMockPlayback() {
+      clearInterval(playbackInterval);
+      playbackInterval = null;
+      isPlaying = false;
+      document.getElementById("video-overlay").style.display = "flex";
+      document.getElementById("video-blackboard").style.display = "none";
+      document.getElementById("video-status").innerText = "Resume Lecture";
+    }
+
+    function togglePlayPause() {
+      if (isPlaying) {
+        stopMockPlayback();
+      } else {
+        startMockPlayback();
+      }
+    }
+
+    function formatTime(sec) {
+      const mins = Math.floor(sec / 60);
+      const secs = sec % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updatePlaybackUI() {
+      const progressPercent = (playbackCurrent / playbackLength) * 100;
+      document.getElementById("video-progress-bar").style.width = `${progressPercent}%`;
+      
+      const timeStr = `${formatTime(playbackCurrent)} / ${formatTime(playbackLength)}`;
+      document.getElementById("mini-time-display").innerText = timeStr;
+      document.getElementById("video-timer").innerText = "Progress: " + timeStr;
+    }
+
+    function seekVideo(event) {
+      if (!isPlaying) return;
+      const progressContainer = event.currentTarget;
+      const rect = progressContainer.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const width = rect.width;
+      
+      const clickPercent = clickX / width;
+      playbackCurrent = Math.floor(clickPercent * playbackLength);
+      updatePlaybackUI();
+    }
+
+    // Tabs Manager
+    function switchStudyTab(tabName) {
+      const tabs = ['overview', 'scratchpad', 'quiz'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const content = document.getElementById(`content-${t}`);
+        if (t === tabName) {
+          btn.classList.add('active');
+          content.style.display = 'block';
+        } else {
+          btn.classList.remove('active');
+          content.style.display = 'none';
+        }
+      });
+    }
+
+    // Scratchpad manager
+    function insertMathSymbol(symbol) {
+      const textarea = document.getElementById("math-notes");
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      
+      textarea.value = text.substring(0, start) + symbol + text.substring(end);
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + symbol.length;
+    }
+
+    function clearScratchpad() {
+      if (confirm("Are you sure you want to clear your scratchpad notes?")) {
+        document.getElementById("math-notes").value = "";
+      }
+    }
+
+    // Quiz Manager
+    function renderQuiz() {
+      const quiz = COURSE_QUIZZES[activeCourse.id] || COURSE_QUIZZES['linear-algebra'];
+      
+      document.getElementById("quiz-question-title").innerText = quiz.q;
+      document.getElementById("quiz-math-container").innerHTML = quiz.formula;
+      
+      const optContainer = document.getElementById("quiz-answers-container");
+      optContainer.innerHTML = "";
+      
+      quiz.options.forEach((opt, index) => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-secondary";
+        btn.style.textAlign = "left";
+        btn.style.justifyContent = "flex-start";
+        btn.innerHTML = `<span style="background:rgba(255,255,255,0.06); width:24px; height:24px; border-radius:50%; display:inline-flex; justify-content:center; align-items:center; margin-right: 0.75rem; font-weight:bold; font-size:0.8rem;">${String.fromCharCode(65 + index)}</span> ${opt}`;
+        btn.onclick = () => submitQuizAnswer(index, quiz.answer, quiz.explain);
+        
+        optContainer.appendChild(btn);
+      });
+
+      // Clear previous feedbacks
+      const fbBox = document.getElementById("quiz-feedback-box");
+      fbBox.style.display = "none";
+    }
+
+    function submitQuizAnswer(selectedIndex, correctIndex, explainText) {
+      const fbBox = document.getElementById("quiz-feedback-box");
+      const fbText = document.getElementById("quiz-feedback-text");
+      
+      fbBox.style.display = "block";
+      
+      if (selectedIndex === correctIndex) {
+        fbBox.style.borderColor = "var(--accent-color)";
+        fbBox.style.background = "rgba(6, 182, 212, 0.08)";
+        fbText.innerHTML = `<span style="color:var(--accent-color); font-weight:700;">⭐ Correct!</span> ${explainText}`;
+      } else {
+        fbBox.style.borderColor = "rgba(239, 68, 68, 0.3)";
+        fbBox.style.background = "rgba(239, 68, 68, 0.05)";
+        fbText.innerHTML = `<span style="color:#f87171; font-weight:700;">❌ Incorrect.</span> Try reviewing the lecture blackboard concepts! Correct answer was Option ${String.fromCharCode(65 + correctIndex)}.`;
+      }
+    }
+  </script>
+</body>
+</html>

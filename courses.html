@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ziglag Institute | Syllabus & Courses Explorer</title>
+  <meta name="description" content="Explore our complete math curriculum catalog: Secondary maths, AP Calculus prep, IGCSE math, and college level linear algebra.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="glow-orb glow-orb-primary" style="top: 10%; right: 10%;"></div>
+  <div class="glow-orb glow-orb-secondary" style="top: 50%; left: 5%;"></div>
+
+  <div class="app-container">
+    
+    <!-- Navbar -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="courses.html" class="active">Courses</a></li>
+          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="people.html">People</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </nav>
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <a href="tutoring.html" class="btn btn-secondary btn-sm">Book Session</a>
+      </div>
+    </header>
+
+    <!-- Header Banner -->
+    <section class="section-wrapper" style="padding-bottom: 0.5rem; animation: fade-in 0.6s ease-out;">
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">Interactive Curriculum</span>
+      <h1 style="font-size: 3rem;">Syllabus Courses</h1>
+      <p style="margin-top: 0.5rem; max-width: 700px;">
+        Browse our comprehensive learning catalog. Toggle topics from primary vectors through multi-variable calculus, and track your study room lectures progress.
+      </p>
+    </section>
+
+    <!-- Catalog Layout -->
+    <section class="section-wrapper" style="padding-top: 1rem;">
+      <div class="catalog-layout">
+        
+        <!-- Filter Sidebar -->
+        <aside class="filter-sidebar glass-card">
+          <div class="filter-group">
+            <h3 class="filter-group-title">Mathematics Sphere</h3>
+            <label class="filter-option">
+              <input type="radio" name="sphere-filter" value="all" checked onclick="applyFilters()">
+              <span>All Spheres</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="sphere-filter" value="secondary" onclick="applyFilters()">
+              <span>Secondary School</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="sphere-filter" value="exams" onclick="applyFilters()">
+              <span>Special Exams Prep</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="sphere-filter" value="undergrad" onclick="applyFilters()">
+              <span>Undergraduate Maths</span>
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <h3 class="filter-group-title">Study Duration</h3>
+            <label class="filter-option">
+              <input type="checkbox" id="dur-short" value="short" onchange="applyFilters()">
+              <span>Short (&lt; 12 Hours)</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="dur-medium" value="medium" onchange="applyFilters()">
+              <span>Medium (12-18 Hours)</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="dur-long" value="long" onchange="applyFilters()">
+              <span>Long (&gt; 18 Hours)</span>
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <h3 class="filter-group-title">Materials Included</h3>
+            <label class="filter-option">
+              <input type="checkbox" id="has-pdf" value="pdf" onchange="applyFilters()">
+              <span>PDF Worksheets Included</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="high-rating" value="rating" onchange="applyFilters()">
+              <span>Top Rated (&gt; 4.8★)</span>
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <h3 class="filter-group-title">Exam Target</h3>
+            <label class="filter-option">
+              <input type="checkbox" id="exam-ap" value="ap" onchange="applyFilters()">
+              <span>AP Calculus/Stats</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="exam-igcse" value="igcse" onchange="applyFilters()">
+              <span>IGCSE Extended</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="exam-gcse" value="gcse" onchange="applyFilters()">
+              <span>GCSE Mathematics</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="exam-wassce" value="wassce" onchange="applyFilters()">
+              <span>WASSCE Exam</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="exam-jamb" value="jamb" onchange="applyFilters()">
+              <span>JAMB UTME Exam</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="exam-gce" value="gce" onchange="applyFilters()">
+              <span>GCE A-Levels</span>
+            </label>
+          </div>
+          
+          <button class="btn btn-secondary btn-sm" onclick="resetFilters()" style="margin-top: 0.5rem; justify-content: center;">Reset Filters</button>
+        </aside>
+
+        <!-- Main Courses Area -->
+        <main class="courses-main">
+          
+          <!-- Search Row -->
+          <div class="search-bar-wrap">
+            <div class="search-input-box">
+              <input type="text" id="course-search-input" placeholder="Search calculus, algebra, trigonometry, matrices..." onkeyup="applyFilters()">
+            </div>
+            <div class="glass-card" style="padding: 0.75rem 1.25rem; display: flex; align-items: center; border-radius: var(--radius-md);">
+              <span style="font-size: 0.9rem; color: var(--text-muted); white-space: nowrap;">
+                Showing <strong id="course-count-display" style="color: var(--primary-color);">6</strong> Courses
+              </span>
+            </div>
+          </div>
+
+          <!-- Courses Grid -->
+          <div class="courses-grid" id="courses-render-grid">
+            <!-- Dynamic course cards injected here -->
+          </div>
+
+        </main>
+
+      </div>
+    </section>
+
+    <!-- Tutoring Quick Callout -->
+    <section class="section-wrapper" style="padding-top: 2rem;">
+      <div class="glass-card" style="display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 3rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border-color: var(--border-highlight);">
+        <div>
+          <h2>Need personalized syllabus guidance?</h2>
+          <p style="margin-top: 0.5rem; max-width: 700px;">
+            Book a direct, custom matching session to review past exam scripts, plan homework outlines, or prepare mock structures with certified professional algebra and statistics educators.
+          </p>
+        </div>
+        <div>
+          <a href="tutoring.html" class="btn btn-primary" style="white-space: nowrap;">Meet Our Tutors ➜</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            A premier mathematics hub catering to international schools, college students, and self-taught professionals globally.
+          </p>
+          <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
+            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="LinkedIn Profile">🔗 LinkedIn</a>
+            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="GitHub Profile">💻 GitHub</a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4>Portal Hub</h4>
+          <ul>
+            <li><a href="index.html">Dashboard Home</a></li>
+            <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="tutoring.html">1-on-1 Coaching</a></li>
+            <li><a href="vault.html">Resource Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Spheres of Study</h4>
+          <ul>
+            <li><a href="courses.html?sphere=secondary">Secondary Algebra</a></li>
+            <li><a href="courses.html?sphere=exams">AP Calculus & Stats</a></li>
+            <li><a href="courses.html?sphere=exams">IGCSE/GCSE Mathematics</a></li>
+            <li><a href="courses.html?sphere=undergrad">Advanced Linear Algebra</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Organization</h4>
+          <ul>
+            <li><a href="people.html">Our People</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="tutoring.html">Book 1-on-1 Session</a></li>
+            <li><a href="courses.html">Browse Syllabus</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 Ziglag Institute. Engineered with passion for math educators and students.</p>
+        <p>Built as a Premium Web App & Google Sites Toolkit</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Course catalog specific scripting
+    document.addEventListener("DOMContentLoaded", () => {
+      // Read URL params
+      const params = new URLSearchParams(window.location.search);
+      const sphereParam = params.get("sphere");
+      
+      if (sphereParam) {
+        const radio = document.querySelector(`input[name="sphere-filter"][value="${sphereParam}"]`);
+        if (radio) {
+          radio.checked = true;
+        }
+      }
+      
+      renderCourses();
+    });
+
+    function renderCourses() {
+      const grid = document.getElementById("courses-render-grid");
+      const searchVal = document.getElementById("course-search-input").value.toLowerCase();
+      const sphereVal = document.querySelector('input[name="sphere-filter"]:checked').value;
+      
+      const durShort = document.getElementById("dur-short").checked;
+      const durMedium = document.getElementById("dur-medium").checked;
+      const durLong = document.getElementById("dur-long").checked;
+      
+      const hasPdf = document.getElementById("has-pdf").checked;
+      const highRating = document.getElementById("high-rating").checked;
+      
+      const examAp = document.getElementById("exam-ap").checked;
+      const examIgcse = document.getElementById("exam-igcse").checked;
+      const examGcse = document.getElementById("exam-gcse").checked;
+      const examWassce = document.getElementById("exam-wassce").checked;
+      const examJamb = document.getElementById("exam-jamb").checked;
+      const examGce = document.getElementById("exam-gce").checked;
+      const hasExamSelection = examAp || examIgcse || examGcse || examWassce || examJamb || examGce;
+
+      grid.innerHTML = "";
+      
+      const filtered = MATH_DATABASE.courses.filter(c => {
+        // Search filter
+        if (searchVal && !c.title.toLowerCase().includes(searchVal) && !c.shortDesc.toLowerCase().includes(searchVal)) {
+          return false;
+        }
+        
+        // Sphere filter
+        if (sphereVal !== "all" && c.sphere !== sphereVal) {
+          return false;
+        }
+        
+        // Duration filter
+        const durationHours = parseInt(c.duration);
+        const matchShort = durShort && durationHours < 12;
+        const matchMedium = durMedium && durationHours >= 12 && durationHours <= 18;
+        const matchLong = durLong && durationHours > 18;
+        const hasDurationSelection = durShort || durMedium || durLong;
+        if (hasDurationSelection && !matchShort && !matchMedium && !matchLong) {
+          return false;
+        }
+        
+        // Materials Included filter
+        if (hasPdf && c.materials === 0) {
+          return false;
+        }
+        
+        // High Rating filter
+        if (highRating && c.rating < 4.8) {
+          return false;
+        }
+
+        // Exam Target Selection Filter
+        if (hasExamSelection) {
+          const matchAp = examAp && (c.id.includes("ap") || c.title.includes("AP"));
+          const matchIgcse = examIgcse && c.id.includes("igcse");
+          const matchGcse = examGcse && c.id.includes("gcse");
+          const matchWassce = examWassce && c.id.includes("wassce");
+          const matchJamb = examJamb && c.id.includes("jamb");
+          const matchGce = examGce && c.id.includes("gce");
+
+          if (!matchAp && !matchIgcse && !matchGcse && !matchWassce && !matchJamb && !matchGce) {
+            return false;
+          }
+        }
+        
+        return true;
+      });
+
+      document.getElementById("course-count-display").innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="glass-card" style="grid-column: 1/-1; padding: 4rem 2rem; text-align: center;">
+            <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">🔍</span>
+            <h3>No courses match your criteria</h3>
+            <p style="margin-top: 0.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+              Try broadening your keyword search or unchecking some filter combinations.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(c => {
+        // Render completed count using AppState
+        const completedCount = AppState.getCompletedCount(c.id);
+        const progressPercent = Math.round((completedCount / c.lectures) * 100);
+
+        const card = document.createElement("div");
+        card.className = "sphere-card glass-card course-card";
+        card.style.animation = "slide-up 0.5s ease-out";
+        
+        card.innerHTML = `
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+              <div class="sphere-icon-box" style="font-size: 1.25rem; width: 44px; height: 44px; background: rgba(99, 102, 241, 0.08);">
+                ${c.imageIcon}
+              </div>
+              <span class="sphere-tag" style="background: rgba(99, 102, 241, 0.15); border-color: var(--border-highlight); color: var(--primary-color);">
+                ${c.level}
+              </span>
+            </div>
+            
+            <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">${c.title}</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.5;">${c.shortDesc}</p>
+            
+            <div style="font-size: 0.8rem; margin-bottom: 1rem;">
+              <strong style="color: var(--text-main);">Syllabus Modules:</strong>
+              <ul style="list-style: none; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                ${c.syllabus.slice(0, 3).map(mod => `<li style="color: var(--text-muted); display:flex; align-items:center; gap:0.4rem;"><span style="color:var(--accent-color);">▪</span> ${mod}</li>`).join('')}
+                ${c.syllabus.length > 3 ? `<li style="color: var(--primary-color); font-size: 0.75rem;">+ ${c.syllabus.length - 3} more modules</li>` : ''}
+              </ul>
+            </div>
+
+            ${completedCount > 0 ? `
+              <div style="margin-bottom: 1rem;">
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom: 0.25rem;">
+                  <span>Progress</span>
+                  <span>${completedCount}/${c.lectures} Lectures (${progressPercent}%)</span>
+                </div>
+                <div style="background:rgba(255,255,255,0.06); height:6px; border-radius:3px; overflow:hidden;">
+                  <div style="background:linear-gradient(90deg, var(--primary-color), var(--accent-color)); width:${progressPercent}%; height:100%; border-radius:3px;"></div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+
+          <div>
+            <div class="course-meta">
+              <span>⏰ ${c.duration}</span>
+              <span>⭐ ${c.rating}</span>
+              <span>📚 ${c.materials} Notes</span>
+            </div>
+            <a href="course-view.html?id=${c.id}" class="btn btn-primary btn-sm" style="margin-top: 1rem; width: 100%;">Enter Study Room ➜</a>
+          </div>
+        `;
+        
+        grid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      renderCourses();
+    }
+
+    function resetFilters() {
+      document.querySelector('input[name="sphere-filter"][value="all"]').checked = true;
+      document.getElementById("dur-short").checked = false;
+      document.getElementById("dur-medium").checked = false;
+      document.getElementById("dur-long").checked = false;
+      document.getElementById("has-pdf").checked = false;
+      document.getElementById("high-rating").checked = false;
+      document.getElementById("exam-ap").checked = false;
+      document.getElementById("exam-igcse").checked = false;
+      document.getElementById("exam-gcse").checked = false;
+      document.getElementById("exam-wassce").checked = false;
+      document.getElementById("exam-jamb").checked = false;
+      document.getElementById("exam-gce").checked = false;
+      document.getElementById("course-search-input").value = "";
+      renderCourses();
+    }
+  </script>
+</body>
+</html>
