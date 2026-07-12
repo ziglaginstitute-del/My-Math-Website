@@ -1,10 +1,9 @@
-services:
-  # A PostgreSQL database instance
-  - type: db
-    name: ziglag-db
-    plan: free # Free tier database
-    ipAllowList: [] # Only allow internal access from services
+databases:
+  - name: ziglag-db
+    plan: free
+    ipAllowList: [] # Only allow internal network access
 
+services:
   # The Flask application web service
   - type: web
     name: ziglag-math-portal
