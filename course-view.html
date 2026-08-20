@@ -195,7 +195,7 @@
             <span>Ziglag Institute</span>
           </a>
           <p style="margin-top: 0.5rem; font-size: 0.9rem;">
-            A premier mathematics hub catering to international schools, college students, and self-taught professionals globally.
+            An Institution designed to empower learners with cutting-edge mathematical education and resources with application to the real world.
           </p>
           <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
             <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
@@ -215,10 +215,10 @@
         <div class="footer-links-col">
           <h4>Spheres of Study</h4>
           <ul>
-            <li><a href="courses.html?sphere=secondary">Secondary Algebra</a></li>
-            <li><a href="courses.html?sphere=exams">AP Calculus & Stats</a></li>
-            <li><a href="courses.html?sphere=exams">IGCSE/GCSE Mathematics</a></li>
-            <li><a href="courses.html?sphere=undergrad">Advanced Linear Algebra</a></li>
+            <li><a href="courses.html?sphere=secondary">NECO & GCE Prep</a></li>
+            <li><a href="courses.html?sphere=exams">WASSCE & UTME/POST UTME Prep</a></li>
+            <li><a href="courses.html?sphere=exams">GCSE & IGCSE Prep</a></li>
+            <li><a href="courses.html?sphere=undergrad">Undergrad College Math</a></li>
           </ul>
         </div>
         <div class="footer-links-col">
@@ -233,8 +233,8 @@
       </div>
       
       <div class="footer-bottom">
-        <p>&copy; 2026 Ziglag Institute. Engineered with passion for math educators and students.</p>
-        <p>Built as a Premium Web App & Google Sites Toolkit</p>
+        <p>&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
+        <p>Built as a Premium Web App</p>
       </div>
     </footer>
 
@@ -254,111 +254,85 @@
 
     // Rich Lectures Data for playlist mapping
     const COURSE_LECTURES = {
-      'linear-algebra': [
-        // Developer Tip: To play local MP4 or YouTube files, match the paths under 'videoUrl'.
-        { title: "L1: Introduction to Vector Spaces", length: "12:45", seconds: 765, videoUrl: "render 4k.mp4" },
-        { title: "L2: Subspaces & Vector Spans", length: "15:20", seconds: 920, videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" }, // Rickroll template YouTube example
-        { title: "L3: Linear Transformations & Kernel", length: "18:10", seconds: 1090 },
-        { title: "L4: Bases & Coordinate Systems", length: "14:40", seconds: 880 },
-        { title: "L5: Eigenvalues & Vectors Proofs", length: "21:05", seconds: 1265 }
+      'wassce-gce-neco-prep': [
+        // Number Bases
+          { title: "L1: Introduction and Conversion to Base 10", length: "05:15", seconds: 850, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1Or6egQjFxZ9kk6lW6R403oZ5JU0_RpV0/view?usp=drive_link" },
+          { title: "L2: Conversion from Base 10 to Other Bases", length: "02:46", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1GfFF8kMcOppP_YjkmDeVt5RaDi2mh_wG/view?usp=drive_link" },
+          { title: "L3: Interconversions Between Bases", length: "02:03", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/12LusGU1deZzS02IRBvOr9pzfdWlyyqko/view?usp=drive_link" },
+          { title: "L4: Specific Base System and Direct Conversions", length: "02:18", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1qfYvuLu63diemC-HhXi_saV_pd09W6FT/view?usp=drive_link" },
+          { title: "L5: Operations in Base 2", length: "07:06", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/18tVXNt2wE8TsvlJ52Vn5IxGHdmeuGjoJ/view?usp=drive_link" },
+          { title: "L6: Algebraic Equations in Number Bases", length: "04:26", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1zBp3DWBpbgS65qn-eEWHSS1tzHcOyy8j/view?usp=drive_link" },
       ],
-      'ap-calculus-bc': [
-        { title: "L1: Complex Limits and L'Hôpital", length: "14:30", seconds: 870 },
-        { title: "L2: Integration by Parts Technique", length: "18:15", seconds: 1095 },
-        { title: "L3: Arc Lengths & Polar Geometry", length: "16:40", seconds: 1000 },
-        { title: "L4: Taylor & Maclaurin Series Intro", length: "22:10", seconds: 1330 },
-        { title: "L5: Infinite Series Convergence Tests", length: "24:50", seconds: 1490 }
+      'jamb-postjamb-prep': [
+       // Number Bases
+          { title: "L1: Introduction and Conversion to Base 10", length: "05:15", seconds: 850, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1Or6egQjFxZ9kk6lW6R403oZ5JU0_RpV0/view?usp=drive_link" },
+          { title: "L2: Conversion from Base 10 to Other Bases", length: "02:46", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1GfFF8kMcOppP_YjkmDeVt5RaDi2mh_wG/view?usp=drive_link" },
+          { title: "L3: Interconversions Between Bases", length: "02:03", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/12LusGU1deZzS02IRBvOr9pzfdWlyyqko/view?usp=drive_link" },
+          { title: "L4: Specific Base System and Direct Conversions", length: "02:18", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1qfYvuLu63diemC-HhXi_saV_pd09W6FT/view?usp=drive_link" },
+          { title: "L5: Operations in Base 2", length: "07:06", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/18tVXNt2wE8TsvlJ52Vn5IxGHdmeuGjoJ/view?usp=drive_link" },
+          { title: "L6: Algebraic Equations in Number Bases", length: "04:26", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1zBp3DWBpbgS65qn-eEWHSS1tzHcOyy8j/view?usp=drive_link" },
       ],
-      'igcse-extended': [
-        { title: "L1: Number Sequences & Indices", length: "10:15", seconds: 615 },
-        { title: "L2: Solving Complex Quadratics", length: "13:40", seconds: 820 },
-        { title: "L3: Coordinate Geometry Rules", length: "11:50", seconds: 710 },
-        { title: "L4: Circular Arc Sectors & Radians", length: "15:05", seconds: 905 },
-        { title: "L5: Stats & Cumulative Frequency", length: "12:30", seconds: 750 }
+      'other-exams-prep': [
+        // IGCSE Mathematics (0580)
+        { title: "L1: Algebraic Fractions Equations", length: "15:45", seconds: 945, group: "IGCSE Mathematics (0580)" },
+        { title: "L2: Tree Diagrams & Probability", length: "13:10", seconds: 790, group: "IGCSE Mathematics (0580)" },
+        // A-Level Pure Mathematics
+        { title: "L3: Proof by Induction Theorems", length: "22:30", seconds: 1350, group: "A-Level Pure Mathematics" },
+        { title: "L4: 3D Vector Geometry Dot Product", length: "24:15", seconds: 1455, group: "A-Level Pure Mathematics" }
       ],
-      'calculus-three': [
-        { title: "L1: Vector Space Operations in 3D", length: "14:50", seconds: 890 },
-        { title: "L2: Partial Derivatives & Gradient", length: "18:30", seconds: 1110 },
-        { title: "L3: Iterated Double Integrals", length: "20:15", seconds: 1215 },
-        { title: "L4: Line Integrals & Vector Fields", length: "17:40", seconds: 1060 },
-        { title: "L5: Green's Theorem Formulation", length: "22:15", seconds: 1335 }
+      'undergrad-math-courses': [
+        // Linear Algebra
+        { title: "L1: Vector Spaces & Linear Independence", length: "23:45", seconds: 1425, group: "Linear Algebra" },
+        { title: "L2: Eigenvalues & Diagonalization", length: "21:30", seconds: 1290, group: "Linear Algebra" },
+        // Multivariable Calculus
+        { title: "L3: Partial Derivatives & Gradient Vector", length: "20:15", seconds: 1215, group: "Multivariable Calculus" },
+        { title: "L4: Double Integrals over regions", length: "22:50", seconds: 1370, group: "Multivariable Calculus" }
       ],
-      'secondary-trig': [
-        { title: "L1: Unit Circle & Angles Definition", length: "09:40", seconds: 580 },
-        { title: "L2: Graphing Trigonometric Waves", length: "12:20", seconds: 740 },
-        { title: "L3: Core Trigonometric Identities", length: "14:15", seconds: 855 },
-        { title: "L4: Law of Sines & Cosines Proofs", length: "11:55", seconds: 715 },
-        { title: "L5: 3D Trigonometry Word Questions", length: "13:30", seconds: 810 }
+      'extras-general-videos': [
+        // Showcase & Walkthroughs
+        { title: "L1: Ziglag Portal Features Walkthrough", length: "11:50", seconds: 710, group: "Showcase & Walkthroughs", videoUrl: "render 4k.mp4" },
+        { title: "L2: 4K Render Animation Showcase", length: "09:40", seconds: 580, group: "Showcase & Walkthroughs" },
+        // Math History & Curiosities
+        { title: "L3: Euler's Identity - Mathematical Beauty", length: "16:20", seconds: 980, group: "Math History & Curiosities" },
+        { title: "L4: The Fibonacci Sequence in Nature", length: "13:40", seconds: 820, group: "Math History & Curiosities" },
+        //New Videos From YouTube Channel
+        { title: "L5: An Advanced Limit problem involving Factorial", length: "02:36", seconds: 156, group: "YouTube Channel", videoUrl: "https://youtu.be/83q5G1J01Mo?si=tDCvBC_Subd0Omkl" }
       ],
-      'ap-statistics': [
-        { title: "L1: Describing One-Variable Datasets", length: "11:45", seconds: 705 },
-        { title: "L2: Correlation and Linear Regression", length: "14:10", seconds: 850 },
-        { title: "L3: Sampling & Experimental Designs", length: "13:50", seconds: 830 },
-        { title: "L4: Probability Rules & Independence", length: "17:25", seconds: 1045 },
-        { title: "L5: Binomial and Geometric Variables", length: "15:10", seconds: 910 }
+      'wassce-gce-neco-physics': [
+        // Mechanics
+        { title: "L1: Kinematics & Projectiles", length: "15:20", seconds: 920, group: "Mechanics" },
+        { title: "L2: Circular Motion Mechanics", length: "14:10", seconds: 850, group: "Mechanics" },
+        // Thermal & Waves
+        { title: "L3: Thermal Expansion Equations", length: "13:30", seconds: 810, group: "Thermal & Waves" },
+        { title: "L4: Wave Propagation & Sound", length: "12:50", seconds: 770, group: "Thermal & Waves" },
+        // Electricity & Magnetism
+        { title: "L5: Current Electricity & Ohms Law", length: "16:45", seconds: 1005, group: "Electricity & Magnetism" },
+        { title: "L6: Electrostatics Induction", length: "18:30", seconds: 1110, group: "Electricity & Magnetism" }
       ],
-      'wassce-math': [
-        { title: "L1: Number Bases & Operations", length: "12:15", seconds: 735 },
-        { title: "L2: Modular Arithmetic Mastery", length: "14:40", seconds: 880 },
-        { title: "L3: Graphing Simultaneous Systems", length: "16:05", seconds: 965 },
-        { title: "L4: Circle Geometry Rules & Proofs", length: "19:50", seconds: 1190 },
-        { title: "L5: Bearings & Trigonometric Heights", length: "21:30", seconds: 1290 }
+      'jamb-postjamb-physics': [
+        // Mechanics & Heat
+        { title: "L1: Motion & Forces UTME Hacks", length: "14:10", seconds: 850, group: "Mechanics & Heat" },
+        { title: "L2: Gas Laws & Thermal expansion", length: "13:20", seconds: 800, group: "Mechanics & Heat" },
+        // Electricity & Light
+        { title: "L3: Refraction & Lens Equations", length: "12:45", seconds: 765, group: "Electricity & Light" },
+        { title: "L4: Electrostatics & Potential UTME", length: "15:10", seconds: 910, group: "Electricity & Light" },
+        // Modern Physics
+        { title: "L5: Half-Life Decay Calculations", length: "11:55", seconds: 715, group: "Modern Physics" },
+        { title: "L6: Photoelectric Effects & Spectra", length: "13:40", seconds: 820, group: "Modern Physics" }
       ],
-      'jamb-math': [
-        { title: "L1: Indices, Surds & Logarithms", length: "11:50", seconds: 710 },
-        { title: "L2: Sets, Maps and Venn Diagrams", length: "13:10", seconds: 790 },
-        { title: "L3: Limits & Derivatives Speedruns", length: "15:40", seconds: 940 },
-        { title: "L4: Definite Integrals Shortcuts", length: "16:15", seconds: 975 },
-        { title: "L5: Coordinate Lines & Conic Sections", length: "18:05", seconds: 1085 }
-      ],
-      'gce-math': [
-        { title: "L1: Proof by Induction Principles", length: "15:30", seconds: 930 },
-        { title: "L2: Partial Fractions Expansion", length: "17:45", seconds: 1065 },
-        { title: "L3: Vector Dot & Cross Products", length: "19:10", seconds: 1150 },
-        { title: "L4: Advanced Integration by Parts", length: "22:40", seconds: 1360 },
-        { title: "L5: Advanced Differential Equations", length: "24:15", seconds: 1455 }
+      'other-exams-physics': [
+        // IGCSE Physics
+        { title: "L1: Density, Force & Elastic Hooke", length: "14:10", seconds: 850, group: "IGCSE Physics" },
+        { title: "L2: Thermal Transfer & Specific Heat", length: "12:45", seconds: 765, group: "IGCSE Physics" },
+        // A-Level Physics
+        { title: "L3: Gravitational & Coulomb Field Math", length: "22:15", seconds: 1335, group: "A-Level Physics" },
+        { title: "L4: Nuclear Structure & Half-Life Decay", length: "24:30", seconds: 1470, group: "A-Level Physics" }
       ]
     };
 
     // Course interactive Practice Quizzes
     const COURSE_QUIZZES = {
-      'linear-algebra': {
-        q: "Let V be a vector space, and S = {v₁, v₂} be linear independent. Which of the following defines a spanning set of a subspace?",
-        formula: `<span class="math-symbol">U</span> <span class="math-op">=</span> <span class="math-symbol">span</span>({<span class="math-symbol">v₁</span> <span class="math-op">+</span> <span class="math-symbol">v₂</span>, <span class="math-symbol">v₁</span> <span class="math-op">-</span> <span class="math-symbol">v₂</span>})`,
-        options: [
-          "U has a dimension of 1 because adding elements reduces independent rank.",
-          "U has a dimension of 2 because vector sum/difference are linearly independent.",
-          "U is not a subspace because span boundaries are open.",
-          "U spans the zero vector only."
-        ],
-        answer: 1,
-        explain: "Adding and subtracting two independent vectors v₁ and v₂ produces a linear system whose rank remains exactly 2. Thus, the span retains dimension = 2."
-      },
-      'ap-calculus-bc': {
-        q: "Evaluate the Taylor Series convergence limit of the given expansion:",
-        formula: `<span class="math-symbol">∑</span><sub style="margin-left:-18px; font-size:0.6rem; vertical-align:sub;">n=1</sub><sup style="margin-left:-15px; font-size:0.6rem; vertical-align:super;">∞</sup> <div class="math-frac" style="font-size:0.8rem;"><span class="math-num">(<span class="math-op">-</span>1)ⁿ <span class="math-symbol">x</span>²ⁿ⁺¹</span><span class="math-den">(2<span class="math-symbol">n</span> + 1)!</span></div>`,
-        options: [
-          "It converges absolutely for all real values of x to sin(x).",
-          "It converges only in the interval (-1, 1).",
-          "It defines the standard expansion for cos(x).",
-          "It diverges due to factorial growth."
-        ],
-        answer: 0,
-        explain: "The given formula represents the standard infinite Maclaurin expansion of the sine function sin(x). According to the ratio test, factorials grow infinitely faster than exponents, yielding an infinite radius of convergence."
-      },
-      'igcse-extended': {
-        q: "Find the algebraic solutions for the quadratic polynomial roots:",
-        formula: `<span class="math-symbol">x</span>² <span class="math-op">-</span> <span style="font-size:1.1rem;">5</span><span class="math-symbol">x</span> <span class="math-op">+</span> <span style="font-size:1.1rem;">6</span> <span class="math-op">=</span> <span style="font-size:1.1rem;">0</span>`,
-        options: [
-          "x = -2 and x = -3",
-          "x = 5 and x = 6",
-          "x = 2 and x = 3",
-          "x = 1 and x = 5"
-        ],
-        answer: 2,
-        explain: "Factoring the equation gives (x - 2)(x - 3) = 0. Solving for x yields roots at x = 2 and x = 3."
-      },
-      'wassce-math': {
+      'wassce-gce-neco-prep': {
         q: "If x is a base-10 integer, solve for x in the modular congruence equation:",
         formula: `<span class="math-symbol">3x</span> <span class="math-op">≡</span> <span style="font-size:1.1rem;">4</span> <span class="math-symbol">(mod 5)</span>`,
         options: [
@@ -368,9 +342,9 @@
           "x = 4"
         ],
         answer: 1,
-        explain: "We check the options: 3(3) = 9 ≡ 4 (mod 5). Thus, x = 3 is the correct congruence solution."
+        explain: "Testing options: 3(3) = 9. When 9 is divided by 5, the remainder is 4. Thus, 9 ≡ 4 (mod 5), making x = 3 the correct solution."
       },
-      'jamb-math': {
+      'jamb-postjamb-prep': {
         q: "Evaluate the logarithmic equation for the real variable y:",
         formula: `<span class="math-symbol">log</span><sub style="margin-left:-28px; font-size:0.75rem; vertical-align:sub; position:relative; top:8px;">2</sub>(<span class="math-symbol">y</span>² <span class="math-op">-</span> <span style="font-size:1.1rem;">1</span>) <span class="math-op">=</span> <span style="font-size:1.1rem;">3</span>`,
         options: [
@@ -382,8 +356,8 @@
         answer: 0,
         explain: "Converting the logarithm to exponential form yields: y² - 1 = 2³ = 8. So, y² = 9, which means y = ±3."
       },
-      'gce-math': {
-        q: "Find the integral of the given algebraic fractional expansion:",
+      'other-exams-prep': {
+        q: "Solve the A-Level Pure Mathematics integral of the given algebraic fractional expansion:",
         formula: `<span class="math-integral">∫</span> <div class="math-frac" style="font-size:0.8rem;"><span class="math-num">1</span><span class="math-den"><span class="math-symbol">x</span>² <span class="math-op">-</span> <span style="font-size:0.85rem;">1</span></span></div> <span class="math-symbol">dx</span>`,
         options: [
           "0.5 ln |(x-1)/(x+1)| + C",
@@ -393,13 +367,60 @@
         ],
         answer: 0,
         explain: "Applying partial fraction decomposition yields 1/(x²-1) = 0.5[1/(x-1) - 1/(x+1)]. Integrating both terms gives 0.5 [ln|x-1| - ln|x+1|] + C = 0.5 ln|(x-1)/(x+1)| + C."
-      }
+      },
+      'undergrad-math-courses': {
+        q: "Let V be a vector space, and S = {v₁, v₂} be linear independent. Which of the following defines a spanning set of a subspace?",
+        formula: `<span class="math-symbol">U</span> <span class="math-op">=</span> <span class="math-symbol">span</span>({<span class="math-symbol">v₁</span> <span class="math-op">+</span> <span class="math-symbol">v₂</span>, <span class="math-symbol">v₁</span> <span class="math-op">-</span> <span class="math-symbol">v₂</span>})`,
+        options: [
+          "U has a dimension of 1 because adding elements reduces independent rank.",
+          "U has a dimension of 2 because vector sum/difference are linearly independent.",
+          "U is not a subspace because span boundaries are open.",
+          "U spans the zero vector only."
+        ],
+        answer: 1,
+        explain: "Adding and subtracting two independent vectors v₁ and v₂ produces a linear system whose rank remains exactly 2. Thus, the span retains dimension = 2."
+      },
+      'wassce-gce-neco-physics': {
+        q: "State the mathematical formula representing Ohm's Law in electric circuits:",
+        formula: `<span class="math-symbol">V</span> <span class="math-op">=</span> <span class="math-symbol">I</span> <span class="math-symbol">R</span>`,
+        options: [
+          "V = I / R",
+          "V = I² R",
+          "V = I R",
+          "V = R / I"
+        ],
+        answer: 2,
+        explain: "Ohm's Law states that the voltage V across a conductor is directly proportional to the current I flowing through it, with resistance R as the constant of proportionality."
+      },
+      'jamb-postjamb-physics': {
+        q: "Solve for the work done when a force of 10 N moves a body by 5 meters in the direction of the force:",
+        formula: `<span class="math-symbol">Work</span> <span class="math-op">=</span> <span class="math-symbol">F</span> <span class="math-op">×</span> <span class="math-symbol">d</span>`,
+        options: [
+          "15 Joules",
+          "50 Joules",
+          "2 Joules",
+          "25 Joules"
+        ],
+        answer: 1,
+        explain: "Work is calculated as Force multiplied by displacement. Work = 10 N × 5 m = 50 Joules."
+      },
     };
+
+    // Alias mappings for combined course IDs
+    COURSE_LECTURES['wassce-gce-neco-prep'] = COURSE_LECTURES['wassce-gce-neco-prep'];
+    COURSE_LECTURES['jamb-postjamb-prep'] = COURSE_LECTURES['jamb-postjamb-prep'];
+    COURSE_LECTURES['wassce-gce-neco-physics'] = COURSE_LECTURES['wassce-gce-neco-physics'];
+    COURSE_LECTURES['jamb-postjamb-physics'] = COURSE_LECTURES['jamb-postjamb-physics'];
+
+    COURSE_QUIZZES['wassce-gce-neco-prep'] = COURSE_QUIZZES['wassce-gce-neco-prep'];
+    COURSE_QUIZZES['jamb-postjamb-prep'] = COURSE_QUIZZES['jamb-postjamb-prep'];
+    COURSE_QUIZZES['wassce-gce-neco-physics'] = COURSE_QUIZZES['wassce-gce-neco-physics'];
+    COURSE_QUIZZES['jamb-postjamb-physics'] = COURSE_QUIZZES['jamb-postjamb-physics'];
 
     document.addEventListener("DOMContentLoaded", () => {
       // Find course parameters
       const params = new URLSearchParams(window.location.search);
-      const cid = params.get("id") || "linear-algebra";
+      const cid = params.get("id") || "wassce-gce-neco-prep";
       
       activeCourse = MATH_DATABASE.courses.find(c => c.id === cid) || MATH_DATABASE.courses[0];
       
@@ -418,7 +439,7 @@
       // Listen to real video ended events to auto-complete the lesson
       const videoPlayer = document.getElementById("actual-video-player");
       videoPlayer.addEventListener("ended", () => {
-        const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['linear-algebra'];
+        const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['wassce-gce-neco-prep'];
         if (lectures[activeLectureIndex]) {
           AppState.toggleLessonComplete(activeCourse.id, `lec-${activeLectureIndex}`);
           renderPlaylist();
@@ -436,12 +457,35 @@
       const list = document.getElementById("lecture-playlist-items");
       list.innerHTML = "";
       
-      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['linear-algebra'];
+      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['wassce-gce-neco-prep'];
       
       // Sync playlist progress state with local storage
       const completedList = AppState.completedLessons[activeCourse.id] || [];
 
+      let lastGroup = null;
+
       lectures.forEach((l, index) => {
+        // Group heading separator
+        if (l.group && l.group !== lastGroup) {
+          const header = document.createElement("li");
+          header.className = "playlist-group-header";
+          header.style.padding = "0.6rem 0.75rem";
+          header.style.color = "var(--secondary-color)";
+          header.style.fontWeight = "600";
+          header.style.fontSize = "0.78rem";
+          header.style.letterSpacing = "0.03em";
+          header.style.textTransform = "uppercase";
+          header.style.background = "rgba(255, 255, 255, 0.02)";
+          header.style.borderLeft = "3px solid var(--secondary-color)";
+          header.style.marginTop = "0.75rem";
+          header.style.marginBottom = "0.25rem";
+          header.style.listStyle = "none";
+          header.style.borderRadius = "var(--radius-sm)";
+          header.innerText = l.group;
+          list.appendChild(header);
+          lastGroup = l.group;
+        }
+
         const item = document.createElement("li");
         const isCompleted = completedList.includes(`lec-${index}`);
         const isActive = activeLectureIndex === index;
@@ -482,7 +526,7 @@
       // Show controls bar by default
       document.getElementById("mock-controls-bar").style.display = "flex";
       
-      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['linear-algebra'];
+      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['grade-4-12-math'];
       const lecture = lectures[index];
       
       playbackLength = lecture.seconds;
@@ -510,12 +554,26 @@
         document.getElementById("video-blackboard").style.display = "none";
         document.getElementById("mock-controls-bar").style.display = "none";
         
-        if (lecture.videoUrl.includes("youtube.com") || lecture.videoUrl.includes("youtu.be") || lecture.videoUrl.includes("embed")) {
+        let targetUrl = lecture.videoUrl;
+        
+        if (targetUrl.includes("youtube.com") || targetUrl.includes("youtu.be") || targetUrl.includes("drive.google.com")) {
           iframePlayer.style.display = "block";
-          iframePlayer.src = lecture.videoUrl;
+          
+          // Auto-convert standard YouTube watch links or Google Drive view links to embed preview format
+          if (targetUrl.includes("watch?v=")) {
+            const videoId = targetUrl.split("watch?v=")[1].split("&")[0];
+            targetUrl = `https://www.youtube.com/embed/${videoId}`;
+          } else if (targetUrl.includes("youtu.be/")) {
+            const videoId = targetUrl.split("youtu.be/")[1].split("?")[0].split("&")[0];
+            targetUrl = `https://www.youtube.com/embed/${videoId}`;
+          } else if (targetUrl.includes("drive.google.com") && targetUrl.includes("/view")) {
+            targetUrl = targetUrl.replace(/\/view.*/, "/preview");
+          }
+          
+          iframePlayer.src = targetUrl;
         } else {
           videoPlayer.style.display = "block";
-          videoPlayer.src = lecture.videoUrl;
+          videoPlayer.src = targetUrl;
           videoPlayer.load();
           videoPlayer.play().catch(e => console.log("Playback failed or was blocked by browser autoplay rules: ", e));
         }
@@ -534,7 +592,7 @@
     }
 
     function updateProgressUI() {
-      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['linear-algebra'];
+      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['grade-4-12-math'];
       const total = lectures.length;
       const done = AppState.getCompletedCount(activeCourse.id);
       const percent = Math.round((done / total) * 100);

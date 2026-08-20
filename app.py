@@ -193,44 +193,14 @@ with app.app_context():
         default_members = [
             Member(
                 name="Isaac Olusola",
-                role="Founder & Managing Director",
+                role="Founder & CEO",
                 bio="Isaac is the visionary behind Ziglag Institute, dedicated to providing premium and accessible STEM education. He guides the institute's strategic curriculum development and partnerships.",
                 avatar="🚀",
-                email="isaac.olusola@ziglaginstitute.com",
+                email="ziglaginstitute@gmail.com",
                 linkedin="https://www.linkedin.com/in/isaac-olusola-2a2b2218b",
                 github="https://github.com/ziglaginstitute-del",
                 youtube="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn",
                 display_order=1
-            ),
-            Member(
-                name="Dr. Adrian Thorne",
-                role="Head of Pure Mathematics",
-                bio="Adrian holds a PhD in Pure Mathematics. He specializes in making abstract concepts (like vector spaces and real analysis) intuitive and deeply interesting for undergraduate students.",
-                avatar="👨‍🏫",
-                email="adrian.thorne@ziglaginstitute.com",
-                linkedin="https://linkedin.com",
-                github="https://github.com",
-                display_order=2
-            ),
-            Member(
-                name="Sarah Jenkins, MSc",
-                role="Lead Exam Prep Coach & Coordinator",
-                bio="Sarah is a passionate high school educator with 10+ years of tutoring. She focuses on confidence-building and breaking down exam techniques for WASSCE, JAMB, AP, and IGCSE.",
-                avatar="👩‍🏫",
-                email="sarah.jenkins@ziglaginstitute.com",
-                linkedin="https://linkedin.com",
-                github="https://github.com",
-                display_order=3
-            ),
-            Member(
-                name="Prof. Marcus Vance",
-                role="Emeritus Advisor & Content Author",
-                bio="Marcus is a retired professor and author of calculus textbooks. His role at Ziglag focuses on verifying core mathematical proof sheets and undergraduate syllabus excellence.",
-                avatar="👨‍💻",
-                email="marcus.vance@ziglaginstitute.com",
-                linkedin="https://linkedin.com",
-                github="https://github.com",
-                display_order=4
             )
         ]
         db.session.bulk_save_objects(default_members)

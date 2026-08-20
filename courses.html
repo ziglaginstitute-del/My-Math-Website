@@ -42,7 +42,7 @@
       <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">Interactive Curriculum</span>
       <h1 style="font-size: 3rem;">Syllabus Courses</h1>
       <p style="margin-top: 0.5rem; max-width: 700px;">
-        Browse our comprehensive learning catalog. Toggle topics from primary vectors through multi-variable calculus, and track your study room lectures progress.
+        Browse our comprehensive learning catalog. Toggle topics from basic maths to complex maths, and track your study room lectures progress.
       </p>
     </section>
 
@@ -103,10 +103,6 @@
           <div class="filter-group">
             <h3 class="filter-group-title">Exam Target</h3>
             <label class="filter-option">
-              <input type="checkbox" id="exam-ap" value="ap" onchange="applyFilters()">
-              <span>AP Calculus/Stats</span>
-            </label>
-            <label class="filter-option">
               <input type="checkbox" id="exam-igcse" value="igcse" onchange="applyFilters()">
               <span>IGCSE Extended</span>
             </label>
@@ -116,11 +112,11 @@
             </label>
             <label class="filter-option">
               <input type="checkbox" id="exam-wassce" value="wassce" onchange="applyFilters()">
-              <span>WASSCE Exam</span>
+              <span>WASSCE/GCE/NECO Exam</span>
             </label>
             <label class="filter-option">
-              <input type="checkbox" id="exam-jamb" value="jamb" onchange="applyFilters()">
-              <span>JAMB UTME Exam</span>
+              <input type="checkbox" id="exam-utme" value="utme" onchange="applyFilters()">
+              <span>UTME/POST UTME Exam</span>
             </label>
             <label class="filter-option">
               <input type="checkbox" id="exam-gce" value="gce" onchange="applyFilters()">
@@ -162,7 +158,7 @@
         <div>
           <h2>Need personalized syllabus guidance?</h2>
           <p style="margin-top: 0.5rem; max-width: 700px;">
-            Book a direct, custom matching session to review past exam scripts, plan homework outlines, or prepare mock structures with certified professional algebra and statistics educators.
+            Book a direct, custom matching session to review past exam scripts, prepare for upcoming exams, or get tailored study plans.
           </p>
         </div>
         <div>
@@ -180,7 +176,7 @@
             <span>Ziglag Institute</span>
           </a>
           <p style="margin-top: 0.5rem; font-size: 0.9rem;">
-            A premier mathematics hub catering to international schools, college students, and self-taught professionals globally.
+            An Institution designed to empower learners with cutting-edge mathematical education and resources with application to the real world.
           </p>
           <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
             <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
@@ -200,10 +196,10 @@
         <div class="footer-links-col">
           <h4>Spheres of Study</h4>
           <ul>
-            <li><a href="courses.html?sphere=secondary">Secondary Algebra</a></li>
-            <li><a href="courses.html?sphere=exams">AP Calculus & Stats</a></li>
-            <li><a href="courses.html?sphere=exams">IGCSE/GCSE Mathematics</a></li>
-            <li><a href="courses.html?sphere=undergrad">Advanced Linear Algebra</a></li>
+            <li><a href="courses.html?sphere=secondary">NECO & GCE Prep</a></li>
+            <li><a href="courses.html?sphere=exams">WASSCE & UTME/POST UTME Prep</a></li>
+            <li><a href="courses.html?sphere=exams">GCSE & IGCSE Prep</a></li>
+            <li><a href="courses.html?sphere=undergrad">Undergrad College Math</a></li>
           </ul>
         </div>
         <div class="footer-links-col">
@@ -218,8 +214,8 @@
       </div>
       
       <div class="footer-bottom">
-        <p>&copy; 2026 Ziglag Institute. Engineered with passion for math educators and students.</p>
-        <p>Built as a Premium Web App & Google Sites Toolkit</p>
+        <p>&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
+        <p>Built as a Premium Web App</p>
       </div>
     </footer>
 
@@ -252,16 +248,16 @@
       const durMedium = document.getElementById("dur-medium").checked;
       const durLong = document.getElementById("dur-long").checked;
       
-      const hasPdf = document.getElementById("has-pdf").checked;
-      const highRating = document.getElementById("high-rating").checked;
+      const hasPdf = document.getElementById("has-pdf")?.checked || false;
+      const highRating = document.getElementById("high-rating")?.checked || false;
       
-      const examAp = document.getElementById("exam-ap").checked;
-      const examIgcse = document.getElementById("exam-igcse").checked;
-      const examGcse = document.getElementById("exam-gcse").checked;
-      const examWassce = document.getElementById("exam-wassce").checked;
-      const examJamb = document.getElementById("exam-jamb").checked;
-      const examGce = document.getElementById("exam-gce").checked;
-      const hasExamSelection = examAp || examIgcse || examGcse || examWassce || examJamb || examGce;
+      const examAp = document.getElementById("exam-ap")?.checked || false;
+      const examIgcse = document.getElementById("exam-igcse")?.checked || false;
+      const examGcse = document.getElementById("exam-gcse")?.checked || false;
+      const examWassce = document.getElementById("exam-wassce")?.checked || false;
+      const examUtme = document.getElementById("exam-utme")?.checked || false;
+      const examGce = document.getElementById("exam-gce")?.checked || false;
+      const hasExamSelection = examAp || examIgcse || examGcse || examWassce || examUtme || examGce;
 
       grid.innerHTML = "";
       
@@ -302,10 +298,10 @@
           const matchIgcse = examIgcse && c.id.includes("igcse");
           const matchGcse = examGcse && c.id.includes("gcse");
           const matchWassce = examWassce && c.id.includes("wassce");
-          const matchJamb = examJamb && c.id.includes("jamb");
+          const matchUtme = examUtme && c.id.includes("utme");
           const matchGce = examGce && c.id.includes("gce");
 
-          if (!matchAp && !matchIgcse && !matchGcse && !matchWassce && !matchJamb && !matchGce) {
+          if (!matchAp && !matchIgcse && !matchGcse && !matchWassce && !matchUtme && !matchGce) {
             return false;
           }
         }
@@ -391,19 +387,17 @@
     }
 
     function resetFilters() {
-      document.querySelector('input[name="sphere-filter"][value="all"]').checked = true;
-      document.getElementById("dur-short").checked = false;
-      document.getElementById("dur-medium").checked = false;
-      document.getElementById("dur-long").checked = false;
-      document.getElementById("has-pdf").checked = false;
-      document.getElementById("high-rating").checked = false;
-      document.getElementById("exam-ap").checked = false;
-      document.getElementById("exam-igcse").checked = false;
-      document.getElementById("exam-gcse").checked = false;
-      document.getElementById("exam-wassce").checked = false;
-      document.getElementById("exam-jamb").checked = false;
-      document.getElementById("exam-gce").checked = false;
-      document.getElementById("course-search-input").value = "";
+      const allRadio = document.querySelector('input[name="sphere-filter"][value="all"]');
+      if (allRadio) allRadio.checked = true;
+      
+      ['dur-short', 'dur-medium', 'dur-long', 'has-pdf', 'high-rating', 'exam-igcse', 'exam-gcse', 'exam-wassce', 'exam-utme', 'exam-gce'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+      });
+      
+      const searchInput = document.getElementById("course-search-input");
+      if (searchInput) searchInput.value = "";
+      
       renderCourses();
     }
   </script>

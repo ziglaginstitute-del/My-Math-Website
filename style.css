@@ -8,33 +8,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
 
 :root {
-  /* Dark Theme Variables (Default) - Mature Slate & Sapphire Blueprint */
-  --bg-color: #070913;
+  /* Dark Theme Variables (Default) - Vibrant Sky Blue & Orange */
+  --bg-color: #070e17;
   --bg-gradient: 
-    radial-gradient(circle at 50% 0%, #0f152b 0%, #070913 100%),
-    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+    radial-gradient(circle at 50% 0%, #0f253a 0%, #070e17 100%),
+    linear-gradient(rgba(14, 165, 233, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.015) 1px, transparent 1px);
   --bg-size: 100% 100%, 50px 50px, 50px 50px;
-  --surface-color: rgba(13, 17, 30, 0.65);
-  --surface-hover: rgba(22, 28, 48, 0.75);
-  --border-color: rgba(255, 255, 255, 0.06);
-  --border-highlight: rgba(99, 102, 241, 0.15);
+  --surface-color: rgba(13, 23, 38, 0.7);
+  --surface-hover: rgba(20, 34, 56, 0.8);
+  --border-color: rgba(255, 255, 255, 0.07);
+  --border-highlight: rgba(14, 165, 233, 0.25);
   
-  --primary-color: #5f61e8; /* Muted Sapphire Indigo */
-  --primary-glow: rgba(99, 102, 241, 0.2);
-  --secondary-color: #9048e0; /* Muted Royal Violet */
-  --secondary-glow: rgba(144, 72, 224, 0.2);
-  --accent-color: #0b98b0; /* Slate Teal Accent */
-  --accent-glow: rgba(11, 152, 176, 0.2);
+  --primary-color: #0ea5e9; /* Vibrant Sky Blue */
+  --primary-glow: rgba(14, 165, 233, 0.25);
+  --secondary-color: #f97316; /* Energetic Orange */
+  --secondary-glow: rgba(249, 115, 22, 0.25);
+  --accent-color: #38bdf8; /* Luminous Sky Accent */
+  --accent-glow: rgba(56, 189, 248, 0.25);
   
-  --text-main: #f1f3f9;
-  --text-muted: #8c95a5;
-  --text-inverse: #070913;
+  --text-main: #f1f7fe;
+  --text-muted: #8ca0ba;
+  --text-inverse: #070e17;
   
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.35), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.1);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 25px rgba(14, 165, 233, 0.2);
   
   --glass-blur: blur(20px);
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -52,33 +52,33 @@
 }
 
 [data-theme="light"] {
-  /* Light Theme Variables - Muted Platinum & Slate Coordinate Sheet */
-  --bg-color: #f5f7fa;
+  /* Light Theme Variables - Crisp Sky Blue & Warm Orange */
+  --bg-color: #f0f9ff;
   --bg-gradient: 
-    radial-gradient(circle at 50% 0%, #ffffff 0%, #f5f7fa 100%),
-    linear-gradient(rgba(15, 23, 42, 0.012) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.012) 1px, transparent 1px);
+    radial-gradient(circle at 50% 0%, #e0f2fe 0%, #f0f9ff 100%),
+    linear-gradient(rgba(2, 132, 199, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(2, 132, 199, 0.015) 1px, transparent 1px);
   --bg-size: 100% 100%, 50px 50px, 50px 50px;
-  --surface-color: rgba(255, 255, 255, 0.7);
-  --surface-hover: rgba(241, 245, 249, 0.85);
-  --border-color: rgba(15, 23, 42, 0.06);
-  --border-highlight: rgba(79, 70, 229, 0.1);
+  --surface-color: rgba(255, 255, 255, 0.78);
+  --surface-hover: rgba(240, 249, 255, 0.9);
+  --border-color: rgba(2, 132, 199, 0.1);
+  --border-highlight: rgba(249, 115, 22, 0.3);
   
-  --primary-color: #4b4ddb;
-  --primary-glow: rgba(75, 77, 219, 0.15);
-  --secondary-color: #7c3aed;
-  --secondary-glow: rgba(124, 58, 237, 0.15);
-  --accent-color: #087f96;
-  --accent-glow: rgba(8, 127, 150, 0.15);
+  --primary-color: #0284c7; /* Sky Blue */
+  --primary-glow: rgba(2, 132, 199, 0.18);
+  --secondary-color: #ea580c; /* Warm Orange */
+  --secondary-glow: rgba(234, 88, 12, 0.18);
+  --accent-color: #0ea5e9; /* Bright Sky Blue */
+  --accent-glow: rgba(14, 165, 233, 0.18);
   
-  --text-main: #0f1524;
-  --text-muted: #5e6b7e;
+  --text-main: #0c1a2e;
+  --text-muted: #475a74;
   --text-inverse: #ffffff;
   
   --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
   --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
   --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
-  --shadow-glow: 0 0 12px rgba(75, 77, 219, 0.06);
+  --shadow-glow: 0 0 15px rgba(2, 132, 199, 0.12);
 }
 
 /* =========================================
