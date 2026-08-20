@@ -77,6 +77,16 @@
               <span style="font-size:0.9rem; cursor:pointer; color:var(--text-muted);" onclick="alert('Entering Fullscreen (Simulated)')">📺</span>
             </div>
           </div>
+          
+          <!-- Smart Mobile Notice for Google Drive Hosted Videos -->
+          <div id="drive-mobile-notice" style="display:none; margin-top:0.75rem; padding:0.75rem 1.25rem;" class="glass-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+              <span style="font-size:0.85rem; color:var(--text-muted);">
+                📱 <strong>Mobile Device Notice:</strong> If your phone blocks embedded Drive streaming, watch directly:
+              </span>
+              <a id="drive-direct-link" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="white-space:nowrap; border-color:var(--secondary-color); color:var(--secondary-color);">Open in Google Drive ↗</a>
+            </div>
+          </div>
         </div>
 
         <!-- Tab Details Area -->
@@ -256,21 +266,21 @@
     const COURSE_LECTURES = {
       'wassce-gce-neco-prep': [
         // Number Bases
-          { title: "L1: Introduction and Conversion to Base 10", length: "05:15", seconds: 850, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1Or6egQjFxZ9kk6lW6R403oZ5JU0_RpV0/view?usp=drive_link" },
-          { title: "L2: Conversion from Base 10 to Other Bases", length: "02:46", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1GfFF8kMcOppP_YjkmDeVt5RaDi2mh_wG/view?usp=drive_link" },
-          { title: "L3: Interconversions Between Bases", length: "02:03", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/12LusGU1deZzS02IRBvOr9pzfdWlyyqko/view?usp=drive_link" },
-          { title: "L4: Specific Base System and Direct Conversions", length: "02:18", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1qfYvuLu63diemC-HhXi_saV_pd09W6FT/view?usp=drive_link" },
-          { title: "L5: Operations in Base 2", length: "07:06", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/18tVXNt2wE8TsvlJ52Vn5IxGHdmeuGjoJ/view?usp=drive_link" },
-          { title: "L6: Algebraic Equations in Number Bases", length: "04:26", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1zBp3DWBpbgS65qn-eEWHSS1tzHcOyy8j/view?usp=drive_link" },
+          { title: "L1: Introduction and Conversion to Base 10", length: "05:15", seconds: 850, group: "Number Bases", videoUrl: "https://youtu.be/GEQUHlVc8r0" },
+          { title: "L2: Conversion from Base 10 to Other Bases", length: "02:46", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/wpDJwLx-eRw" },
+          { title: "L3: Interconversions Between Bases", length: "02:03", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/S_V3UZb1xv4" },
+          { title: "L4: Specific Base System and Direct Conversions", length: "02:18", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/_dfRw3wOpDU" },
+          { title: "L5: Operations in Base 2", length: "07:06", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/bYrY_PAx4BA" },
+          { title: "L6: Algebraic Equations in Number Bases", length: "04:26", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/9cZdSc4SW_Q" },
       ],
       'jamb-postjamb-prep': [
        // Number Bases
-          { title: "L1: Introduction and Conversion to Base 10", length: "05:15", seconds: 850, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1Or6egQjFxZ9kk6lW6R403oZ5JU0_RpV0/view?usp=drive_link" },
-          { title: "L2: Conversion from Base 10 to Other Bases", length: "02:46", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1GfFF8kMcOppP_YjkmDeVt5RaDi2mh_wG/view?usp=drive_link" },
-          { title: "L3: Interconversions Between Bases", length: "02:03", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/12LusGU1deZzS02IRBvOr9pzfdWlyyqko/view?usp=drive_link" },
-          { title: "L4: Specific Base System and Direct Conversions", length: "02:18", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1qfYvuLu63diemC-HhXi_saV_pd09W6FT/view?usp=drive_link" },
-          { title: "L5: Operations in Base 2", length: "07:06", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/18tVXNt2wE8TsvlJ52Vn5IxGHdmeuGjoJ/view?usp=drive_link" },
-          { title: "L6: Algebraic Equations in Number Bases", length: "04:26", seconds: 765, group: "Number Bases", videoUrl: "https://drive.google.com/file/d/1zBp3DWBpbgS65qn-eEWHSS1tzHcOyy8j/view?usp=drive_link" },
+          { title: "L1: Introduction and Conversion to Base 10", length: "05:15", seconds: 850, group: "Number Bases", videoUrl: "https://youtu.be/GEQUHlVc8r0" },
+          { title: "L2: Conversion from Base 10 to Other Bases", length: "02:46", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/wpDJwLx-eRw" },
+          { title: "L3: Interconversions Between Bases", length: "02:03", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/S_V3UZb1xv4" },
+          { title: "L4: Specific Base System and Direct Conversions", length: "02:18", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/_dfRw3wOpDU" },
+          { title: "L5: Operations in Base 2", length: "07:06", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/bYrY_PAx4BA" },
+          { title: "L6: Algebraic Equations in Number Bases", length: "04:26", seconds: 765, group: "Number Bases", videoUrl: "https://youtu.be/9cZdSc4SW_Q" },
       ],
       'other-exams-prep': [
         // IGCSE Mathematics (0580)
@@ -289,12 +299,6 @@
         { title: "L4: Double Integrals over regions", length: "22:50", seconds: 1370, group: "Multivariable Calculus" }
       ],
       'extras-general-videos': [
-        // Showcase & Walkthroughs
-        { title: "L1: Ziglag Portal Features Walkthrough", length: "11:50", seconds: 710, group: "Showcase & Walkthroughs", videoUrl: "render 4k.mp4" },
-        { title: "L2: 4K Render Animation Showcase", length: "09:40", seconds: 580, group: "Showcase & Walkthroughs" },
-        // Math History & Curiosities
-        { title: "L3: Euler's Identity - Mathematical Beauty", length: "16:20", seconds: 980, group: "Math History & Curiosities" },
-        { title: "L4: The Fibonacci Sequence in Nature", length: "13:40", seconds: 820, group: "Math History & Curiosities" },
         //New Videos From YouTube Channel
         { title: "L5: An Advanced Limit problem involving Factorial", length: "02:36", seconds: 156, group: "YouTube Channel", videoUrl: "https://youtu.be/83q5G1J01Mo?si=tDCvBC_Subd0Omkl" }
       ],
@@ -406,16 +410,20 @@
       },
     };
 
-    // Alias mappings for combined course IDs
-    COURSE_LECTURES['wassce-gce-neco-prep'] = COURSE_LECTURES['wassce-gce-neco-prep'];
-    COURSE_LECTURES['jamb-postjamb-prep'] = COURSE_LECTURES['jamb-postjamb-prep'];
-    COURSE_LECTURES['wassce-gce-neco-physics'] = COURSE_LECTURES['wassce-gce-neco-physics'];
-    COURSE_LECTURES['jamb-postjamb-physics'] = COURSE_LECTURES['jamb-postjamb-physics'];
+    // Alias mappings for all course ID variations
+    COURSE_LECTURES['utme-postutme-prep'] = COURSE_LECTURES['jamb-postjamb-prep'];
+    COURSE_LECTURES['utme-postutme-physics'] = COURSE_LECTURES['jamb-postjamb-physics'];
+    COURSE_LECTURES['jamb-prep'] = COURSE_LECTURES['jamb-postjamb-prep'];
+    COURSE_LECTURES['post-jamb-prep'] = COURSE_LECTURES['jamb-postjamb-prep'];
+    COURSE_LECTURES['wassce-gce-prep'] = COURSE_LECTURES['wassce-gce-neco-prep'];
+    COURSE_LECTURES['neco-prep'] = COURSE_LECTURES['wassce-gce-neco-prep'];
 
-    COURSE_QUIZZES['wassce-gce-neco-prep'] = COURSE_QUIZZES['wassce-gce-neco-prep'];
-    COURSE_QUIZZES['jamb-postjamb-prep'] = COURSE_QUIZZES['jamb-postjamb-prep'];
-    COURSE_QUIZZES['wassce-gce-neco-physics'] = COURSE_QUIZZES['wassce-gce-neco-physics'];
-    COURSE_QUIZZES['jamb-postjamb-physics'] = COURSE_QUIZZES['jamb-postjamb-physics'];
+    COURSE_QUIZZES['utme-postutme-prep'] = COURSE_QUIZZES['jamb-postjamb-prep'];
+    COURSE_QUIZZES['utme-postutme-physics'] = COURSE_QUIZZES['jamb-postjamb-physics'];
+    COURSE_QUIZZES['jamb-prep'] = COURSE_QUIZZES['jamb-postjamb-prep'];
+    COURSE_QUIZZES['post-jamb-prep'] = COURSE_QUIZZES['jamb-postjamb-prep'];
+    COURSE_QUIZZES['wassce-gce-prep'] = COURSE_QUIZZES['wassce-gce-neco-prep'];
+    COURSE_QUIZZES['neco-prep'] = COURSE_QUIZZES['wassce-gce-neco-prep'];
 
     document.addEventListener("DOMContentLoaded", () => {
       // Find course parameters
@@ -569,15 +577,34 @@
           } else if (targetUrl.includes("drive.google.com") && targetUrl.includes("/view")) {
             targetUrl = targetUrl.replace(/\/view.*/, "/preview");
           }
+
+          if (lecture.videoUrl.includes("drive.google.com")) {
+            const directDriveUrl = lecture.videoUrl.replace("/preview", "/view");
+            const noticeBox = document.getElementById("drive-mobile-notice");
+            const noticeBtn = document.getElementById("drive-direct-link");
+            if (noticeBox && noticeBtn) {
+              noticeBtn.href = directDriveUrl;
+              noticeBox.style.display = "block";
+            }
+          } else {
+            const noticeBox = document.getElementById("drive-mobile-notice");
+            if (noticeBox) noticeBox.style.display = "none";
+          }
           
           iframePlayer.src = targetUrl;
         } else {
+          const noticeBox = document.getElementById("drive-mobile-notice");
+          if (noticeBox) noticeBox.style.display = "none";
+          
           videoPlayer.style.display = "block";
           videoPlayer.src = targetUrl;
           videoPlayer.load();
           videoPlayer.play().catch(e => console.log("Playback failed or was blocked by browser autoplay rules: ", e));
         }
       } else {
+        const noticeBox = document.getElementById("drive-mobile-notice");
+        if (noticeBox) noticeBox.style.display = "none";
+        
         // Restore standard mock overlay view
         document.getElementById("video-overlay").style.display = "flex";
       }
