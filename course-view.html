@@ -24,6 +24,7 @@
           <li><a href="cbt.html">CBT Mock Exam</a></li>
           <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
           <li><a href="vault.html">Resource Vault</a></li>
+            <li><a href="admin.html">Admin CMS Portal</a></li>
           <li><a href="people.html">People</a></li>
           <li><a href="contact.html">Contact Us</a></li>
         </ul>
@@ -254,6 +255,8 @@
 
   </div>
 
+  <!-- Universal Database Layer -->
+  <script src="ziglag-db.js"></script>
   <script src="app.js"></script>
   <script>
     // Study Room logic
@@ -465,6 +468,24 @@
       renderPlaylist();
       renderQuiz();
       updateProgressUI();
+
+      // Check for live lectures added via Supabase Admin CMS
+      if (window.ZiglagDB && window.ZiglagDB.lectures) {
+        window.ZiglagDB.lectures.listByCourse(activeCourse.id).then(remoteLectures => {
+          if (remoteLectures && remoteLectures.length > 0) {
+            const formatted = remoteLectures.map(l => ({
+              title: l.title,
+              length: l.duration || '30 mins',
+              seconds: 1800,
+              group: 'Admin Published (Live)',
+              videoUrl: l.video_url
+            }));
+            const base = COURSE_LECTURES[activeCourse.id] || [];
+            COURSE_LECTURES[activeCourse.id] = formatted.concat(base);
+            renderPlaylist();
+          }
+        }).catch(err => console.warn('Notice loading dynamic lectures:', err));
+      }
     });
 
     function renderPlaylist() {

@@ -28,6 +28,7 @@
           <li><a href="cbt.html">CBT Mock Exam</a></li>
           <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
           <li><a href="vault.html">Resource Vault</a></li>
+            <li><a href="admin.html">Admin CMS Portal</a></li>
           <li><a href="people.html">People</a></li>
           <li><a href="contact.html">Contact Us</a></li>
         </ul>
@@ -247,10 +248,12 @@
 
   </div>
 
+  <!-- Universal Database Layer -->
+  <script src="ziglag-db.js"></script>
   <script src="app.js"></script>
   <script>
     // Course catalog specific scripting
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       // Read URL params
       const params = new URLSearchParams(window.location.search);
       const sphereParam = params.get("sphere");
@@ -260,6 +263,34 @@
         if (radio) {
           radio.checked = true;
         }
+      }
+
+      // Enrich courses from Supabase Admin CMS
+      try {
+        if (window.ZiglagDB && window.ZiglagDB.courses) {
+          const liveCourses = await window.ZiglagDB.courses.list();
+          if (liveCourses && liveCourses.length > 0 && window.MATH_DATABASE && window.MATH_DATABASE.courses) {
+            liveCourses.forEach(lc => {
+              if (!window.MATH_DATABASE.courses.some(c => c.id === lc.id || c.id === lc.slug)) {
+                window.MATH_DATABASE.courses.push({
+                  id: lc.slug || lc.id,
+                  title: lc.title,
+                  category: lc.category,
+                  shortDesc: lc.description || 'Master key principles with Mr. Isaac Olusola.',
+                  level: lc.badge || 'Core STEM',
+                  duration: `${lc.duration_weeks || 6} Weeks`,
+                  materials: 8,
+                  rating: 4.9,
+                  lectures: 12,
+                  sphere: lc.category.toLowerCase().includes('jamb') ? 'exams' : (lc.category.toLowerCase().includes('wassce') ? 'secondary' : 'undergrad'),
+                  syllabus: ['Foundational Concepts', 'Calculated Examples', 'Past Questions Review', 'Mastery Challenge']
+                });
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Notice loading live courses:', err);
       }
       
       renderCourses();

@@ -37,6 +37,7 @@
           <li><a href="cbt.html" class="active">CBT Mock Exam</a></li>
           <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
           <li><a href="vault.html">Resource Vault</a></li>
+            <li><a href="admin.html">Admin CMS Portal</a></li>
           <li><a href="people.html">People</a></li>
           <li><a href="contact.html">Contact Us</a></li>
         </ul>
@@ -510,6 +511,8 @@
 
   </div>
 
+  <!-- Universal Database Layer -->
+  <script src="ziglag-db.js"></script>
   <script src="app.js"></script>
   <script src="cbt-data.js"></script>
   <script>
@@ -537,9 +540,39 @@
     let calcWaitingOperand = false;
 
     // Initialization
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       renderSubjectCheckboxes();
       initKeyboardShortcuts();
+
+      // Load any new questions from Supabase / custom storage to enrich question bank
+      try {
+        if (window.ZiglagDB && window.ZiglagDB.questions) {
+          const subjects = ['mathematics', 'physics', 'chemistry', 'english', 'biology'];
+          for (const s of subjects) {
+            const extraQ = await window.ZiglagDB.questions.list(s, 20);
+            if (extraQ && extraQ.length > 0 && window.CBT_QUESTION_BANK && window.CBT_QUESTION_BANK[s]) {
+              extraQ.forEach(eq => {
+                if (!window.CBT_QUESTION_BANK[s].some(existing => existing.id === eq.id)) {
+                  window.CBT_QUESTION_BANK[s].push({
+                    id: eq.id,
+                    subject: eq.subject,
+                    topic: eq.topic,
+                    difficulty: eq.difficulty,
+                    question: eq.question_text || eq.question,
+                    passage: eq.passage,
+                    options: Array.isArray(eq.options) ? eq.options : [],
+                    correct: eq.correct_option || eq.correctOption || 'A',
+                    hint: eq.hint,
+                    explanation: eq.explanation
+                  });
+                }
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Notice loading extra questions:", err);
+      }
     });
 
     function selectExamMode(mode) {
@@ -611,14 +644,209 @@
       renderSubjectCheckboxes();
     }
 
-    function launchCbtExam() {
+    async function launchCbtExam() {
       if (selectedSubjectIds.length === 0) {
         alert("Please select at least one subject!");
         return;
       }
 
-      const name = document.getElementById('cbt-candidate-name').value.trim() || 'Candidate';
-      const reg = document.getElementById('cbt-candidate-reg').value.trim() || '2026/JAMB/94821';
+      // 1. RAPID PRACTICE MODE: Free guest access without mandatory registration
+      if (currentExamMode === 'practice') {
+        const name = document.getElementById('cbt-candidate-name').value.trim() || 'Guest Learner';
+        const reg = document.getElementById('cbt-candidate-reg').value.trim() || 'PRACTICE-GUEST';
+        startExamSession(name, reg);
+        return;
+      }
+
+      // 2. OFFICIAL REAL-TIME MOCK (JAMB UTME / WASSCE): Mandatory Candidate Registration Gate
+      const reg = document.getElementById('cbt-candidate-reg').value.trim();
+      const name = document.getElementById('cbt-candidate-name').value.trim();
+
+      if (!reg) {
+        alert("Please enter your Registration / Docket Number for the Official Mock.");
+        document.getElementById('cbt-candidate-reg').focus();
+        return;
+      }
+
+      showVerificationLoadingModal(reg);
+
+      try {
+        const candidate = await window.ZiglagDB.candidates.verify(reg);
+        if (candidate) {
+          showCandidateDocketVerifiedModal(candidate);
+        } else {
+          showCandidateNotFoundModal(reg, name);
+        }
+      } catch (err) {
+        console.warn("Verification error:", err);
+        startExamSession(name || 'Candidate', reg);
+      }
+    }
+
+    function showVerificationLoadingModal(reg) {
+      const modal = document.getElementById('cbt-modal-overlay');
+      const box = document.getElementById('cbt-modal-box');
+      modal.style.display = 'flex';
+      box.innerHTML = `
+        <span style="font-size:2.8rem; display:block; margin-bottom:0.75rem;">🔍</span>
+        <h3 style="margin-bottom:0.5rem; color:var(--text-main);">Verifying Candidate Docket...</h3>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.5rem;">
+          Querying Supabase registry for Registration Number: <code style="color:var(--primary-color); font-weight:700;">${reg}</code>
+        </p>
+        <div style="font-size:0.8rem; color:var(--text-muted);">Please wait a moment...</div>
+      `;
+    }
+
+    function showCandidateDocketVerifiedModal(candidate) {
+      const modal = document.getElementById('cbt-modal-overlay');
+      const box = document.getElementById('cbt-modal-box');
+      modal.style.display = 'flex';
+
+      const reg = candidate.username || candidate.id;
+      const name = candidate.full_name || 'Candidate';
+      const seat = candidate.seat_number || 'Seat 01';
+      const center = candidate.center || 'Ziglag CBT Center Lagos';
+
+      box.innerHTML = `
+        <span style="font-size:2.8rem; display:block; margin-bottom:0.5rem; color:#34d399;">✅</span>
+        <h3 style="margin-bottom:0.25rem; color:#34d399;">Examination Docket Cleared</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+          Candidate identity confirmed in Supabase registry. You are authorized to take the official timed mock.
+        </p>
+
+        <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1.5rem; text-align:left; font-size:0.88rem; display:flex; flex-direction:column; gap:0.5rem;">
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.4rem;">
+            <span style="color:var(--text-muted);">Candidate Name:</span>
+            <strong style="color:var(--text-main);">${name}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.4rem;">
+            <span style="color:var(--text-muted);">Docket / Reg No:</span>
+            <code style="color:var(--primary-color); font-weight:700;">${reg}</code>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.4rem;">
+            <span style="color:var(--text-muted);">Assigned Center:</span>
+            <span style="color:var(--text-main);">${center}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.4rem;">
+            <span style="color:var(--text-muted);">Examination Seat:</span>
+            <strong style="color:var(--secondary-color);">${seat}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:var(--text-muted);">Exam Duration:</span>
+            <strong style="color:#34d399;">120 Minutes (Auto-Submit)</strong>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:0.75rem; justify-content:center;">
+          <button class="btn btn-secondary" onclick="closeModal()">Change Details</button>
+          <button class="btn btn-primary" onclick="closeModal(); startExamSession('${name.replace(/'/g, "\\'")}', '${reg.replace(/'/g, "\\'")}');" style="background:var(--secondary-color); border:none; padding:0.8rem 1.8rem;">
+            Enter Examination Hall 🚀
+          </button>
+        </div>
+      `;
+    }
+
+    function showCandidateNotFoundModal(enteredReg, enteredName) {
+      const modal = document.getElementById('cbt-modal-overlay');
+      const box = document.getElementById('cbt-modal-box');
+      modal.style.display = 'flex';
+
+      box.innerHTML = `
+        <span style="font-size:2.8rem; display:block; margin-bottom:0.5rem; color:#f59e0b;">⚠️</span>
+        <h3 style="margin-bottom:0.25rem; color:#f59e0b;">Registration Docket Not Found</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.25rem;">
+          The Registration Number <code style="color:var(--text-main); font-weight:700;">${enteredReg}</code> is not yet registered for this official real-time mock examination.
+        </p>
+
+        <div style="background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.2); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1.5rem; text-align:left; font-size:0.85rem; color:var(--text-muted); line-height:1.6;">
+          <strong>Why is registration required?</strong><br>
+          Official mocks calculate national percentiles, verify seat dockets, and record scores into the database. You can register now in 10 seconds or take the test in free practice mode.
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.6rem;">
+          <button class="btn btn-primary" onclick="openQuickRegisterModal('${enteredReg.replace(/'/g, "\\'")}', '${enteredName.replace(/'/g, "\\'")}')" style="width:100%; padding:0.75rem;">
+            📝 Quick Candidate Registration (Free)
+          </button>
+          <button class="btn btn-secondary" onclick="selectExamMode('practice'); closeModal(); launchCbtExam();" style="width:100%; padding:0.75rem;">
+            ⚡ Switch to Free Practice Mode (No registration needed)
+          </button>
+          <button class="btn btn-secondary" onclick="useDemoCandidate()" style="width:100%; padding:0.6rem; font-size:0.82rem;">
+            🧪 Test with Demo Docket (JAMB/2026/170)
+          </button>
+        </div>
+      `;
+    }
+
+    function openQuickRegisterModal(defaultReg, defaultName) {
+      const modal = document.getElementById('cbt-modal-overlay');
+      const box = document.getElementById('cbt-modal-box');
+      modal.style.display = 'flex';
+
+      box.innerHTML = `
+        <span style="font-size:2.5rem; display:block; margin-bottom:0.5rem;">✍️</span>
+        <h3 style="margin-bottom:0.5rem; color:var(--primary-color);">Quick Mock Registration</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+          Enter your details below to generate your candidate docket immediately.
+        </p>
+
+        <form onsubmit="handleQuickRegisterSubmit(event)" style="text-align:left;">
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label style="font-size:0.85rem;">Full Name:</label>
+            <input type="text" id="quick-cand-name" class="contact-input" value="${defaultName || ''}" placeholder="e.g. Babatunde Johnson" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label style="font-size:0.85rem;">Registration / Phone Number:</label>
+            <input type="text" id="quick-cand-reg" class="contact-input" value="${defaultReg || ''}" placeholder="e.g. 2026/JAMB/10482 or Phone" required>
+          </div>
+          <div class="form-group" style="margin-bottom:1.25rem;">
+            <label style="font-size:0.85rem;">Academic Category:</label>
+            <select id="quick-cand-cat" class="contact-input" style="background:rgba(13,23,38,0.9);">
+              <option value="Science">Physical & Engineering Sciences</option>
+              <option value="Biological">Biological & Medical Sciences</option>
+              <option value="Commercial">Commercial / Management</option>
+              <option value="Arts">Arts & Humanities</option>
+            </select>
+          </div>
+
+          <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Generate Docket & Enter 🚀</button>
+          </div>
+        </form>
+      `;
+    }
+
+    async function handleQuickRegisterSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('quick-cand-name').value.trim();
+      const reg = document.getElementById('quick-cand-reg').value.trim();
+      const category = document.getElementById('quick-cand-cat').value;
+
+      try {
+        const candidate = await window.ZiglagDB.candidates.register({
+          full_name: name,
+          username: reg,
+          category: category,
+          registered_subjects: selectedSubjectIds
+        });
+        document.getElementById('cbt-candidate-name').value = name;
+        document.getElementById('cbt-candidate-reg').value = candidate.username || reg;
+        closeModal();
+        startExamSession(name, candidate.username || reg);
+      } catch (err) {
+        alert("Registration notice: " + err.message);
+        startExamSession(name, reg);
+      }
+    }
+
+    function useDemoCandidate() {
+      document.getElementById('cbt-candidate-name').value = "Ifeoma Adaeze Jude";
+      document.getElementById('cbt-candidate-reg').value = "JAMB/2026/170";
+      closeModal();
+      launchCbtExam();
+    }
+
+    function startExamSession(name, reg) {
       const timerVal = parseInt(document.getElementById('cbt-timer-select').value);
 
       document.getElementById('exam-candidate-display').innerText = name;
@@ -1065,6 +1293,27 @@
 
       // Render Review Explanations List
       renderReviewQuestions('all');
+
+      // Save submission record to Supabase
+      try {
+        const timeSpent = Math.round((new Date() - (examStartTime || new Date())) / 1000);
+        if (window.ZiglagDB && window.ZiglagDB.exams) {
+          window.ZiglagDB.exams.submitResult({
+            candidate_name: name,
+            candidate_reg: reg,
+            exam_type: currentExamMode === 'jamb' ? 'JAMB UTME' : (currentExamMode === 'wassce' ? 'WASSCE' : 'Practice'),
+            score: currentExamMode === 'jamb' ? jambScaledScore : totalCorrect,
+            max_score: currentExamMode === 'jamb' ? 400 : totalQuestions,
+            percentage: percentage,
+            time_spent_seconds: timeSpent,
+            subject_scores: subjectStats
+          }).then(() => {
+            console.log("Exam result saved to Supabase exam_history.");
+          }).catch(e => console.warn("Supabase result submission notice:", e));
+        }
+      } catch (err) {
+        console.warn("Result recording notice:", err);
+      }
     }
 
     function renderReviewQuestions(filter) {
