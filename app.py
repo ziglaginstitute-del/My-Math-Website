@@ -10,11 +10,13 @@ load_dotenv()
 # Set up basic logging
 logging.basicConfig(level=logging.INFO)
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-secret-key-12345')
 
 # Database URI configuration
-db_url = os.getenv('DATABASE_URL', 'sqlite:///math_portal.db')
+db_url = os.getenv('DATABASE_URL', f'sqlite:///{os.path.join(BASE_DIR, "instance", "math_portal.db")}')
 # Handle Render's postgres:// vs postgresql:// scheme discrepancy
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
@@ -52,35 +54,43 @@ class Member(db.Model):
 # Routes
 @app.route('/')
 def home():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory(BASE_DIR, 'index.html')
 
 @app.route('/index.html')
 def index():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory(BASE_DIR, 'index.html')
 
 @app.route('/courses.html')
 def courses():
-    return send_from_directory('.', 'courses.html')
+    return send_from_directory(BASE_DIR, 'courses.html')
+
+@app.route('/cbt.html')
+def cbt_page():
+    return send_from_directory(BASE_DIR, 'cbt.html')
+
+@app.route('/cbt')
+def cbt_alias():
+    return send_from_directory(BASE_DIR, 'cbt.html')
 
 @app.route('/tutoring.html')
 def tutoring():
-    return send_from_directory('.', 'tutoring.html')
+    return send_from_directory(BASE_DIR, 'tutoring.html')
 
 @app.route('/vault.html')
 def vault():
-    return send_from_directory('.', 'vault.html')
+    return send_from_directory(BASE_DIR, 'vault.html')
 
 @app.route('/course-view.html')
 def course_view():
-    return send_from_directory('.', 'course-view.html')
+    return send_from_directory(BASE_DIR, 'course-view.html')
 
 @app.route('/contact.html')
 def contact_page():
-    return send_from_directory('.', 'contact.html')
+    return send_from_directory(BASE_DIR, 'contact.html')
 
 @app.route('/people.html')
 def people_page():
-    return send_from_directory('.', 'people.html')
+    return send_from_directory(BASE_DIR, 'people.html')
 
 @app.route('/api/people', methods=['GET'])
 def get_people():

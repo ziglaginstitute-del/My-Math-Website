@@ -25,6 +25,7 @@
         <ul class="nav-links">
           <li><a href="index.html" class="active">Dashboard</a></li>
           <li><a href="courses.html">Courses</a></li>
+          <li><a href="cbt.html">CBT Mock Exam</a></li>
           <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
           <li><a href="vault.html">Resource Vault</a></li>
           <li><a href="people.html">People</a></li>
@@ -32,8 +33,11 @@
         </ul>
       </nav>
       <div class="navbar-actions">
+        <div class="hub-xp-chip" style="font-size: 0.78rem; padding: 0.25rem 0.6rem; display: inline-flex;" title="Active Study Streak">
+          <span class="flame" style="font-size:0.95rem;">🔥</span> 5-Day Streak
+        </div>
         <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
-        <a href="courses.html" class="btn btn-primary btn-sm">Get Started</a>
+        <a href="tutoring.html" class="btn btn-primary btn-sm">Book 1-on-1 Class</a>
       </div>
     </header>
 
@@ -41,57 +45,167 @@
     <main class="hero">
       <div class="hero-content">
         <div class="hero-badge">
-          <span>✨</span> Empowering STEM Education
+          <span>🇳🇬</span> Nigerian Curriculum & Exam Mastery • WASSCE · UTME · NECO
         </div>
-        <h1 class="hero-title">Master any sphere of Mathematics.</h1>
+        <h1 class="hero-title">Master Mathematics & Physics with Precision.</h1>
         <p class="hero-description">
-          A bespoke learning ecosystem providing visual courses, rigorous exercises, exam study kits, and expert 1-on-1 coaching spanning school algebra through complex university calculus.
+          An interactive, curriculum-aligned learning ecosystem for Nigerian students and exam candidates. Explore structured video lectures, take timed CBT practice tests with instant step-by-step feedback, track your study streaks, and reach out for private 1-on-1 classes.
         </p>
         <div class="hero-actions">
-          <a href="courses.html" class="btn btn-primary">Explore Courses</a>
-          <a href="tutoring.html" class="btn btn-secondary">Schedule Tutoring</a>
+          <a href="courses.html" class="btn btn-primary">Explore Courses & CBT ➜</a>
+          <a href="tutoring.html" class="btn btn-secondary"><span>👨‍🏫</span> Book 1-on-1 Private Class</a>
+        </div>
+        <div class="hero-stats-banner">
+          <div class="hero-stat-pill">
+            <span>🎯</span> <strong>Curriculum Aligned:</strong> WASSCE, UTME & NECO
+          </div>
+          <div class="hero-stat-pill">
+            <span>⚡</span> <strong>CBT Practice:</strong> Real Tests & Solutions
+          </div>
+          <div class="hero-stat-pill">
+            <span>📈</span> <strong>Smart Progress:</strong> Streaks, XP & Mastery
+          </div>
         </div>
       </div>
 
       <div class="hero-visual" style="display: flex; flex-direction: column; gap: 1.5rem;">
-        <!-- Premium glass visual element -->
-        <div class="hero-visual-card glass-card">
-          <h3 style="margin-bottom: 1rem; color: var(--accent-color);">Featured Equation</h3>
-          <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Euler's Beautiful Identity: Relating fundamental constants.</p>
-          
-          <div class="math-block">
-            <span class="math-symbol">e</span>
-            <sup class="math-symbol" style="font-size:0.9rem; margin-top:-10px;">iπ</sup>
-            <span class="math-op">+</span>
-            <span style="font-size:1.25rem;">1</span>
-            <span class="math-op">=</span>
-            <span style="font-size:1.25rem;">0</span>
+        <!-- Dribbble-Style Gamified Learner Hub Card -->
+        <div class="learner-hub-card">
+          <!-- Profile & Status -->
+          <div class="hub-top-row">
+            <div class="hub-user-profile">
+              <div class="hub-avatar-ring">👨‍🎓</div>
+              <div class="hub-user-meta">
+                <span class="hub-user-name">Candidate Hub</span>
+                <span class="hub-user-track">JAMB UTME & WASSCE Prep</span>
+              </div>
+            </div>
+            <div class="hub-badge-group">
+              <span class="hub-level-chip">Level 6 Scholar</span>
+              <span id="hub-xp-counter" class="hub-xp-chip">⚡ 1,250 XP</span>
+            </div>
           </div>
 
-          <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-size: 0.85rem; color: var(--text-muted);">
-              Sphere: <strong style="color: var(--text-main);">Complex Analysis</strong>
+          <!-- Streak Tracker -->
+          <div class="hub-streak-row">
+            <div class="hub-streak-info">
+              <span class="flame">🔥</span>
+              <span>5-Day Study Streak!</span>
             </div>
-            <button class="btn btn-secondary btn-sm" id="btn-next-formula" onclick="toggleHeroFormula()">Next Proof ➜</button>
+            <div class="hub-day-dots">
+              <span class="hub-day-dot done" title="Monday Completed">M ✓</span>
+              <span class="hub-day-dot done" title="Tuesday Completed">T ✓</span>
+              <span class="hub-day-dot done" title="Wednesday Completed">W ✓</span>
+              <span class="hub-day-dot done" title="Thursday Completed">T ✓</span>
+              <span class="hub-day-dot done" title="Friday Completed">F ✓</span>
+              <span class="hub-day-dot today" title="Saturday Today">S</span>
+              <span class="hub-day-dot" title="Sunday">S</span>
+            </div>
+          </div>
+
+          <!-- Syllabus Mastery Bar -->
+          <div class="hub-progress-section">
+            <div class="hub-progress-labels">
+              <span><strong>Syllabus Mastery:</strong> 18 of 24 Topics</span>
+              <span style="color: var(--secondary-color); font-weight:700;">75% Ready</span>
+            </div>
+            <div class="hub-progress-track">
+              <div id="hub-progress-bar" class="hub-progress-fill"></div>
+            </div>
+          </div>
+
+          <!-- Interactive CBT Practice Question -->
+          <div class="hub-cbt-drill" id="hero-cbt-drill">
+            <div class="cbt-header-tag">
+              <span>⚡ Daily CBT Drill • JAMB Mathematics</span>
+              <span style="color:var(--text-muted); font-size:0.7rem;">+50 XP</span>
+            </div>
+            <div class="cbt-question-text">
+              Evaluate for real variable <span class="math-symbol">y</span>: <strong style="color:var(--primary-color);">log₂(y² - 1) = 3</strong>
+            </div>
+            <div class="cbt-options-grid">
+              <button class="cbt-opt-btn" onclick="handleHeroCbtAnswer(this, false)">A) y = ±2</button>
+              <button class="cbt-opt-btn" onclick="handleHeroCbtAnswer(this, true)">B) y = ±3</button>
+              <button class="cbt-opt-btn" onclick="handleHeroCbtAnswer(this, false)">C) y = ±4</button>
+              <button class="cbt-opt-btn" onclick="handleHeroCbtAnswer(this, false)">D) y = ±9</button>
+            </div>
+            <div class="cbt-feedback-panel" id="hero-cbt-feedback"></div>
+            <div class="cbt-recommendation-box">
+              <span>💡 <strong>Recommendation:</strong> Practice full timed mock tests in the CBT Exam Hall</span>
+              <a href="cbt.html" class="btn btn-secondary btn-sm" style="padding:0.25rem 0.5rem; font-size:0.75rem;">CBT Hall ➜</a>
+            </div>
           </div>
         </div>
 
         <!-- Ziglag Institute Video Showcase Card -->
-        <div class="hero-visual-card glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
-          <h4 style="color: var(--secondary-color); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-            <span>🎬</span> Ziglag Showcase Video
-          </h4>
+        <div class="hero-visual-card glass-card" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; border-radius: var(--radius-lg);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="color: var(--secondary-color); display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: 1rem;">
+              <span>🎬</span> Ziglag Showcase Video
+            </h4>
+            <span style="font-size: 0.75rem; color: var(--accent-color); font-weight: 600;">Full 4K Render</span>
+          </div>
           <div style="position: relative; border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 16/9; border: 1px solid var(--border-color); background: #000;">
             <video src="render 4k.mp4" style="width: 100%; height: 100%; object-fit: cover;" controls poster="ZIG.png"></video>
           </div>
-          <div style="margin-top: 0.5rem; text-align: center;">
-            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center; width: 100%;">
-              <span>🎥</span> Subscribe on YouTube ➜
+          <div style="margin-top: 0.25rem; display: flex; gap: 0.5rem;">
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="flex: 1; display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;">
+              <span>🎥</span> YouTube Channel
+            </a>
+            <a href="tutoring.html" class="btn btn-primary btn-sm" style="flex: 1; display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;">
+              <span>👨‍🏫</span> Book Tutoring
             </a>
           </div>
         </div>
       </div>
     </main>
+
+    <!-- The 4-Pillar Learning & Examination Architecture -->
+    <section class="section-wrapper" style="padding-top: 0.5rem; padding-bottom: 2rem;">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-subtitle">Examination Readiness System</span>
+          <h2>Everything You Need to Ace Maths & Physics</h2>
+        </div>
+        <p style="max-width: 480px; text-align: right;" class="text-muted">
+          A proven learning framework built specifically for Nigerian high school students, WAEC/JAMB/NECO candidates, and undergraduate scholars.
+        </p>
+      </div>
+
+      <div class="pillars-grid">
+        <!-- Pillar 1 -->
+        <div class="pillar-card">
+          <div class="pillar-icon-box">📚</div>
+          <h3>1. Read & Study Content</h3>
+          <p>Exhaustive video lectures and comprehensive PDF notes covering syllabus topics in both Mathematics and Physics—from number bases to electromagnetism.</p>
+          <a href="courses.html" class="pillar-link">Browse Notes & Videos ➜</a>
+        </div>
+
+        <!-- Pillar 2 -->
+        <div class="pillar-card">
+          <div class="pillar-icon-box" style="color: var(--secondary-color); background: rgba(249, 115, 22, 0.1); border-color: rgba(249, 115, 22, 0.2);">⚡</div>
+          <h3>2. Take CBT Practice</h3>
+          <p>Real computer-based exam practice designed to match standard JAMB UTME, WAEC, and NECO formats. Build speed, timing, and exam stamina.</p>
+          <a href="cbt.html" class="pillar-link">Launch CBT Exam Hall ➜</a>
+        </div>
+
+        <!-- Pillar 3 -->
+        <div class="pillar-card">
+          <div class="pillar-icon-box" style="color: #10b981; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">🔍</div>
+          <h3>3. In-Depth Solutions & Feedback</h3>
+          <p>Never guess an answer. Every quiz and CBT problem provides complete step-by-step mathematical derivations, formula breakdowns, and review hints.</p>
+          <a href="course-view.html" class="pillar-link">See Sample Solutions ➜</a>
+        </div>
+
+        <!-- Pillar 4 -->
+        <div class="pillar-card">
+          <div class="pillar-icon-box" style="color: var(--accent-color); background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.2);">👨‍🏫</div>
+          <h3>4. Private 1-on-1 Classes</h3>
+          <p>Need targeted coaching? Reach out for private live whiteboard classes with Mr. Isaac Olusola (MSc in Applied Mathematics) for dedicated help.</p>
+          <a href="tutoring.html" class="pillar-link">Schedule a Private Class ➜</a>
+        </div>
+      </div>
+    </section>
 
     <!-- Spheres Section -->
     <section class="section-wrapper">
@@ -180,6 +294,7 @@
               <button class="btn btn-secondary btn-sm" onclick="showSandboxMath('integrals')">Integrals</button>
               <button class="btn btn-secondary btn-sm" onclick="showSandboxMath('fractions')">Fractions</button>
               <button class="btn btn-secondary btn-sm" onclick="showSandboxMath('quad')" style="border-color: var(--primary-color);">Quadratic Formula</button>
+              <button class="btn btn-secondary btn-sm" onclick="showSandboxMath('physics')" style="border-color: var(--secondary-color); color: var(--secondary-color);">⚡ Physics Formulas</button>
             </div>
           </div>
         </div>
@@ -207,31 +322,36 @@
 
     <!-- Tutoring Section Preview -->
     <section class="section-wrapper" style="text-align: center;">
-      <span class="section-subtitle">Struggling with assignments?</span>
-      <h2 style="margin-top: 0.5rem; margin-bottom: 1rem;">Tailored 1-on-1 Live Coaching Sessions</h2>
-      <p style="max-width: 600px; margin: 0 auto 2.5rem auto;">
-        Get unblocked instantly. Book a private live whiteboard session with university lecturers and certified curriculum guides specializing in high school and college-level STEM examinations.
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-pill); padding: 0.35rem 0.85rem; font-size: 0.82rem; font-weight: 600; color: #10b981; margin-bottom: 0.75rem;">
+        <span>🟢</span> Accepting Private Students for WASSCE, UTME & University Coaching
+      </div>
+      <h2 style="margin-top: 0.25rem; margin-bottom: 1rem;">Tailored 1-on-1 Private Tutoring with Mr. Isaac Olusola</h2>
+      <p style="max-width: 680px; margin: 0 auto 2.5rem auto;">
+        Get unblocked instantly. Learn directly with Mr. Isaac Olusola (MSc in Applied Mathematics • 5.0 ★ Rating) specializing in high school WASSCE, JAMB UTME, and college-level Mathematics & Physics.
       </p>
       
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; text-align: left; margin-bottom: 3rem;">
         <div class="glass-card" style="padding: 2rem;">
           <span style="font-size: 2.5rem; display: block; margin-bottom: 1rem;">🚀</span>
-          <h3>Instant Homework Help</h3>
-          <p style="margin-top: 0.5rem; font-size: 0.95rem;">Clear up mathematical roadblocks in homework sheets, assignments, and exam review notes.</p>
+          <h3>Instant Homework & CBT Review</h3>
+          <p style="margin-top: 0.5rem; font-size: 0.95rem;">Clear up confusing mathematical proofs, physics derivations, and past question roadblocks in a private 1-on-1 setting.</p>
         </div>
         <div class="glass-card" style="padding: 2rem;">
           <span style="font-size: 2.5rem; display: block; margin-bottom: 1rem;">📝</span>
           <h3>Exam-focused Strategies</h3>
-          <p style="margin-top: 0.5rem; font-size: 0.95rem;">Understand scoring guides, common pitfalls, and structural guidelines of AP, GCSE, and IGCSE questions.</p>
+          <p style="margin-top: 0.5rem; font-size: 0.95rem;">Master speed-solving hacks for JAMB UTME, scoring rubrics for WAEC/NECO theory, and Cambridge A-Level methods.</p>
         </div>
         <div class="glass-card" style="padding: 2rem;">
           <span style="font-size: 2.5rem; display: block; margin-bottom: 1rem;">💻</span>
-          <h3>Interactive Board Platform</h3>
-          <p style="margin-top: 0.5rem; font-size: 0.95rem;">Write formulas together in real-time, record your whiteboard lectures, and export notes into PDF bundles.</p>
+          <h3>Interactive Live Whiteboard</h3>
+          <p style="margin-top: 0.5rem; font-size: 0.95rem;">Solve formulas interactively on a shared digital board, receive personalized study recommendations, and download annotated PDF summaries.</p>
         </div>
       </div>
 
-      <a href="tutoring.html" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Schedule Your Free Trial Session</a>
+      <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="tutoring.html" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.05rem;">Schedule Your Free Trial Session ➜</a>
+        <a href="people.html" class="btn btn-secondary" style="padding: 1rem 2rem; font-size: 1.05rem;">Meet Your Tutor</a>
+      </div>
     </section>
 
     <!-- Footer -->
@@ -256,6 +376,7 @@
           <ul>
             <li><a href="index.html">Dashboard Home</a></li>
             <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="cbt.html">CBT Mock Exam</a></li>
             <li><a href="tutoring.html">1-on-1 Coaching</a></li>
             <li><a href="vault.html">Resource Vault</a></li>
           </ul>
@@ -434,6 +555,24 @@
           </div>
         `
       };
+      contents['physics'] = {
+        title: "Ohm's Law & Electric Power",
+        desc: "Core circuit equations in WASSCE & UTME Physics examinations.",
+        html: `
+          <span class="math-symbol">V</span>
+          <span class="math-op">=</span>
+          <span class="math-symbol">I</span><span class="math-symbol">R</span>
+          <span style="margin: 0 1rem; color: var(--text-muted); font-size:1.1rem;">•</span>
+          <span class="math-symbol">P</span>
+          <span class="math-op">=</span>
+          <span class="math-symbol">I</span><sup style="font-size:0.85rem;">2</sup><span class="math-symbol">R</span>
+          <span class="math-op">=</span>
+          <div class="math-frac">
+            <span class="math-num"><span class="math-symbol">V</span><sup style="font-size:0.75rem;">2</sup></span>
+            <span class="math-den"><span class="math-symbol">R</span></span>
+          </div>
+        `
+      };
 
       const selected = contents[type];
       
@@ -448,6 +587,71 @@
         panel.style.transform = "scale(1)";
         panel.style.opacity = "1";
       }, 150);
+    }
+
+    // Dribbble-Style Interactive CBT Micro-Challenge Handlers
+    function handleHeroCbtAnswer(btn, isCorrect) {
+      const container = document.getElementById("hero-cbt-drill");
+      if (!container) return;
+      const allBtns = container.querySelectorAll(".cbt-opt-btn");
+      const feedbackPanel = document.getElementById("hero-cbt-feedback");
+      const xpChip = document.getElementById("hub-xp-counter");
+      const progressFill = document.getElementById("hub-progress-bar");
+      
+      allBtns.forEach(b => b.style.pointerEvents = "none");
+      
+      if (isCorrect) {
+        btn.classList.add("correct");
+        btn.innerHTML = "<span>✓</span> " + btn.innerText;
+        feedbackPanel.style.display = "block";
+        feedbackPanel.innerHTML = `
+          <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.3rem; color:#10b981; font-weight:700;">
+            <span>🎉</span> Correct! +50 XP Earned!
+          </div>
+          <div><strong>Step-by-step Solution:</strong> Convert to exponential form: 
+            <em>y² - 1 = 2³ = 8</em> ⟹ <em>y² = 9</em> ⟹ <em>y = ±3</em>.
+          </div>
+        `;
+        
+        if (xpChip) {
+          xpChip.innerHTML = "⚡ 1,300 XP";
+          xpChip.style.transform = "scale(1.15)";
+          setTimeout(() => xpChip.style.transform = "scale(1)", 400);
+        }
+        if (progressFill) {
+          progressFill.style.width = "78%";
+        }
+      } else {
+        btn.classList.add("wrong");
+        feedbackPanel.style.display = "block";
+        feedbackPanel.style.borderColor = "rgba(239, 68, 68, 0.3)";
+        feedbackPanel.style.background = "rgba(239, 68, 68, 0.08)";
+        feedbackPanel.innerHTML = `
+          <div style="color:#ef4444; font-weight:700; margin-bottom:0.25rem;">
+            <span>⚠️</span> Not quite. Remember: log₂(A) = 3 means A = 2³ = 8!
+          </div>
+          <button class="btn btn-secondary btn-sm" style="margin-top:0.35rem; padding:0.2rem 0.6rem; font-size:0.75rem;" onclick="resetHeroCbt()">Try Again ↺</button>
+        `;
+      }
+    }
+
+    function resetHeroCbt() {
+      const container = document.getElementById("hero-cbt-drill");
+      if (!container) return;
+      const allBtns = container.querySelectorAll(".cbt-opt-btn");
+      const feedbackPanel = document.getElementById("hero-cbt-feedback");
+      
+      allBtns.forEach(b => {
+        b.classList.remove("correct", "wrong");
+        b.style.pointerEvents = "auto";
+      });
+      
+      const labels = ["A) y = ±2", "B) y = ±3", "C) y = ±4", "D) y = ±9"];
+      allBtns.forEach((b, idx) => {
+        if (labels[idx]) b.innerText = labels[idx];
+      });
+      
+      feedbackPanel.style.display = "none";
     }
   </script>
 </body>

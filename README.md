@@ -4,8 +4,10 @@ A bespoke, responsive web application and STEM coaching directory designed for m
 
 ## Key Features
 
-- 📐 **Syllabus & Courses Explorer**: A dynamic course catalog filtering system covering school mathematics, AP exam preps, and university-level Pure Math.
-- 👨‍🏫 **1-on-1 Tutoring Coordinator**: An interactive whiteboard booking flow and receipt generator.
+- ⚡ **Real-Time CBT Mock Exam Hall**: Authentic JAMB UTME & WASSCE simulation with live countdown timer, on-screen calculator, question palette, and instant score reports with step-by-step solutions.
+- 🎮 **Gamified Learning Experience**: Dribbble-inspired design with live study streak trackers, XP reward milestones, and interactive daily curriculum challenges.
+- 📐 **Syllabus & Courses Explorer**: A dynamic course catalog filtering system covering Nigerian curricula (WASSCE, JAMB UTME, NECO), international exam preps (IGCSE, A-Levels), and university-level Mathematics and Physics.
+- 👨‍🏫 **1-on-1 Tutoring Coordinator**: An interactive whiteboard booking flow and receipt generator with Mr. Isaac Olusola.
 - 📂 **Resource Vault**: A categorized catalog supporting handouts, mock exams, and PDF booklets.
 - ✉️ **Interactive Contact Wizard**: A questions-based multi-step form that validates queries and saves submissions directly to the database.
 - 👥 **Our People Directory**: A database-driven layout presenting organization members, tutors, and founders.
