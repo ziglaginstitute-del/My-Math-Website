@@ -213,7 +213,52 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Custom micro-interaction: Add float math symbols inside heroes
   initFloatingSymbols();
+
+  // Discreet Owner Access triggers (hidden from public visitors)
+  initDiscreetAdminAccess();
 });
+
+// Discreet Owner Access triggers for the portal administrator
+function initDiscreetAdminAccess() {
+  // 1. Keyboard Shortcut: Ctrl + Shift + A or Alt + A
+  window.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) || (e.altKey && (e.key === "a" || e.key === "A"))) {
+      e.preventDefault();
+      window.location.href = "admin.html";
+    }
+  });
+
+  // 2. Secret Triple-Click on Header Logo
+  const logos = document.querySelectorAll(".logo, .logo-container, .logo-img");
+  logos.forEach(logo => {
+    let count = 0;
+    let timer = null;
+    logo.addEventListener("click", (e) => {
+      count++;
+      if (count === 3) {
+        e.preventDefault();
+        window.location.href = "admin.html";
+      }
+      clearTimeout(timer);
+      timer = setTimeout(() => { count = 0; }, 1200);
+    });
+  });
+
+  // 3. Secret Triple-Click on Footer Copyright Area
+  const footerElements = document.querySelectorAll("footer p, .footer-bottom, .footer-content");
+  footerElements.forEach(el => {
+    let count = 0;
+    let timer = null;
+    el.addEventListener("click", () => {
+      count++;
+      if (count === 3) {
+        window.location.href = "admin.html";
+      }
+      clearTimeout(timer);
+      timer = setTimeout(() => { count = 0; }, 1200);
+    });
+  });
+}
 
 // Creative detail: Floating mathematical glyphs in dashboard background
 function initFloatingSymbols() {
