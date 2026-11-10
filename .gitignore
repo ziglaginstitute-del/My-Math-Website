@@ -7,6 +7,7 @@ math_portal.db
 venv/
 .venv/
 env/
+scratch/
 
 # Python Cache & Compilation
 __pycache__/

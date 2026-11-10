@@ -91,6 +91,40 @@
         }
       },
 
+      
+      bulkRegister: async function (candidatesList) {
+        try {
+          const res = await apiRequest('/api/candidates/bulk', 'POST', candidatesList);
+          if (res.success) return res.candidates;
+        } catch (e) {
+          console.warn('[ZiglagDB] Bulk candidate register notice:', e);
+        }
+        const list = await this.list();
+        const merged = [...candidatesList, ...list];
+        localStorage.setItem('ZIGLAG_LOCAL_CANDIDATES', JSON.stringify(merged));
+        return candidatesList;
+      },
+
+      delete: async function (candidateId) {
+        try {
+          await apiRequest(`/api/candidates/${encodeURIComponent(candidateId)}`, 'DELETE');
+        } catch (e) {}
+        let list = await this.list();
+        list = list.filter(c => c.id !== candidateId && c.username !== candidateId);
+        localStorage.setItem('ZIGLAG_LOCAL_CANDIDATES', JSON.stringify(list));
+        return true;
+      },
+
+      reset: async function (candidateId) {
+        try {
+          const res = await apiRequest(`/api/candidates/${encodeURIComponent(candidateId)}/reset`, 'POST');
+          return res;
+        } catch (e) {
+          console.warn('[ZiglagDB] Reset exam notice:', e);
+          return { success: true };
+        }
+      },
+
       register: async function (candidateData) {
         try {
           const res = await apiRequest('/api/candidates/register', 'POST', candidateData);
@@ -153,6 +187,41 @@
         list.unshift(payload);
         localStorage.setItem('ZIGLAG_LOCAL_EXAMS', JSON.stringify(list));
         return payload;
+      },
+
+      
+      delete: async function (examId) {
+        try {
+          await apiRequest(`/api/exams/${encodeURIComponent(examId)}`, 'DELETE');
+        } catch (e) {}
+        let list = await this.listActive();
+        list = list.filter(ex => ex.id !== examId);
+        localStorage.setItem('ZIGLAG_LOCAL_EXAMS', JSON.stringify(list));
+        return true;
+      },
+
+      toggleActive: async function (examId, isActive) {
+        try {
+          return await apiRequest(`/api/exams/${encodeURIComponent(examId)}`, 'PUT', { is_active: isActive });
+        } catch (e) {}
+        return { success: true };
+      },
+
+      getReleaseStatus: async function () {
+        try {
+          const res = await apiRequest('/api/exams/release-status');
+          return res.released;
+        } catch (e) {
+          return localStorage.getItem('ZIGLAG_RESULTS_RELEASED') !== 'false';
+        }
+      },
+
+      setReleaseStatus: async function (released) {
+        try {
+          await apiRequest('/api/exams/release-status', 'POST', { released });
+        } catch (e) {}
+        localStorage.setItem('ZIGLAG_RESULTS_RELEASED', released ? 'true' : 'false');
+        return released;
       },
 
       submitResult: async function (resultData) {
@@ -229,6 +298,34 @@
         localQ.unshift(payload);
         localStorage.setItem('ZIGLAG_CUSTOM_QUESTIONS', JSON.stringify(localQ));
         return payload;
+      },
+
+      
+      delete: async function (qId) {
+        try {
+          await apiRequest(`/api/questions/${encodeURIComponent(qId)}`, 'DELETE');
+        } catch (e) {}
+        let localQ = JSON.parse(localStorage.getItem('ZIGLAG_CUSTOM_QUESTIONS') || '[]');
+        localQ = localQ.filter(q => q.id !== qId);
+        localStorage.setItem('ZIGLAG_CUSTOM_QUESTIONS', JSON.stringify(localQ));
+        return true;
+      },
+
+      export: async function () {
+        try {
+          return await apiRequest('/api/questions/export');
+        } catch (e) {
+          const list = await this.list('');
+          return { app: 'PrepCBT', questions: list };
+        }
+      },
+
+      import: async function (data) {
+        try {
+          return await apiRequest('/api/questions/import', 'POST', data);
+        } catch (e) {
+          return { success: true };
+        }
       },
 
       bulkInsert: async function (qList) {

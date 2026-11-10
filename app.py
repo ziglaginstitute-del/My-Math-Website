@@ -105,6 +105,33 @@ class Candidate(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else ''
         }
 
+
+class Subject(db.Model):
+    __tablename__ = 'subjects'
+    id = db.Column(db.String(100), primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    code = db.Column(db.String(50), nullable=True)
+    icon = db.Column(db.String(20), default='📚')
+    category = db.Column(db.String(50), default='General')
+    question_count = db.Column(db.Integer, default=0)
+    default_duration = db.Column(db.Integer, default=40)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        # Calculate live question count
+        live_count = Question.query.filter_by(subject=self.id).count()
+        return {
+            'id': self.id,
+            'name': self.name,
+            'code': self.code or self.id.upper(),
+            'icon': self.icon or '📚',
+            'category': self.category or 'General',
+            'question_count': live_count,
+            'default_duration': self.default_duration or 40,
+            'is_active': self.is_active
+        }
+
 class Question(db.Model):
     __tablename__ = 'questions'
     id = db.Column(db.String(100), primary_key=True)
@@ -598,6 +625,223 @@ def get_db_status():
     except Exception as e:
         return jsonify({'success': False, 'connected': False, 'error': str(e)}), 500
 
+
+# ============================================================================
+# PREPCBT ADMIN SUITE APIS (Subjects, Candidate Reset/Delete, Bulk, Question Export)
+# ============================================================================
+
+# Global Result Release Setting (in-memory with default True)
+GLOBAL_RESULTS_RELEASED = True
+
+@app.route('/api/exams/release-status', methods=['GET', 'POST'])
+def exams_release_status():
+    global GLOBAL_RESULTS_RELEASED
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        GLOBAL_RESULTS_RELEASED = bool(data.get('released', True))
+        return jsonify({'success': True, 'released': GLOBAL_RESULTS_RELEASED})
+    return jsonify({'success': True, 'released': GLOBAL_RESULTS_RELEASED})
+
+@app.route('/api/subjects', methods=['GET', 'POST'])
+def handle_subjects():
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        name = (data.get('name') or '').strip()
+        sub_id = (data.get('id') or name.lower().replace(' ', '_')).strip()
+        if not name:
+            return jsonify({'success': False, 'message': 'Subject name is required.'}), 400
+        
+        existing = Subject.query.filter_by(id=sub_id).first()
+        if existing:
+            return jsonify({'success': True, 'subject': existing.to_dict(), 'message': 'Already exists'})
+            
+        new_sub = Subject(
+            id=sub_id,
+            name=name,
+            code=data.get('code', sub_id[:4].upper()),
+            icon=data.get('icon', '📚'),
+            category=data.get('category', 'Science'),
+            default_duration=int(data.get('default_duration', 40)),
+            is_active=True
+        )
+        db.session.add(new_sub)
+        db.session.commit()
+        return jsonify({'success': True, 'subject': new_sub.to_dict()})
+        
+    subs = Subject.query.order_by(Subject.name.asc()).all()
+    return jsonify([s.to_dict() for s in subs])
+
+@app.route('/api/subjects/<sub_id>', methods=['DELETE'])
+def delete_subject(sub_id):
+    sub = Subject.query.filter_by(id=sub_id).first()
+    if not sub:
+        return jsonify({'success': False, 'message': 'Subject not found'}), 404
+    db.session.delete(sub)
+    db.session.commit()
+    return jsonify({'success': True, 'message': f'Subject {sub_id} deleted.'})
+
+@app.route('/api/candidates/bulk', methods=['POST'])
+def bulk_register_candidates():
+    payload = request.get_json() or []
+    if isinstance(payload, dict) and 'candidates' in payload:
+        data = payload['candidates']
+    elif isinstance(payload, list):
+        data = payload
+    else:
+        return jsonify({'success': False, 'message': 'Array of candidates expected'}), 400
+        
+    saved = []
+    for item in data:
+        name = (item.get('full_name') or item.get('name') or '').strip()
+        if not name:
+            continue
+        reg = (item.get('username') or item.get('reg_number') or f"ZIG/{int(datetime.utcnow().timestamp())}").strip().upper()
+        existing = Candidate.query.filter_by(username=reg).first()
+        if existing:
+            saved.append(existing.to_dict())
+            continue
+            
+        cand = Candidate(
+            id=item.get('id') or f"cand_{int(datetime.utcnow().timestamp())}_{os.urandom(3).hex()}",
+            full_name=name,
+            username=reg,
+            password=item.get('password', '123456'),
+            email=item.get('email', ''),
+            phone=item.get('phone', ''),
+            category=item.get('category', 'Science'),
+            exam_type=item.get('exam_type', 'JAMB UTME'),
+            registered_subjects=json.dumps(item.get('registered_subjects', ["english", "mathematics", "physics", "chemistry"])),
+            center=item.get('center', 'PrepCBT Center 01 (Main Auditorium)'),
+            seat_number=item.get('seat_number', f"Seat {int(os.urandom(1)[0] % 60 + 1)}"),
+            status='Active'
+        )
+        db.session.add(cand)
+        saved.append(cand.to_dict())
+        
+    db.session.commit()
+    return jsonify({'success': True, 'count': len(saved), 'candidates': saved})
+
+@app.route('/api/candidates/<cand_id>', methods=['DELETE'])
+def delete_candidate(cand_id):
+    cand = Candidate.query.filter((Candidate.id == cand_id) | (Candidate.username == cand_id)).first()
+    if not cand:
+        return jsonify({'success': False, 'message': 'Candidate not found'}), 404
+    # Also delete exam history for this candidate
+    ExamHistory.query.filter((ExamHistory.candidate_id == cand.id) | (ExamHistory.candidate_reg == cand.username)).delete()
+    db.session.delete(cand)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Candidate deleted successfully'})
+
+@app.route('/api/candidates/<cand_id>/reset', methods=['POST'])
+def reset_candidate(cand_id):
+    cand = Candidate.query.filter((Candidate.id == cand_id) | (Candidate.username == cand_id)).first()
+    if not cand:
+        return jsonify({'success': False, 'message': 'Candidate not found'}), 404
+    cand.status = 'Active'
+    # Delete previous exam history
+    ExamHistory.query.filter((ExamHistory.candidate_id == cand.id) | (ExamHistory.candidate_reg == cand.username)).delete()
+    db.session.commit()
+    return jsonify({'success': True, 'message': f'Exam authorization reset for {cand.full_name}. Candidate can re-sit.'})
+
+@app.route('/api/questions/<q_id>', methods=['DELETE', 'PUT'])
+def handle_single_question(q_id):
+    q = Question.query.filter_by(id=q_id).first()
+    if not q:
+        return jsonify({'success': False, 'message': 'Question not found'}), 404
+        
+    if request.method == 'DELETE':
+        db.session.delete(q)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Question deleted'})
+        
+    data = request.get_json() or {}
+    q.subject = (data.get('subject') or q.subject).lower()
+    q.topic = data.get('topic', q.topic)
+    q.difficulty = data.get('difficulty', q.difficulty)
+    q.exam_type = data.get('exam_type', q.exam_type)
+    q.question_text = data.get('question_text') or data.get('question') or q.question_text
+    q.passage = data.get('passage', q.passage)
+    if 'options' in data:
+        q.options = json.dumps(data.get('options', []))
+    q.correct_option = data.get('correct_option') or data.get('correctOption') or q.correct_option
+    q.hint = data.get('hint', q.hint)
+    q.explanation = data.get('explanation', q.explanation)
+    q.year = int(data.get('year', q.year or 2026))
+    db.session.commit()
+    return jsonify({'success': True, 'question': q.to_dict()})
+
+@app.route('/api/questions/export', methods=['GET'])
+def export_questions():
+    questions = Question.query.all()
+    return jsonify({
+        'app': 'PrepCBT',
+        'export_date': datetime.utcnow().isoformat(),
+        'total_questions': len(questions),
+        'questions': [q.to_dict() for q in questions]
+    })
+
+@app.route('/api/questions/import', methods=['POST'])
+def import_questions():
+    data = request.get_json() or {}
+    q_list = data.get('questions', []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
+    
+    count = 0
+    for q_data in q_list:
+        q_id = q_data.get('id') or f"q_{int(datetime.utcnow().timestamp())}_{os.urandom(3).hex()}"
+        existing = Question.query.filter_by(id=q_id).first()
+        opts = q_data.get('options') or []
+        opts_json = json.dumps(opts) if isinstance(opts, list) else opts
+        
+        if existing:
+            existing.question_text = q_data.get('question_text') or q_data.get('question', existing.question_text)
+            existing.options = opts_json
+            existing.correct_option = q_data.get('correct_option') or q_data.get('correctOption', existing.correct_option)
+            existing.explanation = q_data.get('explanation', existing.explanation)
+            existing.passage = q_data.get('passage', existing.passage)
+        else:
+            new_q = Question(
+                id=q_id,
+                subject=(q_data.get('subject') or 'mathematics').lower(),
+                topic=q_data.get('topic', 'General'),
+                difficulty=q_data.get('difficulty', 'Intermediate'),
+                exam_type=q_data.get('exam_type', 'jamb'),
+                question_text=q_data.get('question_text') or q_data.get('question', ''),
+                passage=q_data.get('passage'),
+                options=opts_json,
+                correct_option=q_data.get('correct_option') or q_data.get('correctOption', 'A'),
+                hint=q_data.get('hint', ''),
+                explanation=q_data.get('explanation', ''),
+                year=int(q_data.get('year', 2026))
+            )
+            db.session.add(new_q)
+        count += 1
+        
+    db.session.commit()
+    return jsonify({'success': True, 'count': count})
+
+@app.route('/api/exams/<exam_id>', methods=['DELETE', 'PUT'])
+def handle_single_exam(exam_id):
+    exam = ScheduledExam.query.filter_by(id=exam_id).first()
+    if not exam:
+        return jsonify({'success': False, 'message': 'Mock exam not found'}), 404
+        
+    if request.method == 'DELETE':
+        db.session.delete(exam)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Mock exam deleted'})
+        
+    data = request.get_json() or {}
+    if 'is_active' in data:
+        exam.is_active = bool(data.get('is_active'))
+    if 'title' in data:
+        exam.title = data.get('title')
+    if 'access_code' in data:
+        exam.access_code = data.get('access_code')
+    if 'duration_minutes' in data:
+        exam.duration_minutes = int(data.get('duration_minutes', 120))
+    db.session.commit()
+    return jsonify({'success': True, 'exam': exam.to_dict()})
+
 # CANDIDATES API
 @app.route('/api/candidates', methods=['GET'])
 def list_candidates():
@@ -995,6 +1239,27 @@ with app.app_context():
         )
         db.session.add(demo_candidate)
         db.session.add(demo_candidate2)
+        db.session.commit()
+
+    
+    # Seed Default Nigerian Subjects if empty
+    if not Subject.query.first():
+        default_subs = [
+            Subject(id="mathematics", name="Mathematics", code="MTH", icon="📐", category="Core STEM", default_duration=40),
+            Subject(id="english", name="English Language", code="ENG", icon="📖", category="General", default_duration=60),
+            Subject(id="physics", name="Physics", code="PHY", icon="⚡", category="Core STEM", default_duration=40),
+            Subject(id="chemistry", name="Chemistry", code="CHM", icon="🧪", category="Core STEM", default_duration=40),
+            Subject(id="biology", name="Biology", code="BIO", icon="🧬", category="Medical / Science", default_duration=40),
+            Subject(id="further_mathematics", name="Further Mathematics", code="FMTH", icon="🔢", category="Advanced STEM", default_duration=40),
+            Subject(id="economics", name="Economics", code="ECN", icon="📊", category="Social Science", default_duration=40),
+            Subject(id="government", name="Government", code="GOV", icon="🏛️", category="Arts / Humanities", default_duration=40),
+            Subject(id="literature", name="Literature in English", code="LIT", icon="🎭", category="Arts / Humanities", default_duration=40),
+            Subject(id="commerce", name="Commerce", code="COM", icon="💼", category="Commercial", default_duration=40),
+            Subject(id="agricultural_science", name="Agricultural Science", code="AGR", icon="🌾", category="Science", default_duration=40),
+            Subject(id="civic_education", name="Civic Education", code="CIV", icon="🛡️", category="General", default_duration=40),
+            Subject(id="geography", name="Geography", code="GEO", icon="🌍", category="Social Science", default_duration=40)
+        ]
+        db.session.bulk_save_objects(default_subs)
         db.session.commit()
 
     # Seed Default Mock Exam
