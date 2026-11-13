@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import urllib.request
-from flask import Flask, send_from_directory, request, jsonify
+from flask import Flask, send_from_directory, request, jsonify, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from dotenv import load_dotenv
@@ -338,12 +338,14 @@ def courses():
     return send_from_directory(BASE_DIR, 'courses.html')
 
 @app.route('/cbt.html')
-def cbt_page():
-    return send_from_directory(BASE_DIR, 'cbt.html')
-
 @app.route('/cbt')
-def cbt_alias():
-    return send_from_directory(BASE_DIR, 'cbt.html')
+def cbt_redirect():
+    target = os.getenv('CBT_APP_URL', 'https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app')
+    query = request.query_string.decode('utf-8') if request.query_string else ''
+    if query:
+        sep = '&' if '?' in target else '?'
+        target = f"{target}{sep}{query}"
+    return redirect(target, code=302)
 
 @app.route('/tutoring.html')
 def tutoring():
