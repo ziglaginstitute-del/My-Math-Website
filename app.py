@@ -363,9 +363,15 @@ def course_view():
 def contact_page():
     return send_from_directory(BASE_DIR, 'contact.html')
 
+@app.route('/about.html')
+@app.route('/about')
+def about_page():
+    return send_from_directory(BASE_DIR, 'about.html')
+
 @app.route('/people.html')
+@app.route('/people')
 def people_page():
-    return send_from_directory(BASE_DIR, 'people.html')
+    return redirect('/about.html#people', code=302)
 
 @app.route('/admin.html')
 def admin_page():

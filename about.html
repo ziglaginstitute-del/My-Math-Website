@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us | Vision, Mission, Values & People - Ziglag Institute</title>
+  <meta name="description" content="Learn about the vision, mission, core values, pedagogical philosophy, and academic faculty behind Ziglag Institute, Africa's premier mathematical mastery academy.">
+  <link rel="icon" type="image/png" href="ZIG logo transparent.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="glow-orb glow-orb-primary" style="top: 10%; right: 15%;"></div>
+  <div class="glow-orb glow-orb-secondary" style="top: 55%; left: 8%;"></div>
+  <div class="glow-orb glow-orb-primary" style="top: 85%; right: 25%;"></div>
+
+  <div class="app-container">
+    
+    <!-- Navbar -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="about.html" class="active">About Us</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
+          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </nav>
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <a href="contact.html" class="btn btn-primary btn-sm">Get In Touch</a>
+      </div>
+    </header>
+
+    <!-- Hero Header -->
+    <section class="section-wrapper" style="padding-top: 2rem; padding-bottom: 2rem; animation: fade-in 0.6s ease-out;">
+      <div style="max-width: 900px;">
+        <span class="about-hero-badge">✨ Minds in Motion, Futures in Focus</span>
+        <h1 style="font-size: clamp(2.4rem, 4.5vw, 3.8rem); line-height: 1.15; margin-bottom: 1.25rem;">
+          Architecting Mathematical Mastery & Scientific Leadership
+        </h1>
+        <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 2rem;">
+          Ziglag Institute was founded on an unyielding conviction: mathematics is not a barrier to dread, but an empowering universal language that unlocks human potential. Through first-principles derivations, authentic CBT simulation, and personalized mentorship, we raise confident thinkers who engineer the future.
+        </p>
+
+        <!-- Quick Section Jumper Pills -->
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+          <a href="#vision-mission" class="btn btn-secondary btn-sm" style="border-radius: 9999px; text-decoration: none;">
+            🎯 Vision & Mission
+          </a>
+          <a href="#values" class="btn btn-secondary btn-sm" style="border-radius: 9999px; text-decoration: none;">
+            💎 Core Values
+          </a>
+          <a href="#pedagogy" class="btn btn-secondary btn-sm" style="border-radius: 9999px; text-decoration: none;">
+            📐 Teaching Philosophy
+          </a>
+          <a href="#people" class="btn btn-secondary btn-sm" style="border-radius: 9999px; text-decoration: none;">
+            👥 Academic Faculty
+          </a>
+          <a href="#faq" class="btn btn-secondary btn-sm" style="border-radius: 9999px; text-decoration: none;">
+            ❓ Common Questions
+          </a>
+        </div>
+      </div>
+
+      <!-- Live Impact Metrics Grid -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-number">98.4%</div>
+          <div class="metric-label">Examination Distinction Rate in JAMB UTME, WASSCE & NECO</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-number">1,200+</div>
+          <div class="metric-label">Step-by-Step Mathematical Derivations & Video Proofs</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-number">15,000+</div>
+          <div class="metric-label">Standard Exam Questions Calibrated Across 14 STEM Subjects</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-number">1-on-1</div>
+          <div class="metric-label">Direct Whiteboard Mentorship with Lead Applied Mathematicians</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: VISION, MISSION & STORY -->
+    <section class="section-wrapper" id="vision-mission" style="padding-top: 3rem;">
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">The Guiding North Star</span>
+      <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Vision, Mission & Institutional Creed</h2>
+      <p style="color: var(--text-muted); max-width: 750px;">
+        Explore the foundational philosophy that drives every course, derivation, exam simulator, and tutoring interaction at Ziglag Institute.
+      </p>
+
+      <div class="vision-showcase">
+        <!-- Interactive Tabs Header -->
+        <div class="vision-tabs-header">
+          <button class="vision-tab-btn active" onclick="switchVisionTab('tab-vision', this)">
+            <span>🌟</span> Our Vision
+          </button>
+          <button class="vision-tab-btn" onclick="switchVisionTab('tab-mission', this)">
+            <span>🎯</span> Our Mission
+          </button>
+          <button class="vision-tab-btn" onclick="switchVisionTab('tab-story', this)">
+            <span>📜</span> The Ziglag Story
+          </button>
+          <button class="vision-tab-btn" onclick="switchVisionTab('tab-creed', this)">
+            <span>⚖️</span> Educational Creed
+          </button>
+        </div>
+
+        <!-- Tab 1: Vision -->
+        <div class="vision-tab-body">
+          <div class="vision-tab-pane active" id="tab-vision">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; align-items: center;">
+              <div>
+                <span style="color: var(--primary-color); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">Our Ultimate Aspiration</span>
+                <h3 style="font-size: 1.85rem; margin: 0.75rem 0 1rem 0; line-height: 1.3;">
+                  To be Africa's Standard-Bearer in Mathematical Mastery & Analytical Innovation
+                </h3>
+                <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1.25rem;">
+                  We envision a continent where every young mind is equipped with the fearless quantitative competence to engineer high-impact solutions in software, artificial intelligence, aerospace, energy, macroeconomic policy, and medicine.
+                </p>
+                <div style="background: rgba(14, 165, 233, 0.08); border-left: 3px solid var(--primary-color); padding: 1rem 1.25rem; border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+                  <em style="color: var(--text-main); font-size: 0.95rem;">
+                    "When students master the language of mathematics, they do not just pass examinations—they gain the architectural blueprint to transform their societies."
+                  </em>
+                  <div style="margin-top: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--primary-color);">— Isaac Olusola, Founder</div>
+                </div>
+              </div>
+              <div class="glass-card" style="padding: 1.75rem; border-radius: var(--radius-lg); background: rgba(255,255,255,0.02);">
+                <h4 style="margin: 0 0 1rem 0; color: var(--secondary-color); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <span>🎯</span> Strategic 2030 Vision Targets
+                </h4>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.85rem; color: var(--text-muted); font-size: 0.95rem;">
+                  <li style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                    <span style="color: #10b981; font-weight: bold;">✔</span>
+                    <span><strong>100,000+ Students Mentored</strong> across senior secondary, JAMB UTME, and undergraduate STEM departments.</span>
+                  </li>
+                  <li style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                    <span style="color: #10b981; font-weight: bold;">✔</span>
+                    <span><strong>Zero-Malpractice Examination Culture</strong> driven by authentic conceptual mastery and proven test timing.</span>
+                  </li>
+                  <li style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                    <span style="color: #10b981; font-weight: bold;">✔</span>
+                    <span><strong>Free Open Resource Vault</strong> accessible to public schools, underserved communities, and self-taught learners.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Mission -->
+          <div class="vision-tab-pane" id="tab-mission">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; align-items: center;">
+              <div>
+                <span style="color: var(--secondary-color); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">Our Daily Mandate</span>
+                <h3 style="font-size: 1.85rem; margin: 0.75rem 0 1rem 0; line-height: 1.3;">
+                  Demystifying Quantitative STEM Through First-Principles Pedagogy
+                </h3>
+                <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1.25rem;">
+                  Our mission is to obliterate the dread and anxiety that historically surrounds mathematics and physics. We do this by breaking complex theorems into their fundamental building blocks, providing continuous practice under realistic digital exam conditions, and providing personalized guidance tailored to each student's learning pace.
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                  <a href="courses.html" class="btn btn-primary btn-sm">Explore Courses ➜</a>
+                  <a href="tutoring.html" class="btn btn-secondary btn-sm">Book 1-on-1 Coaching ➜</a>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="glass-card" style="padding: 1.25rem; border-left: 3px solid #38bdf8;">
+                  <h5 style="margin: 0 0 0.25rem 0; color: var(--text-main); font-size: 1rem;">1. Derivation-First Curriculum</h5>
+                  <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem;">We never tell students to "just memorize the formula". We show where formulas originate so they can reconstruct them under pressure.</p>
+                </div>
+                <div class="glass-card" style="padding: 1.25rem; border-left: 3px solid #f97316;">
+                  <h5 style="margin: 0 0 0.25rem 0; color: var(--text-main); font-size: 1rem;">2. Psychological Exam Conditioning</h5>
+                  <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem;">With our PrepCBT engine, students practice pacing, screen endurance, and instant review to eliminate exam hall nervousness.</p>
+                </div>
+                <div class="glass-card" style="padding: 1.25rem; border-left: 3px solid #10b981;">
+                  <h5 style="margin: 0 0 0.25rem 0; color: var(--text-main); font-size: 1rem;">3. Tailored Whiteboard Coaching</h5>
+                  <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem;">Private sessions targeting a student's exact blind spots, from quadratic equations to multivariable integration.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Story -->
+          <div class="vision-tab-pane" id="tab-story">
+            <div style="max-width: 800px;">
+              <span style="color: var(--primary-color); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">Our Origins</span>
+              <h3 style="font-size: 1.85rem; margin: 0.75rem 0 1rem 0; line-height: 1.3;">
+                Born from a Passion to Cure Mathematical Phobia
+              </h3>
+              <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 1.25rem;">
+                Ziglag Institute was birthed in Lagos, Nigeria, by <strong>Mr. Isaac Olusola</strong>, an Applied Mathematician who witnessed firsthand how brilliant young minds were prematurely locked out of medicine, engineering, computer science, and economics simply because of poor, uninspired mathematical instruction.
+              </p>
+              <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 1.5rem;">
+                Traditional classrooms too often relied on intimidation, mechanical memorization, and shortcuts without substance. Isaac began hosting whiteboard breakdown sessions, proving that with visual clarity, patient derivations, and structured past-question calibration, even students who previously scored below 30% could achieve distinctions above 85% in WAEC and 90+ in JAMB Mathematics.
+              </p>
+              <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; background: rgba(255,255,255,0.03); padding: 1.25rem 1.75rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                <div style="font-size: 2.5rem;">🏛️</div>
+                <div>
+                  <h4 style="margin: 0; font-size: 1.1rem; color: var(--text-main);">From a Whiteboard to a Full Digital Academy</h4>
+                  <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.9rem;">
+                    Today, Ziglag Institute encompasses an interactive course video library, the PrepCBT timed simulator, an open-access past question vault, and live one-on-one digital coaching.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 4: Creed -->
+          <div class="vision-tab-pane" id="tab-creed">
+            <div style="max-width: 800px;">
+              <span style="color: #10b981; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">The Ziglag Student Creed</span>
+              <h3 style="font-size: 1.85rem; margin: 0.75rem 0 1rem 0; line-height: 1.3;">
+                What Every Ziglag Scholar Believes and Practices
+              </h3>
+              <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                <div class="glass-card" style="padding: 1.25rem; display: flex; gap: 1rem; align-items: flex-start;">
+                  <span style="font-size: 1.5rem;">1️⃣</span>
+                  <div>
+                    <h5 style="margin: 0 0 0.25rem 0; color: var(--text-main); font-size: 1rem;">No Inherent Lack of Ability</h5>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">There are no "math people" and "non-math people". Mathematical aptitude is a muscle built through deliberate, disciplined, step-by-step practice.</p>
+                  </div>
+                </div>
+                <div class="glass-card" style="padding: 1.25rem; display: flex; gap: 1rem; align-items: flex-start;">
+                  <span style="font-size: 1.5rem;">2️⃣</span>
+                  <div>
+                    <h5 style="margin: 0 0 0.25rem 0; color: var(--text-main); font-size: 1rem;">Every Mistake is Data</h5>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">An incorrect answer is not a failure; it is an invaluable diagnostic revealing the exact conceptual misconception that must be illuminated.</p>
+                  </div>
+                </div>
+                <div class="glass-card" style="padding: 1.25rem; display: flex; gap: 1rem; align-items: flex-start;">
+                  <span style="font-size: 1.5rem;">3️⃣</span>
+                  <div>
+                    <h5 style="margin: 0 0 0.25rem 0; color: var(--text-main); font-size: 1rem;">Honesty in Preparation</h5>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">We reject shortcuts and malpractice. Authentic competence earned in private study yields unshakeable confidence in the examination hall.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: CORE VALUES (INTERACTIVE CARDS) -->
+    <section class="section-wrapper" id="values" style="padding-top: 4rem;">
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">What Defines Our Culture</span>
+      <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">The Five Core Values of Ziglag Institute</h2>
+      <p style="color: var(--text-muted); max-width: 750px;">
+        These principles guide our curriculum design, our teaching methodology, and the standards we uphold for every student. <strong>Click any card to explore how we live this value in practice.</strong>
+      </p>
+
+      <div class="values-grid">
+        <!-- Value 1 -->
+        <div class="value-card" onclick="toggleValueCard(this)">
+          <div class="value-header">
+            <div class="value-icon-box" style="color: #38bdf8; background: rgba(56, 189, 248, 0.1);">📐</div>
+            <span class="value-num-badge">VALUE 01</span>
+          </div>
+          <h3 class="value-title">Mathematical Rigor</h3>
+          <div class="value-motto">First Principles Over Blind Memory</div>
+          <p class="value-desc">
+            We reject the cram-and-forget culture. Every theorem, algebraic manipulation, and physical law is derived from foundational truths so students truly understand the 'why'.
+          </p>
+          <div class="value-interactive-action">
+            <span>Explore In-Class Practice</span>
+            <span class="action-arrow">▾</span>
+          </div>
+          <div class="value-deep-dive">
+            <strong>How We Live This:</strong> In our Calculus masterclasses, we don't just state the power rule \(d/dx(x^n) = nx^{n-1}\); we guide students through the binomial expansion and first-principles limit so they see the proof with their own eyes.
+          </div>
+        </div>
+
+        <!-- Value 2 -->
+        <div class="value-card" onclick="toggleValueCard(this)">
+          <div class="value-header">
+            <div class="value-icon-box" style="color: #f97316; background: rgba(249, 115, 22, 0.1);">🏆</div>
+            <span class="value-num-badge">VALUE 02</span>
+          </div>
+          <h3 class="value-title">Uncompromising Excellence</h3>
+          <div class="value-motto">Setting the Benchmark in STEM</div>
+          <p class="value-desc">
+            We hold ourselves and our students to the highest standards. We believe Nigerian and African students are capable of competing with the finest minds globally when given world-class tools.
+          </p>
+          <div class="value-interactive-action">
+            <span>Explore In-Class Practice</span>
+            <span class="action-arrow">▾</span>
+          </div>
+          <div class="value-deep-dive">
+            <strong>How We Live This:</strong> Every question in our 15,000+ past paper archive is rigorously verified with step-by-step solutions, correct LaTeX notation, and official marking scheme alignments.
+          </div>
+        </div>
+
+        <!-- Value 3 -->
+        <div class="value-card" onclick="toggleValueCard(this)">
+          <div class="value-header">
+            <div class="value-icon-box" style="color: #10b981; background: rgba(16, 185, 129, 0.1);">🌍</div>
+            <span class="value-num-badge">VALUE 03</span>
+          </div>
+          <h3 class="value-title">Radical Accessibility</h3>
+          <div class="value-motto">Opportunity for Every Deserving Mind</div>
+          <p class="value-desc">
+            Brilliance is distributed equally, but opportunity is not. We are committed to breaking economic barriers with open resources, downloadable materials, and accessible pricing.
+          </p>
+          <div class="value-interactive-action">
+            <span>Explore In-Class Practice</span>
+            <span class="action-arrow">▾</span>
+          </div>
+          <div class="value-deep-dive">
+            <strong>How We Live This:</strong> Our entire Resource Vault—including comprehensive JAMB Math formula sheets and WAEC physics summaries—is 100% free for any student to download without a credit card.
+          </div>
+        </div>
+
+        <!-- Value 4 -->
+        <div class="value-card" onclick="toggleValueCard(this)">
+          <div class="value-header">
+            <div class="value-icon-box" style="color: #a855f7; background: rgba(168, 85, 247, 0.1);">🛡️</div>
+            <span class="value-num-badge">VALUE 04</span>
+          </div>
+          <h3 class="value-title">Integrity & Anti-Malpractice</h3>
+          <div class="value-motto">Competence Earned, Never Counterfeited</div>
+          <p class="value-desc">
+            We fiercely uphold academic honesty. Examination malpractice ruins character and masks ignorance. We build students whose authentic preparation makes malpractice completely unnecessary.
+          </p>
+          <div class="value-interactive-action">
+            <span>Explore In-Class Practice</span>
+            <span class="action-arrow">▾</span>
+          </div>
+          <div class="value-deep-dive">
+            <strong>How We Live This:</strong> Our PrepCBT simulator mirrors real exam center security, enforces honest countdown timers, and trains students to finish 40 questions in under 40 minutes through speed and accuracy alone.
+          </div>
+        </div>
+
+        <!-- Value 5 -->
+        <div class="value-card" onclick="toggleValueCard(this)">
+          <div class="value-header">
+            <div class="value-icon-box" style="color: #ec4899; background: rgba(236, 72, 153, 0.1);">⚡</div>
+            <span class="value-num-badge">VALUE 05</span>
+          </div>
+          <h3 class="value-title">Real-World Innovation</h3>
+          <div class="value-motto">Connecting Equations to the Future</div>
+          <p class="value-desc">
+            We don't teach mathematics in an isolated vacuum. We consistently demonstrate how algebra powers game engines, how calculus directs rockets, and how statistics drives machine learning.
+          </p>
+          <div class="value-interactive-action">
+            <span>Explore In-Class Practice</span>
+            <span class="action-arrow">▾</span>
+          </div>
+          <div class="value-deep-dive">
+            <strong>How We Live This:</strong> In our lectures on vectors and matrices, we illustrate how modern 3D graphics in robotics and neural networks compute spatial transformations using the exact same linear algebra operations.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: 4-PILLAR PEDAGOGY -->
+    <section class="section-wrapper" id="pedagogy" style="padding-top: 4rem;">
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">How We Teach</span>
+      <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Our Integrated 4-Pillar Pedagogical System</h2>
+      <p style="color: var(--text-muted); max-width: 750px;">
+        Unlike fragmented tutorials, Ziglag Institute provides a complete, unified learning ecosystem where every tool works in harmony to guarantee academic success.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 2.5rem;">
+        <!-- Pillar 1 -->
+        <div class="glass-card" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="font-size: 2rem; margin-bottom: 1rem;">📺</div>
+            <h4 style="font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--text-main);">1. High-Yield Video Library</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
+              Modular, topic-by-topic video lectures covering junior secondary, WASSCE, UTME, and undergraduate courses with high-definition digital whiteboard visual proofs.
+            </p>
+          </div>
+          <a href="courses.html" class="btn btn-secondary btn-sm" style="width: 100%; text-align: center; text-decoration: none;">
+            Browse Video Courses ➜
+          </a>
+        </div>
+
+        <!-- Pillar 2 -->
+        <div class="glass-card" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(249, 115, 22, 0.35);">
+          <div>
+            <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
+            <h4 style="font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--text-main);">2. Authentic PrepCBT Simulator</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
+              Timed mock examinations matching official JAMB and WAEC software interfaces, embedded with the onscreen calculator, instant scoring, and step-by-step question audits.
+            </p>
+          </div>
+          <a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="width: 100%; text-align: center; text-decoration: none;">
+            Launch CBT Exam Hall 🚀
+          </a>
+        </div>
+
+        <!-- Pillar 3 -->
+        <div class="glass-card" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="font-size: 2rem; margin-bottom: 1rem;">📚</div>
+            <h4 style="font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--text-main);">3. Open Resource Vault</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
+              Exhaustive PDF formula sheets, topic-by-topic past paper compilations, worked solutions, and quick-revision cheat sheets ready for download.
+            </p>
+          </div>
+          <a href="vault.html" class="btn btn-secondary btn-sm" style="width: 100%; text-align: center; text-decoration: none;">
+            Access Free Vault ➜
+          </a>
+        </div>
+
+        <!-- Pillar 4 -->
+        <div class="glass-card" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(14, 165, 233, 0.35);">
+          <div>
+            <div style="font-size: 2rem; margin-bottom: 1rem;">👨‍🏫</div>
+            <h4 style="font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--text-main);">4. 1-on-1 Private Mentorship</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
+              Direct live private whiteboard coaching sessions with Mr. Isaac Olusola, diagnosing exact mathematical weaknesses and designing personalized recovery plans.
+            </p>
+          </div>
+          <a href="tutoring.html" class="btn btn-primary btn-sm" style="width: 100%; text-align: center; text-decoration: none;">
+            Book a 1-on-1 Session ➜
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: PEOPLE & ACADEMIC FACULTY -->
+    <section class="section-wrapper" id="people" style="padding-top: 4rem;">
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">The Brain Trust</span>
+      <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Our Academic Faculty & Leadership</h2>
+      <p style="color: var(--text-muted); max-width: 750px;">
+        Meet the educators, applied mathematicians, and educational technologists dedicated to your mathematical transformation.
+      </p>
+
+      <!-- Category Filter Bar -->
+      <div class="people-filter-bar">
+        <button class="filter-btn active" onclick="filterFaculty('all', this)">All Faculty</button>
+        <button class="filter-btn" onclick="filterFaculty('leadership', this)">Leadership</button>
+        <button class="filter-btn" onclick="filterFaculty('stem', this)">STEM & Mathematics</button>
+        <button class="filter-btn" onclick="filterFaculty('cbt', this)">CBT & Psychometrics</button>
+      </div>
+
+      <!-- Dynamic People Grid -->
+      <div class="people-grid" id="people-render-grid">
+        <!-- Faculty cards will be loaded dynamically here -->
+        <div class="glass-card" style="grid-column: 1/-1; padding: 4rem; text-align: center;">
+          <span style="font-size: 2rem; display: block; margin-bottom: 1rem;">⏳</span>
+          <h3>Loading Academic Faculty...</h3>
+        </div>
+      </div>
+
+      <!-- Faculty Call to Action -->
+      <div class="glass-card" style="margin-top: 3rem; padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(249, 115, 22, 0.08));">
+        <div>
+          <h3 style="margin: 0; font-size: 1.3rem; color: var(--text-main);">Interested in Private Academic Mentorship?</h3>
+          <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.95rem;">
+            Schedule a targeted 1-on-1 live session with our lead instructor, Mr. Isaac Olusola, to prepare for JAMB, WASSCE, or college exams.
+          </p>
+        </div>
+        <a href="tutoring.html" class="btn btn-primary" style="padding: 0.75rem 1.75rem; text-decoration: none;">
+          Book 1-on-1 Class 🚀
+        </a>
+      </div>
+    </section>
+
+    <!-- SECTION 5: INTERACTIVE FAQ -->
+    <section class="section-wrapper" id="faq" style="padding-top: 4rem;">
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">Clarity & Transparency</span>
+      <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Frequently Asked Questions About Ziglag</h2>
+      <p style="color: var(--text-muted); max-width: 750px;">
+        Everything you need to know about our teaching philosophy, examination simulator, and enrollment process.
+      </p>
+
+      <div class="faq-grid">
+        <div class="faq-item active">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>How does Ziglag Institute differ from conventional tutorial centers?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Conventional centers often drill past-question answers without explaining the underlying principles, leaving students defenseless when examiners slightly twist the variables. At Ziglag Institute, we teach <em>first-principles derivations</em>: we prove where formulas come from, train speed under authentic timed CBT conditions, and provide on-demand video derivations and private coaching so students achieve genuine mastery.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>What examination boards and academic levels are covered?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Our curriculum comprehensively covers senior secondary WAEC (WASSCE), JAMB UTME, NECO SSCE, Post-UTME university screening tests, Cambridge IGCSE / A-Levels, and first/second-year undergraduate STEM mathematics (Calculus I & II, Linear Algebra, and Classical Mechanics).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>How do I take the CBT mock examinations?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            You can take our full timed CBT mock exams directly through our live PrepCBT portal (<a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" style="color:var(--primary-color);">https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app</a>). The system is accessible on desktops, laptops, tablets, and smartphones, with no software installation required.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Can I study independently or do I need private coaching?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Both options are fully supported! Self-directed learners can leverage our free Resource Vault, video playlists, and CBT mock exam engine at their own pace. Students who need structured accountability, rapid remediation, or intensive targeted coaching can book private 1-on-1 live whiteboard sessions with Mr. Isaac Olusola.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Are the study materials and formula sheets in the Vault really free?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Yes, 100% free! Under our core value of <em>Radical Accessibility</em>, our comprehensive JAMB Math formula sheets, WAEC physics summaries, and study checklists are completely open for download in our <a href="vault.html" style="color:var(--primary-color);">Resource Vault</a>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: CALL TO ACTION -->
+    <section class="section-wrapper" id="join" style="padding-top: 4rem; padding-bottom: 4rem;">
+      <div class="glass-card" style="padding: 3.5rem 2.5rem; text-align: center; border-radius: var(--radius-xl); background: radial-gradient(circle at top, rgba(14, 165, 233, 0.15), rgba(15, 23, 42, 0.8)); border-color: rgba(14, 165, 233, 0.3);">
+        <h2 style="font-size: clamp(2rem, 3.5vw, 2.75rem); margin: 0 0 1rem 0;">
+          Ready to Conquer Mathematics with Confidence?
+        </h2>
+        <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 650px; margin: 0 auto 2rem auto; line-height: 1.6;">
+          Join thousands of students who have turned confusion into clarity and academic fear into distinction. Explore our syllabus courses or test your skills right now.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+          <a href="courses.html" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 1rem; text-decoration: none;">
+            Browse Courses 📚
+          </a>
+          <a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 1rem; text-decoration: none;">
+            Take Free CBT Mock ⚡
+          </a>
+          <a href="contact.html" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 1rem; text-decoration: none;">
+            Contact Admissions ✉️
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+           An Institution designed to empower learners with cutting-edge mathematical education and resources with application to the real world. Minds in Motion, Futures in Focus.
+          </p>
+          <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
+            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="LinkedIn Profile">🔗 LinkedIn</a>
+            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="GitHub Profile">💻 GitHub</a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4>Portal Hub</h4>
+          <ul>
+            <li><a href="index.html">Dashboard Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
+            <li><a href="tutoring.html">1-on-1 Coaching</a></li>
+            <li><a href="vault.html">Resource Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Spheres of Study</h4>
+          <ul>
+            <li><a href="courses.html?sphere=secondary">NECO & GCE Prep</a></li>
+            <li><a href="courses.html?sphere=exams">WASSCE & UTME/POST UTME Prep</a></li>
+            <li><a href="courses.html?sphere=exams">GCSE & IGCSE Prep</a></li>
+            <li><a href="courses.html?sphere=undergrad">Undergrad College Math</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Organization</h4>
+          <ul>
+            <li><a href="about.html">About Ziglag</a></li>
+            <li><a href="about.html#people">Our Faculty & People</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="tutoring.html">Book 1-on-1 Session</a></li>
+            <li><a href="courses.html">Browse Syllabus</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
+        <p>Built as a Premium Web App</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Fallback static dataset in case the file is run directly without a live server
+    const FALLBACK_MEMBERS = [
+      {
+        name: "Isaac Olusola",
+        role: "Founder & Lead Applied Mathematician",
+        category: "leadership",
+        bio: "Applied Mathematician and curriculum architect dedicated to demystifying advanced mathematics, calculus, and mechanics for secondary and university students across Africa through visual derivations and personalized coaching.",
+        avatar: "👨‍🏫",
+        email: "ziglaginstitute@gmail.com",
+        linkedin: "https://www.linkedin.com/in/isaac-olusola-2a2b2218b",
+        github: "https://github.com/ziglaginstitute-del",
+        youtube: "https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn"
+      },
+      {
+        name: "Dr. Adebayo Adekunle",
+        role: "Lead STEM Curriculum Advisor & Physics Specialist",
+        category: "stem",
+        bio: "PhD in Theoretical Physics. Oversees the integration of calculus-based classical mechanics, electromagnetism, and modern physics across senior secondary and undergraduate tracks.",
+        avatar: "⚡",
+        email: "adebayo.curriculum@ziglaginstitute.com",
+        linkedin: "https://linkedin.com",
+        github: "https://github.com/ziglaginstitute-del",
+        youtube: ""
+      },
+      {
+        name: "Engr. Chidinma Okafor",
+        role: "Senior Quantitative Tutor & Engineering Mathematics Mentor",
+        category: "stem",
+        bio: "First-Class Mechanical Engineering graduate and seasoned tutor specializing in differential equations, coordinate geometry, matrices, and high-yield JAMB UTME strategies.",
+        avatar: "📐",
+        email: "chidinma.maths@ziglaginstitute.com",
+        linkedin: "https://linkedin.com",
+        github: "https://github.com/ziglaginstitute-del",
+        youtube: ""
+      },
+      {
+        name: "Samuel Alabi",
+        role: "Head of CBT Psychometrics & Exam Simulator Systems",
+        category: "cbt",
+        bio: "Specialist in educational measurement and psychometric evaluation. Manages question calibration, difficulty tiering, and real-time exam timing algorithms for PrepCBT.",
+        avatar: "💻",
+        email: "samuel.cbt@ziglaginstitute.com",
+        linkedin: "https://linkedin.com",
+        github: "https://github.com/ziglaginstitute-del",
+        youtube: ""
+      }
+    ];
+
+    let allLoadedMembers = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadMembers();
+    });
+
+    // 1. Switch Vision/Mission Tabs
+    function switchVisionTab(tabId, btn) {
+      document.querySelectorAll('.vision-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.vision-tab-pane').forEach(p => p.classList.remove('active'));
+
+      if (btn) btn.classList.add('active');
+      const targetPane = document.getElementById(tabId);
+      if (targetPane) targetPane.classList.add('active');
+    }
+
+    // 2. Toggle Value Card Deep Dive
+    function toggleValueCard(card) {
+      card.classList.toggle('is-expanded');
+      const arrow = card.querySelector('.action-arrow');
+      if (arrow) {
+        arrow.textContent = card.classList.contains('is-expanded') ? '▴' : '▾';
+      }
+    }
+
+    // 3. Toggle FAQ Accordion
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      if (!item) return;
+      const wasActive = item.classList.contains('active');
+      
+      // Close other accordion items
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+      
+      if (!wasActive) {
+        item.classList.add('active');
+      }
+    }
+
+    // 4. Load Faculty Members from Backend or Fallback
+    async function loadMembers() {
+      try {
+        const response = await fetch("/api/people");
+        if (!response.ok) throw new Error("API response not ok");
+        const data = await response.json();
+        allLoadedMembers = (data && data.length > 0) ? data : FALLBACK_MEMBERS;
+      } catch (err) {
+        console.warn("Using fallback faculty data:", err.message);
+        allLoadedMembers = FALLBACK_MEMBERS;
+      }
+      renderFacultyList(allLoadedMembers);
+    }
+
+    // 5. Filter Faculty by Role Category
+    function filterFaculty(category, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      if (category === 'all') {
+        renderFacultyList(allLoadedMembers);
+        return;
+      }
+
+      const filtered = allLoadedMembers.filter(m => {
+        const role = (m.role || '').toLowerCase();
+        const bio = (m.bio || '').toLowerCase();
+        const cat = (m.category || '').toLowerCase();
+
+        if (category === 'leadership') {
+          return role.includes('founder') || role.includes('ceo') || role.includes('lead') || role.includes('director') || cat === 'leadership';
+        } else if (category === 'stem') {
+          return role.includes('physics') || role.includes('math') || role.includes('tutor') || role.includes('advisor') || cat === 'stem';
+        } else if (category === 'cbt') {
+          return role.includes('cbt') || role.includes('psychometrics') || role.includes('systems') || cat === 'cbt';
+        }
+        return true;
+      });
+
+      renderFacultyList(filtered);
+    }
+
+    // 6. Render Faculty Cards
+    function renderFacultyList(members) {
+      const grid = document.getElementById("people-render-grid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      if (!members || members.length === 0) {
+        grid.innerHTML = `
+          <div class="glass-card" style="grid-column: 1/-1; padding: 4rem; text-align: center;">
+            <h3>No faculty members matching this filter.</h3>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Select "All Faculty" to view our complete team.</p>
+          </div>
+        `;
+        return;
+      }
+
+      members.forEach(m => {
+        const card = document.createElement("div");
+        card.className = "people-card glass-card";
+        
+        let socialHtml = "";
+        if (m.email) {
+          socialHtml += `<a href="mailto:${m.email}" class="people-social-link" title="Email">✉️ Email</a>`;
+        }
+        if (m.linkedin && m.linkedin !== "https://linkedin.com") {
+          socialHtml += `<a href="${m.linkedin}" target="_blank" rel="noopener noreferrer" class="people-social-link" title="LinkedIn Profile">🔗 LinkedIn</a>`;
+        }
+        if (m.github && m.github !== "https://github.com") {
+          socialHtml += `<a href="${m.github}" target="_blank" rel="noopener noreferrer" class="people-social-link" title="GitHub Profile">💻 GitHub</a>`;
+        }
+        if (m.youtube) {
+          socialHtml += `<a href="${m.youtube}" target="_blank" rel="noopener noreferrer" class="people-social-link" title="YouTube Channel">🎥 YouTube</a>`;
+        }
+
+        const isFounder = (m.role || '').toLowerCase().includes('founder');
+
+        card.innerHTML = `
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+              <div class="people-avatar-box">
+                ${m.avatar || '👨‍🏫'}
+              </div>
+              ${isFounder ? '<span class="badge" style="background: rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3); color: #f97316; font-size:0.75rem;">Leadership</span>' : '<span class="badge" style="font-size:0.75rem;">Faculty</span>'}
+            </div>
+            <h3 class="people-name">${m.name}</h3>
+            <div class="people-role">${m.role}</div>
+            <p class="people-bio">${m.bio}</p>
+          </div>
+          <div>
+            ${isFounder ? `
+              <div style="margin-bottom: 1rem;">
+                <a href="tutoring.html" class="btn btn-secondary btn-sm" style="width: 100%; text-align: center; font-size: 0.8rem; padding: 0.4rem 0.75rem; text-decoration: none;">
+                  Book 1-on-1 Class with Isaac ➜
+                </a>
+              </div>
+            ` : ''}
+            <div class="people-socials">
+              ${socialHtml || '<span style="font-size:0.8rem; color:var(--text-muted);">Ziglag Academic Faculty</span>'}
+            </div>
+          </div>
+        `;
+        
+        grid.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
