@@ -422,6 +422,9 @@
       <button class="admin-nav-tab" onclick="switchAdminTab('tab-bookings', this)">
         <span>🎓</span> Tutoring Bookings <span id="bookings-badge" style="background:#10b981; color:#fff; border-radius:9999px; font-size:0.7rem; padding:0.1rem 0.4rem; margin-left:0.25rem;">0</span>
       </button>
+      <button class="admin-nav-tab" onclick="switchAdminTab('tab-qa', this)">
+        <span>💬</span> Community Q&A <span id="qa-badge" style="background:#f97316; color:#fff; border-radius:9999px; font-size:0.7rem; padding:0.1rem 0.4rem; margin-left:0.25rem;">0</span>
+      </button>
       <button class="admin-nav-tab" onclick="switchAdminTab('tab-settings', this)">
         <span>⚙️</span> Portal Settings & Cloud
       </button>
@@ -797,6 +800,88 @@
       </div>
     </main>
 
+    <!-- TAB 6: COMMUNITY Q&A MODERATION & EDUCATOR ANSWERS -->
+    <main class="section-wrapper" id="tab-qa" style="display: none; padding-top: 2rem;">
+      <!-- Stats Row -->
+      <div class="stat-cards-grid">
+        <div class="admin-stat-card">
+          <div class="stat-icon-box" style="color: #38bdf8;">❓</div>
+          <div>
+            <div class="stat-val" id="stat-total-qa-questions">0</div>
+            <div class="stat-title">Total Questions</div>
+          </div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="stat-icon-box" style="color: #10b981;">✅</div>
+          <div>
+            <div class="stat-val" id="stat-solved-qa-questions">0</div>
+            <div class="stat-title">Solved Questions</div>
+          </div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="stat-icon-box" style="color: #f59e0b;">⏳</div>
+          <div>
+            <div class="stat-val" id="stat-open-qa-questions">0</div>
+            <div class="stat-title">Needs Solution</div>
+          </div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="stat-icon-box" style="color: #8b5cf6;">💡</div>
+          <div>
+            <div class="stat-val" id="stat-total-qa-answers">0</div>
+            <div class="stat-title">Total Solutions</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Row -->
+      <div class="glass-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <input type="text" id="admin-qa-search" class="admin-input" placeholder="Search questions..." style="max-width: 260px;" oninput="filterAdminQuestions()">
+          <select id="admin-qa-filter-diff" class="admin-select" style="max-width: 170px;" onchange="filterAdminQuestions()">
+            <option value="all">All Difficulties</option>
+            <option value="Beginner">🟢 Beginner</option>
+            <option value="Intermediate">🟡 Intermediate</option>
+            <option value="Advanced">🔴 Advanced</option>
+          </select>
+          <select id="admin-qa-filter-status" class="admin-select" style="max-width: 150px;" onchange="filterAdminQuestions()">
+            <option value="all">All Status</option>
+            <option value="Solved">✅ Solved</option>
+            <option value="Open">⏳ Needs Solution</option>
+          </select>
+        </div>
+        <div>
+          <a href="qa.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration: none;">
+            🌐 Open Live Q&A Hub ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Questions Moderation Table -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Difficulty</th>
+              <th>Subject</th>
+              <th>Question Title & Problem</th>
+              <th>Asked By</th>
+              <th>Solutions</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-qa-table-body">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                Loading community questions...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
     <!-- TAB 5: PORTAL SETTINGS & CLOUD -->
     <main class="section-wrapper" id="tab-settings" style="display: none; padding-top: 2rem;">
       <div style="max-width: 800px; display: flex; flex-direction: column; gap: 2rem;">
@@ -1131,6 +1216,51 @@
     </div>
   </div>
 
+  <!-- MODAL 5: EDUCATOR SOLUTION MODAL FOR COMMUNITY Q&A -->
+  <div class="admin-modal" id="admin-qa-answer-modal">
+    <div class="admin-modal-box" style="max-width: 800px;">
+      <div class="admin-modal-header">
+        <h3 style="margin: 0;" id="qa-answer-modal-title">Post Official Verified Solution (Mr. Isaac Olusola)</h3>
+        <button class="close-btn" onclick="closeAdminAnswerModal()">&times;</button>
+      </div>
+      <form onsubmit="submitAdminEducatorAnswer(event)">
+        <div class="admin-modal-body">
+          <input type="hidden" id="admin-qa-target-id">
+          
+          <div style="padding: 1rem; background: rgba(0,0,0,0.25); border-radius: var(--radius-sm); margin-bottom: 1.25rem; border: 1px solid var(--admin-border);">
+            <div style="font-size: 0.8rem; color: #38bdf8; font-weight: 600;" id="admin-qa-target-meta">Question</div>
+            <h4 style="margin: 0.25rem 0 0.5rem 0;" id="admin-qa-target-title">Title</h4>
+            <div id="admin-qa-target-preview" style="font-size: 0.9rem; color: var(--text-muted); max-height: 120px; overflow-y: auto;"></div>
+          </div>
+
+          <div class="form-group">
+            <label>Educator Solution & Mathematical Derivations (LaTeX enabled)</label>
+            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="adminInsertLatex('\\frac{a}{b}')" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">\frac{a}{b}</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="adminInsertLatex('\\sqrt{x}')" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">\sqrt{x}</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="adminInsertLatex('x^2')" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">x^2</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="adminInsertLatex('\\int')" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">\int</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="adminInsertLatex('\\sum')" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">\sum</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="adminInsertLatex('\\theta')" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">\theta</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="adminInsertLatex('\\pi')" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">\pi</button>
+            </div>
+            <textarea id="admin-qa-answer-text" class="admin-textarea" rows="8" placeholder="Write full step-by-step mathematical proof, formulas, and explanations..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Attach Solution Diagram / PDF Notes (Optional)</label>
+            <input type="file" id="admin-qa-file-input" accept="image/*,.pdf" onchange="handleAdminAnswerUpload(this)">
+            <div id="admin-qa-file-status" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;"></div>
+          </div>
+        </div>
+        <div class="admin-modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeAdminAnswerModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-admin-submit-answer">Publish Verified Solution 🌟</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="ziglag-db.js"></script>
   <script>
     // ========================================================================
@@ -1141,6 +1271,8 @@
     let CURRENT_LECTURES = [];
     let CURRENT_VAULT = [];
     let CURRENT_INQUIRIES = [];
+    let CURRENT_QA_QUESTIONS = [];
+    let ADMIN_QA_ATTACHMENT = null;
     let VAULT_UPLOAD_MODE = 'file';
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1212,6 +1344,7 @@
 
       if (tabId === 'tab-inquiries') loadContactSubmissions();
       if (tabId === 'tab-bookings') loadTutoringBookings();
+      if (tabId === 'tab-qa') loadAdminQuestions();
     }
 
     function switchContentSubTab(paneId, btn) {
@@ -1234,6 +1367,7 @@
         loadSiteContent(),
         loadContactSubmissions(),
         loadTutoringBookings(),
+        loadAdminQuestions(),
         checkNeonHealth()
       ]);
     }
@@ -2025,6 +2159,232 @@
         await loadTutoringBookings();
       } catch (e) {
         alert("Error deleting booking: " + e.message);
+      }
+    }
+
+    // ========================================================================
+    // 7. COMMUNITY Q&A MODERATION & EDUCATOR ANSWERS
+    // ========================================================================
+    async function loadAdminQuestions() {
+      try {
+        const questions = await ZiglagDB.community.listQuestions();
+        CURRENT_QA_QUESTIONS = Array.isArray(questions) ? questions : [];
+
+        // Update badge
+        const badge = document.getElementById("qa-badge");
+        if (badge) badge.textContent = CURRENT_QA_QUESTIONS.length;
+
+        // Compute stats
+        const total = CURRENT_QA_QUESTIONS.length;
+        const solved = CURRENT_QA_QUESTIONS.filter(q => (q.status || '').toLowerCase() === 'solved').length;
+        const open = total - solved;
+        const totalAnswers = CURRENT_QA_QUESTIONS.reduce((acc, q) => acc + (q.answers_count || 0), 0);
+
+        const elTotal = document.getElementById("stat-total-qa-questions");
+        const elSolved = document.getElementById("stat-solved-qa-questions");
+        const elOpen = document.getElementById("stat-open-qa-questions");
+        const elAnswers = document.getElementById("stat-total-qa-answers");
+
+        if (elTotal) elTotal.textContent = total;
+        if (elSolved) elSolved.textContent = solved;
+        if (elOpen) elOpen.textContent = open;
+        if (elAnswers) elAnswers.textContent = totalAnswers;
+
+        renderAdminQuestions(CURRENT_QA_QUESTIONS);
+      } catch (err) {
+        console.warn("Failed to load admin Q&A questions:", err);
+      }
+    }
+
+    function renderAdminQuestions(questions) {
+      const tbody = document.getElementById("admin-qa-table-body");
+      if (!tbody) return;
+      if (!questions || questions.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+              No community questions found matching the filter criteria.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = questions.map(q => {
+        const diffBadge = q.difficulty === 'Beginner' ? 'background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3);' :
+                          q.difficulty === 'Advanced' ? 'background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3);' :
+                          'background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3);';
+        const isSolved = (q.status || '').toLowerCase() === 'solved';
+        const statusBadge = isSolved ? 
+          '<span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8;">✅ Solved</span>' :
+          '<span class="badge" style="background:rgba(148,163,184,0.15); color:var(--text-muted);">⏳ Open</span>';
+
+        const attachmentIndicator = q.attachment_url ? ` <a href="${q.attachment_url}" target="_blank" style="color:var(--primary-color);" title="View attachment">📎 View</a>` : '';
+
+        return `
+          <tr>
+            <td>
+              <span class="badge" style="${diffBadge} font-size:0.75rem;">${q.difficulty}</span>
+            </td>
+            <td>
+              <strong style="font-size: 0.85rem;">${q.subject}</strong>
+            </td>
+            <td style="max-width: 320px;">
+              <div style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">${escapeHtml(q.title)}${attachmentIndicator}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; line-height: 1.4; max-height: 50px; overflow-y: auto;">
+                ${escapeHtml((q.content_latex || q.content || '').substring(0, 140))}...
+              </div>
+            </td>
+            <td>
+              <div style="font-weight: 600; font-size: 0.85rem;">${escapeHtml(q.author_name || 'Student')}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(q.author_email || 'No email')}</div>
+            </td>
+            <td>
+              <span style="font-weight: 700; color: var(--text-main);">${q.answers_count || 0}</span>
+              ${q.has_educator_answer ? '<div style="font-size: 0.72rem; color: #f97316; font-weight: 600;">🌟 Verified</div>' : ''}
+            </td>
+            <td>${statusBadge}</td>
+            <td>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button class="btn btn-primary btn-sm" onclick="openAdminAnswerModal('${q.id}')" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" title="Post Verified Solution">
+                  ✍️ Solve
+                </button>
+                <a href="qa.html?qid=${q.id}" target="_blank" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; text-decoration: none;" title="Open in Public Hub">
+                  ↗
+                </a>
+                <button class="btn btn-secondary btn-sm" onclick="deleteAdminQuestion('${q.id}')" style="color: #ef4444; padding: 0.25rem 0.55rem; font-size: 0.75rem;" title="Delete Question">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterAdminQuestions() {
+      const search = (document.getElementById("admin-qa-search").value || '').toLowerCase();
+      const diff = document.getElementById("admin-qa-filter-diff").value;
+      const status = document.getElementById("admin-qa-filter-status").value;
+
+      let filtered = CURRENT_QA_QUESTIONS;
+      if (diff && diff !== 'all') {
+        filtered = filtered.filter(q => (q.difficulty || '').toLowerCase() === diff.toLowerCase());
+      }
+      if (status && status !== 'all') {
+        filtered = filtered.filter(q => (q.status || '').toLowerCase() === status.toLowerCase());
+      }
+      if (search) {
+        filtered = filtered.filter(q => 
+          (q.title || '').toLowerCase().includes(search) || 
+          (q.content_latex || '').toLowerCase().includes(search) || 
+          (q.author_name || '').toLowerCase().includes(search)
+        );
+      }
+      renderAdminQuestions(filtered);
+    }
+
+    function openAdminAnswerModal(qid) {
+      const q = CURRENT_QA_QUESTIONS.find(item => item.id === qid);
+      if (!q) return;
+
+      document.getElementById("admin-qa-target-id").value = q.id;
+      document.getElementById("admin-qa-target-meta").innerText = `[${q.difficulty} | ${q.subject}] Question from ${q.author_name}`;
+      document.getElementById("admin-qa-target-title").innerText = q.title;
+      document.getElementById("admin-qa-target-preview").innerText = q.content_latex || q.content;
+      document.getElementById("admin-qa-answer-text").value = "";
+      document.getElementById("admin-qa-file-status").innerText = "";
+      ADMIN_QA_ATTACHMENT = null;
+
+      document.getElementById("admin-qa-answer-modal").classList.add("active");
+    }
+
+    function closeAdminAnswerModal() {
+      document.getElementById("admin-qa-answer-modal").classList.remove("active");
+      ADMIN_QA_ATTACHMENT = null;
+    }
+
+    function adminInsertLatex(snippet) {
+      const textarea = document.getElementById("admin-qa-answer-text");
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      textarea.value = text.substring(0, start) + snippet + text.substring(end);
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + snippet.length;
+    }
+
+    async function handleAdminAnswerUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const status = document.getElementById("admin-qa-file-status");
+      status.innerText = `Uploading ${file.name}...`;
+
+      try {
+        const res = await ZiglagDB.community.uploadAttachment(file);
+        if (res && res.success) {
+          ADMIN_QA_ATTACHMENT = res;
+          status.innerText = `✓ Attached: ${res.file_name} (${res.file_size})`;
+          status.style.color = "#10b981";
+        }
+      } catch (err) {
+        status.innerText = "Upload failed: " + err.message;
+        status.style.color = "#ef4444";
+      }
+    }
+
+    async function submitAdminEducatorAnswer(e) {
+      e.preventDefault();
+      const qid = document.getElementById("admin-qa-target-id").value;
+      const content = document.getElementById("admin-qa-answer-text").value.trim();
+
+      if (!content) {
+        alert("Please write the educator solution.");
+        return;
+      }
+
+      const btn = document.getElementById("btn-admin-submit-answer");
+      btn.disabled = true;
+      btn.innerText = "Publishing...";
+
+      const payload = {
+        content_latex: content,
+        author_name: "Mr. Isaac Olusola",
+        author_email: "ziglaginstitute@gmail.com",
+        attachment_url: ADMIN_QA_ATTACHMENT ? ADMIN_QA_ATTACHMENT.file_url : '',
+        attachment_name: ADMIN_QA_ATTACHMENT ? ADMIN_QA_ATTACHMENT.file_name : '',
+        attachment_type: ADMIN_QA_ATTACHMENT ? ADMIN_QA_ATTACHMENT.file_type : ''
+      };
+
+      try {
+        const res = await ZiglagDB.community.postAnswer(qid, payload);
+        if (res && res.success) {
+          alert("Official verified solution published successfully! The student has been notified via email.");
+          closeAdminAnswerModal();
+          await loadAdminQuestions();
+        } else {
+          throw new Error(res.message || "Failed to post solution.");
+        }
+      } catch (err) {
+        alert("Error publishing solution: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Publish Verified Solution 🌟";
+      }
+    }
+
+    async function deleteAdminQuestion(qid) {
+      if (!confirm("Are you sure you want to delete this community question and all its answers?")) return;
+      try {
+        const res = await ZiglagDB.community.deleteQuestion(qid);
+        if (res && res.success) {
+          await loadAdminQuestions();
+        } else {
+          throw new Error(res.message || "Failed to delete question.");
+        }
+      } catch (err) {
+        alert("Error deleting question: " + err.message);
       }
     }
   </script>

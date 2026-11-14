@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ziglag Institute | Math & Physics Community Q&A Hub</title>
+  <meta name="description" content="Drop your mathematics and physics questions, format equations with live LaTeX notation, upload handwritten workings or diagrams, and explore verified step-by-step solutions by Mr. Isaac Olusola.">
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- KaTeX for live mathematical typesetting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="glow-orb glow-orb-primary" style="top: 8%; left: 4%;"></div>
+  <div class="glow-orb glow-orb-secondary" style="bottom: 12%; right: 6%;"></div>
+
+  <div class="app-container">
+    
+    <!-- Navbar -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
+          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="qa.html" class="active">Q&A Hub</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </nav>
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <button class="btn btn-primary btn-sm" onclick="openAskModal()">+ Ask Question</button>
+      </div>
+    </header>
+
+    <!-- Hero Header -->
+    <section class="section-wrapper" style="padding-bottom: 1rem; animation: fade-in 0.6s ease-out;">
+      <div class="qa-hero-badge">
+        <span>💬</span>
+        <span>Open Academic Problem-Solving Hub</span>
+      </div>
+      <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">
+        Math & Physics <span style="color: var(--primary-color);">Q&A Collective</span>
+      </h1>
+      <p style="max-width: 800px; color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+        Encountering a thorny proof, circle theorem, projectile motion problem, or matrix eigenvalue calculation? Post your questions with live <strong style="color: var(--accent-color); font-family: var(--font-mono);">$\LaTeX$</strong> math notation, upload photos of your working notes or past papers, and explore verified step-by-step solutions provided by <strong>Mr. Isaac Olusola</strong> and peer scholars.
+      </p>
+
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
+        <button class="btn btn-primary" onclick="openAskModal()">
+          <span>✍️</span> Post a Problem / Question
+        </button>
+        <a href="tutoring.html" class="btn btn-secondary">
+          <span>👨‍🏫</span> Book Private 1-on-1 Tutoring
+        </a>
+      </div>
+    </section>
+
+    <!-- Filters & Search Toolbar -->
+    <section class="section-wrapper" style="padding-top: 0.5rem;">
+      <div class="qa-controls-bar">
+        
+        <!-- Search Row -->
+        <div class="qa-search-row">
+          <div class="qa-search-input-wrap">
+            <span class="qa-search-icon">🔍</span>
+            <input type="text" id="qa-search-input" placeholder="Search by topic, formula, theorem, or question keywords..." oninput="handleSearchInput()">
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="clearFilters()" style="white-space: nowrap;">Reset Filters</button>
+        </div>
+
+        <!-- Filter Pills Rows -->
+        <div class="qa-filter-groups">
+          
+          <!-- Difficulty Filters -->
+          <div class="qa-pills-row" id="difficulty-filters">
+            <span class="qa-pill-label">Difficulty:</span>
+            <button class="qa-filter-pill active" data-diff="all" onclick="setDifficultyFilter('all', this)">All</button>
+            <button class="qa-filter-pill" data-diff="Beginner" onclick="setDifficultyFilter('Beginner', this)" title="Secondary School foundation, fractions, kinematics, basic geometry">🟢 Beginner</button>
+            <button class="qa-filter-pill" data-diff="Intermediate" onclick="setDifficultyFilter('Intermediate', this)" title="WASSCE, UTME/JAMB, IGCSE/GCSE, trigonometry, circle theorems">🟡 Intermediate</button>
+            <button class="qa-filter-pill" data-diff="Advanced" onclick="setDifficultyFilter('Advanced', this)" title="A-Level, Undergraduate University Math, Multivariable Calculus, Quantum">🔴 Advanced</button>
+          </div>
+
+          <!-- Subject Filters -->
+          <div class="qa-pills-row" id="subject-filters">
+            <span class="qa-pill-label">Subject:</span>
+            <button class="qa-filter-pill active" data-sub="all" onclick="setSubjectFilter('all', this)">All</button>
+            <button class="qa-filter-pill" data-sub="Mathematics" onclick="setSubjectFilter('Mathematics', this)">📐 Mathematics</button>
+            <button class="qa-filter-pill" data-sub="Physics" onclick="setSubjectFilter('Physics', this)">⚡ Physics</button>
+            <button class="qa-filter-pill" data-sub="Chemistry" onclick="setSubjectFilter('Chemistry', this)">🧪 Chemistry</button>
+          </div>
+
+          <!-- Status Filters -->
+          <div class="qa-pills-row" id="status-filters">
+            <span class="qa-pill-label">Status:</span>
+            <button class="qa-filter-pill active" data-status="all" onclick="setStatusFilter('all', this)">All</button>
+            <button class="qa-filter-pill" data-status="Solved" onclick="setStatusFilter('Solved', this)">✅ Solved</button>
+            <button class="qa-filter-pill" data-status="Open" onclick="setStatusFilter('Open', this)">⏳ Needs Solution</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Live Questions Feed Grid -->
+      <div id="qa-questions-container" class="qa-grid">
+        <div class="glass-card" style="text-align: center; padding: 3rem;">
+          <p style="color: var(--text-muted);">Loading questions from Ziglag PostgreSQL database...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            An Institution designed to empower learners with cutting-edge mathematical education and resources with application to the real world.
+          </p>
+          <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast);" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
+            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast);" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="LinkedIn Profile">🔗 LinkedIn</a>
+            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast);" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="GitHub Profile">💻 GitHub</a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4>Portal Hub</h4>
+          <ul>
+            <li><a href="index.html">Dashboard Home</a></li>
+            <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
+            <li><a href="tutoring.html">1-on-1 Coaching</a></li>
+            <li><a href="vault.html">Resource Vault</a></li>
+            <li><a href="qa.html">Community Q&A</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Question Tiers</h4>
+          <ul>
+            <li><a href="qa.html?diff=Beginner">🟢 Beginner Secondary Math</a></li>
+            <li><a href="qa.html?diff=Intermediate">🟡 WASSCE / JAMB UTME</a></li>
+            <li><a href="qa.html?diff=Intermediate">🟡 GCSE & IGCSE Tracks</a></li>
+            <li><a href="qa.html?diff=Advanced">🔴 A-Level & University Math</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Organization</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="about.html#people">Lead Educator</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="tutoring.html">Book Private Session</a></li>
+            <li><a href="courses.html">Browse Syllabus</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p id="secret-admin-trigger" style="cursor: default;" title="Ziglag Educational System">&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
+        <p>Built as a Premium Web App</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- =========================================================================
+       MODAL 1: QUESTION DETAIL & SOLUTIONS VIEW
+       ========================================================================= -->
+  <div class="modal-overlay" id="detail-modal-overlay" style="display: none;" onclick="closeDetailModal(event)">
+    <div class="glass-card" style="max-width: 900px; width: 92%; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative;" onclick="event.stopPropagation()">
+      
+      <button class="btn btn-secondary btn-sm" onclick="closeDetailModal()" style="position: absolute; top: 1.5rem; right: 1.5rem;">✕ Close</button>
+
+      <!-- Question Header -->
+      <div id="detail-header" style="margin-bottom: 1.5rem; padding-right: 3rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.75rem;">
+          <span id="detail-diff-badge" class="badge-difficulty-intermediate">🟡 Intermediate</span>
+          <span id="detail-subj-badge" style="background: rgba(255,255,255,0.06); padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">📐 Mathematics</span>
+          <span id="detail-status-badge" class="badge-status-solved">✅ Solved</span>
+        </div>
+        <h2 id="detail-title" style="font-family: var(--font-display); font-size: 1.6rem; line-height: 1.3; color: var(--text-main);">Question Title</h2>
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+          <span>👤 Asked by <strong id="detail-author" style="color: var(--text-main);">Student</strong></span>
+          <span>📅 <span id="detail-date">Recently</span></span>
+          <span>👁️ <span id="detail-views">0</span> views</span>
+          <button class="btn btn-secondary btn-sm" id="detail-upvote-btn" onclick="upvoteCurrentQuestion()" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">👍 <span id="detail-upvotes">0</span></button>
+        </div>
+      </div>
+
+      <!-- Question Content (with LaTeX) -->
+      <div class="glass-card" style="padding: 1.5rem; margin-bottom: 1.5rem; background: rgba(0,0,0,0.25); border-color: rgba(255,255,255,0.06);">
+        <div id="detail-content" style="font-size: 1.05rem; line-height: 1.7; color: var(--text-main);"></div>
+        
+        <!-- Attachment Section -->
+        <div id="detail-attachment-box" style="margin-top: 1.25rem; display: none;"></div>
+      </div>
+
+      <!-- Solutions & Answers Section -->
+      <div style="margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="font-family: var(--font-display); font-size: 1.3rem;">
+            Solutions & Responses (<span id="detail-answers-count">0</span>)
+          </h3>
+          <a href="#submit-answer-section" class="btn btn-secondary btn-sm" onclick="document.getElementById('ans-content-input').focus()">+ Write Solution</a>
+        </div>
+
+        <div id="detail-answers-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Post Your Solution Form -->
+      <div id="submit-answer-section" class="glass-card" style="margin-top: 2.5rem; padding: 1.75rem; border-color: var(--border-highlight); background: rgba(14, 165, 233, 0.03);">
+        <h4 style="font-family: var(--font-display); font-size: 1.15rem; color: var(--accent-color); margin-bottom: 0.5rem;">
+          💡 Submit a Step-by-Step Solution or Method
+        </h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Help fellow students understand the derivation! You can format equations using LaTeX syntax like <code>$\frac{a}{b}$</code> or block equations <code>$$E = mc^2$$</code>.
+        </p>
+
+        <!-- Contributor Details -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Your Name / Title</label>
+            <input type="text" id="ans-author-name" class="contact-input" placeholder="Your Full Name (e.g. Mr. Isaac Olusola)">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Your Email (Private)</label>
+            <input type="email" id="ans-author-email" class="contact-input" placeholder="your.email@example.com">
+          </div>
+        </div>
+
+        <!-- LaTeX Equation Toolbar -->
+        <div class="latex-toolbar">
+          <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center; margin-right: 0.25rem;">$\LaTeX$ Insert:</span>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\frac{a}{b}')">$\frac{a}{b}$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\sqrt{x}')">$\sqrt{x}$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', 'x^{2}')">$x^2$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', 'x_{n}')">$x_n$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\int_{a}^{b}')">$\int$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\sum_{i=1}^{n}')">$\sum$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\vec{F}')">$\vec{v}$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\theta')">$\theta$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\pi')">$\pi$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\pm')">$\pm$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\times')">$\times$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\le')">$\le$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\ge')">$\ge$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\neq')">$\neq$</button>
+          <button type="button" class="latex-tool-btn" onclick="insertLatex('ans-content-input', '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}')">[Matrix]</button>
+        </div>
+
+        <!-- Answer Textarea -->
+        <textarea id="ans-content-input" class="contact-input" style="min-height: 140px; font-family: var(--font-body); font-size: 0.95rem; line-height: 1.6;" placeholder="Type your step-by-step derivation or proof here... Equations wrapped in $...$ or $$...$$ will be rendered live." oninput="updateLivePreview('ans-content-input', 'ans-live-preview')"></textarea>
+
+        <!-- Live Math Preview -->
+        <div style="margin-top: 0.5rem;">
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Live Equation Preview:</span>
+          <div id="ans-live-preview" class="latex-preview-box">
+            <em style="color: var(--text-muted); font-size: 0.85rem;">Math preview will render here in real time...</em>
+          </div>
+        </div>
+
+        <!-- Attachment upload for Answer -->
+        <div style="margin-top: 1rem;">
+          <input type="file" id="ans-file-input" style="display: none;" accept="image/*,.pdf" onchange="handleAnswerFileUpload(this)">
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('ans-file-input').click()">
+              📎 Attach Working Image / Diagram / PDF
+            </button>
+            <span id="ans-file-name" style="font-size: 0.8rem; color: var(--text-muted);">No file attached</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+          <button class="btn btn-primary" id="btn-submit-answer" onclick="submitAnswer()">
+            Submit Verified Solution ✓
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 2: ASK A QUESTION MODAL
+       ========================================================================= -->
+  <div class="modal-overlay" id="ask-modal-overlay" style="display: none;" onclick="closeAskModal(event)">
+    <div class="glass-card" style="max-width: 780px; width: 92%; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative;" onclick="event.stopPropagation()">
+      
+      <button class="btn btn-secondary btn-sm" onclick="closeAskModal()" style="position: absolute; top: 1.5rem; right: 1.5rem;">✕ Close</button>
+
+      <div style="margin-bottom: 1.5rem; padding-right: 3rem;">
+        <span class="badge-difficulty-intermediate" style="margin-bottom: 0.5rem; display: inline-flex;">❓ New Inquiry</span>
+        <h2 style="font-family: var(--font-display); font-size: 1.6rem; color: var(--text-main);">
+          Ask a Math or Physics Question
+        </h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.35rem;">
+          Post your question for the Ziglag Institute community and Mr. Isaac Olusola. All difficulty levels welcome!
+        </p>
+      </div>
+
+      <!-- Form -->
+      <form id="ask-question-form" onsubmit="handleQuestionSubmit(event)">
+        
+        <!-- Question Title -->
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
+            Question Title (Required)
+          </label>
+          <input type="text" id="ask-title" class="contact-input" placeholder="e.g. Proof of Alternate Segment Theorem in Circle Geometry" required>
+        </div>
+
+        <!-- Subject & Difficulty Selection Row -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+          
+          <!-- Subject Select -->
+          <div class="form-group">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
+              Subject Area
+            </label>
+            <select id="ask-subject" class="contact-input">
+              <option value="Mathematics">📐 Mathematics</option>
+              <option value="Physics">⚡ Physics</option>
+              <option value="Chemistry">🧪 Chemistry</option>
+              <option value="Further Mathematics">🔢 Further Mathematics</option>
+            </select>
+          </div>
+
+          <!-- Difficulty Select -->
+          <div class="form-group">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
+              Difficulty Level
+            </label>
+            <select id="ask-difficulty" class="contact-input">
+              <option value="Beginner">🟢 Beginner (Secondary Foundations, Arithmetic)</option>
+              <option value="Intermediate" selected>🟡 Intermediate (WASSCE, JAMB, IGCSE/GCSE)</option>
+              <option value="Advanced">🔴 Advanced (A-Level, Univ Calculus, Linear Algebra)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- LaTeX Equation Toolbar -->
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
+            Question Details & Mathematical Formulas (Required)
+          </label>
+          
+          <div class="latex-toolbar">
+            <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center; margin-right: 0.25rem;">$\LaTeX$ Shortcuts:</span>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\frac{a}{b}')">$\frac{a}{b}$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\sqrt{x}')">$\sqrt{x}$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', 'x^{2}')">$x^2$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', 'x_{n}')">$x_n$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\int_{a}^{b}')">$\int$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\sum_{i=1}^{n}')">$\sum$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\vec{F}')">$\vec{F}$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\theta')">$\theta$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\pi')">$\pi$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\pm')">$\pm$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\times')">$\times$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\le')">$\le$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\ge')">$\ge$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\neq')">$\neq$</button>
+            <button type="button" class="latex-tool-btn" onclick="insertLatex('ask-content', '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}')">[Matrix]</button>
+          </div>
+
+          <textarea id="ask-content" class="contact-input" style="min-height: 140px; font-family: var(--font-body); font-size: 0.95rem; line-height: 1.6;" placeholder="Describe your question in detail. Use $...$ for inline math (e.g. $13.625_{10}$) or $$...$$ for centered equations." required oninput="updateLivePreview('ask-content', 'ask-live-preview')"></textarea>
+
+          <!-- Live Math Preview -->
+          <div style="margin-top: 0.5rem;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Live Equation Preview:</span>
+            <div id="ask-live-preview" class="latex-preview-box">
+              <em style="color: var(--text-muted); font-size: 0.85rem;">Math preview will appear here as you type...</em>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Upload Drag & Drop Zone -->
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
+            Attach Problem Screenshot, Diagram, or PDF (Optional)
+          </label>
+          <input type="file" id="ask-file-input" style="display: none;" accept="image/*,.pdf" onchange="handleQuestionFileUpload(this)">
+          
+          <div class="qa-upload-dropzone" id="ask-dropzone" onclick="document.getElementById('ask-file-input').click()">
+            <div style="font-size: 1.75rem; margin-bottom: 0.35rem;">📸 📑</div>
+            <p style="font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem;">
+              Click to browse or drag & drop problem snapshot / PDF
+            </p>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">
+              Supports PNG, JPG, JPEG, WEBP, or PDF (up to 15MB)
+            </p>
+          </div>
+
+          <!-- Uploaded file badge indicator -->
+          <div id="ask-file-preview-wrap" style="display: none;" class="qa-upload-preview">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span id="ask-file-icon">📄</span>
+              <span id="ask-file-name-label" style="font-weight: 600;">question_scan.png</span>
+              <span id="ask-file-size-label" style="color: var(--text-muted); font-size: 0.75rem;">(1.2 MB)</span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="removeQuestionFile(event)" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;">Remove</button>
+          </div>
+        </div>
+
+        <!-- Author Details -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">Your Name / Alias</label>
+            <input type="text" id="ask-author-name" class="contact-input" placeholder="e.g. Chioma Adeyemi" required>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
+              Your Email Address (For solution notification)
+            </label>
+            <input type="email" id="ask-author-email" class="contact-input" placeholder="chioma@example.com" required>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; align-items: center;">
+          <button type="button" class="btn btn-secondary" onclick="closeAskModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-question">
+            Publish Question to Hub 🚀
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal for Full Image View -->
+  <div class="modal-overlay" id="lightbox-modal" style="display: none;" onclick="closeLightbox()">
+    <div style="max-width: 90vw; max-height: 90vh; text-align: center; position: relative;">
+      <button class="btn btn-secondary btn-sm" onclick="closeLightbox()" style="position: absolute; top: -40px; right: 0;">✕ Close</button>
+      <img id="lightbox-img" src="" alt="Enlarged Diagram" style="max-width: 100%; max-height: 85vh; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);">
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="ziglag-db.js"></script>
+  <script>
+    // State Management
+    let currentFilters = {
+      difficulty: 'all',
+      subject: 'all',
+      status: 'all',
+      search: ''
+    };
+    let activeQuestion = null;
+    let askUploadedAttachment = null;
+    let ansUploadedAttachment = null;
+
+    // Initialize Page
+    document.addEventListener("DOMContentLoaded", () => {
+      // Check URL query parameters (e.g. ?diff=Beginner or ?qid=...)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('diff')) {
+        currentFilters.difficulty = urlParams.get('diff');
+        updateFilterPillsUI('difficulty-filters', currentFilters.difficulty);
+      }
+      if (urlParams.get('sub')) {
+        currentFilters.subject = urlParams.get('sub');
+        updateFilterPillsUI('subject-filters', currentFilters.subject);
+      }
+
+      loadQuestions();
+
+      // Check if direct question requested via ?qid=...
+      const directQid = urlParams.get('qid');
+      if (directQid) {
+        openQuestionDetail(directQid);
+      }
+
+      // Drag and drop setup for ask modal
+      setupDropzone();
+    });
+
+    // Load Questions from Backend
+    async function loadQuestions() {
+      const container = document.getElementById("qa-questions-container");
+      container.innerHTML = `
+        <div class="glass-card" style="text-align: center; padding: 3rem;">
+          <p style="color: var(--text-muted);">Fetching questions...</p>
+        </div>
+      `;
+
+      try {
+        const questions = await ZiglagDB.community.listQuestions(currentFilters);
+        renderQuestionsFeed(questions);
+      } catch (err) {
+        console.error("Failed to load questions:", err);
+        container.innerHTML = `
+          <div class="glass-card" style="text-align: center; padding: 3rem;">
+            <p style="color: var(--secondary-color);">Failed to load questions. Please check connection.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Render Question Cards
+    function renderQuestionsFeed(questions) {
+      const container = document.getElementById("qa-questions-container");
+      if (!questions || questions.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card" style="text-align: center; padding: 3.5rem;">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 0.75rem;">🔍</span>
+            <h3 style="font-family: var(--font-display); margin-bottom: 0.5rem;">No Questions Found</h3>
+            <p style="color: var(--text-muted); max-width: 450px; margin: 0 auto 1.5rem auto;">
+              No questions match your selected difficulty or search criteria. Be the first to post a question in this tier!
+            </p>
+            <button class="btn btn-primary" onclick="openAskModal()">+ Ask the First Question</button>
+          </div>
+        `;
+        return;
+      }
+
+      let html = "";
+      questions.forEach(q => {
+        const diffBadgeClass = q.difficulty === 'Beginner' ? 'badge-difficulty-beginner' :
+                               q.difficulty === 'Advanced' ? 'badge-difficulty-advanced' : 'badge-difficulty-intermediate';
+        const diffIcon = q.difficulty === 'Beginner' ? '🟢' : q.difficulty === 'Advanced' ? '🔴' : '🟡';
+        const isSolved = (q.status || '').toLowerCase() === 'solved';
+        const statusBadge = isSolved ? 
+          '<span class="badge-status-solved">✅ Solved</span>' : 
+          '<span class="badge-status-open">⏳ Open</span>';
+        
+        const educatorBadge = q.has_educator_answer ? 
+          '<span class="educator-badge" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">🌟 Verified Solution</span>' : '';
+
+        const attachmentIcon = q.attachment_url ? 
+          `<span style="font-size: 0.8rem; color: var(--accent-color); margin-left: 0.5rem;">📎 ${q.attachment_type === 'pdf' ? 'PDF' : 'Image'}</span>` : '';
+
+        // Safe preview text
+        let preview = (q.content_latex || q.content || '').substring(0, 220);
+        if ((q.content_latex || '').length > 220) preview += '...';
+
+        html += `
+          <div class="qa-card" onclick="openQuestionDetail('${q.id}')">
+            <div class="qa-card-header">
+              <div class="qa-card-tags">
+                <span class="${diffBadgeClass}">${diffIcon} ${q.difficulty}</span>
+                <span style="background: rgba(255,255,255,0.06); padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">
+                  ${getSubjectIcon(q.subject)} ${q.subject}
+                </span>
+                ${statusBadge}
+                ${educatorBadge}
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">
+                ${formatDate(q.created_at)}
+              </div>
+            </div>
+
+            <h3 class="qa-card-title">${escapeHtml(q.title)} ${attachmentIcon}</h3>
+            
+            <div class="qa-card-preview latex-renderable">${escapeHtml(preview)}</div>
+
+            <div class="qa-card-footer">
+              <div class="qa-card-author">
+                <span>👤</span>
+                <span>Asked by <strong>${escapeHtml(q.author_name || 'Student')}</strong></span>
+              </div>
+              <div class="qa-card-stats">
+                <span>👁️ ${q.views || 0}</span>
+                <span>👍 ${q.upvotes || 0}</span>
+                <span>💬 ${q.answers_count || 0} solution${(q.answers_count === 1 ? '' : 's')}</span>
+                <span style="color: var(--primary-color); font-weight: 600;">View & Respond ➔</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      renderAllMathInElement(container);
+    }
+
+    // Helper: Subject Icon
+    function getSubjectIcon(sub) {
+      if (!sub) return '📐';
+      const s = sub.toLowerCase();
+      if (s.includes('physic')) return '⚡';
+      if (s.includes('chem')) return '🧪';
+      return '📐';
+    }
+
+    // Set Filters
+    function setDifficultyFilter(diff, el) {
+      currentFilters.difficulty = diff;
+      updateFilterPillsUI('difficulty-filters', diff);
+      loadQuestions();
+    }
+
+    function setSubjectFilter(sub, el) {
+      currentFilters.subject = sub;
+      updateFilterPillsUI('subject-filters', sub);
+      loadQuestions();
+    }
+
+    function setStatusFilter(status, el) {
+      currentFilters.status = status;
+      updateFilterPillsUI('status-filters', status);
+      loadQuestions();
+    }
+
+    function handleSearchInput() {
+      currentFilters.search = document.getElementById("qa-search-input").value.trim();
+      loadQuestions();
+    }
+
+    function clearFilters() {
+      currentFilters = { difficulty: 'all', subject: 'all', status: 'all', search: '' };
+      document.getElementById("qa-search-input").value = "";
+      updateFilterPillsUI('difficulty-filters', 'all');
+      updateFilterPillsUI('subject-filters', 'all');
+      updateFilterPillsUI('status-filters', 'all');
+      loadQuestions();
+    }
+
+    function updateFilterPillsUI(containerId, activeVal) {
+      const parent = document.getElementById(containerId);
+      if (!parent) return;
+      parent.querySelectorAll(".qa-filter-pill").forEach(p => {
+        const val = p.getAttribute("data-diff") || p.getAttribute("data-sub") || p.getAttribute("data-status");
+        if (val && val.toLowerCase() === activeVal.toLowerCase()) {
+          p.classList.add("active");
+        } else {
+          p.classList.remove("active");
+        }
+      });
+    }
+
+    // Open Question Detail Modal
+    async function openQuestionDetail(qid) {
+      const modal = document.getElementById("detail-modal-overlay");
+      modal.style.display = "flex";
+
+      // Show temporary loading
+      document.getElementById("detail-title").innerText = "Loading question...";
+      document.getElementById("detail-content").innerHTML = "<p>Loading question details and step-by-step solutions...</p>";
+      document.getElementById("detail-answers-list").innerHTML = "";
+
+      try {
+        const q = await ZiglagDB.community.getQuestion(qid);
+        if (!q) {
+          alert("Question not found.");
+          closeDetailModal();
+          return;
+        }
+
+        activeQuestion = q;
+
+        // Populate header
+        const diffBadge = document.getElementById("detail-diff-badge");
+        diffBadge.className = q.difficulty === 'Beginner' ? 'badge-difficulty-beginner' :
+                              q.difficulty === 'Advanced' ? 'badge-difficulty-advanced' : 'badge-difficulty-intermediate';
+        diffBadge.innerText = `${q.difficulty === 'Beginner' ? '🟢' : q.difficulty === 'Advanced' ? '🔴' : '🟡'} ${q.difficulty}`;
+
+        document.getElementById("detail-subj-badge").innerText = `${getSubjectIcon(q.subject)} ${q.subject}`;
+        
+        const statusBadge = document.getElementById("detail-status-badge");
+        if ((q.status || '').toLowerCase() === 'solved') {
+          statusBadge.className = 'badge-status-solved';
+          statusBadge.innerText = '✅ Solved';
+        } else {
+          statusBadge.className = 'badge-status-open';
+          statusBadge.innerText = '⏳ Open';
+        }
+
+        document.getElementById("detail-title").innerText = q.title;
+        document.getElementById("detail-author").innerText = q.author_name || 'Student';
+        document.getElementById("detail-date").innerText = formatDate(q.created_at);
+        document.getElementById("detail-views").innerText = q.views || 1;
+        document.getElementById("detail-upvotes").innerText = q.upvotes || 0;
+
+        // Content
+        const contentBox = document.getElementById("detail-content");
+        contentBox.innerText = q.content_latex || q.content;
+        renderAllMathInElement(contentBox);
+
+        // Attachment
+        const attachBox = document.getElementById("detail-attachment-box");
+        if (q.attachment_url) {
+          attachBox.style.display = "block";
+          if (q.attachment_type === 'pdf' || (q.attachment_url.toLowerCase().endsWith('.pdf'))) {
+            attachBox.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: var(--radius-sm);">
+                <span style="font-size: 1.5rem;">📑</span>
+                <div>
+                  <div style="font-weight: 600; font-size: 0.9rem;">Attached PDF Past Question / Document:</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(q.attachment_name || 'document.pdf')}</div>
+                </div>
+                <a href="${q.attachment_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="margin-left: auto;">Open PDF ↗</a>
+              </div>
+            `;
+          } else {
+            attachBox.innerHTML = `
+              <div style="margin-top: 0.5rem;">
+                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.35rem;">Attached Problem Snapshot (Click to enlarge):</span>
+                <img src="${q.attachment_url}" alt="Question diagram" style="max-width: 100%; max-height: 280px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); cursor: pointer;" onclick="openLightbox('${q.attachment_url}')">
+              </div>
+            `;
+          }
+        } else {
+          attachBox.style.display = "none";
+          attachBox.innerHTML = "";
+        }
+
+        // Render Answers
+        renderAnswersList(q.answers || []);
+      } catch (err) {
+        console.error("Failed to fetch question:", err);
+      }
+    }
+
+    function renderAnswersList(answers) {
+      const container = document.getElementById("detail-answers-list");
+      document.getElementById("detail-answers-count").innerText = answers.length;
+
+      if (!answers || answers.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem; background: rgba(255,255,255,0.02); border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
+            <p style="color: var(--text-muted); margin-bottom: 0.5rem;">No solutions posted yet for this problem.</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Are you familiar with this theorem or calculation? Submit your step-by-step working below!</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = "";
+      answers.forEach(a => {
+        const isEducator = a.is_educator || (a.author_name && a.author_name.toLowerCase().includes('isaac olusola'));
+        const cardClass = isEducator ? 'solution-card educator-solution' : 'solution-card';
+        const roleBadge = isEducator ? 
+          '<span class="educator-badge">🌟 Verified Educator Solution (Mr. Isaac Olusola, MSc Applied Mathematics)</span>' : 
+          '<span style="background: rgba(255,255,255,0.06); padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.75rem;">Community Scholar</span>';
+
+        let attachmentHtml = '';
+        if (a.attachment_url) {
+          if (a.attachment_type === 'pdf' || a.attachment_url.toLowerCase().endsWith('.pdf')) {
+            attachmentHtml = `<div style="margin-top: 0.75rem;"><a href="${a.attachment_url}" target="_blank" class="btn btn-secondary btn-sm">📑 View Attached Solution PDF</a></div>`;
+          } else {
+            attachmentHtml = `<div style="margin-top: 0.75rem;"><img src="${a.attachment_url}" alt="Handwritten solution" style="max-width: 100%; max-height: 240px; border-radius: var(--radius-sm); cursor: pointer;" onclick="openLightbox('${a.attachment_url}')"></div>`;
+          }
+        }
+
+        html += `
+          <div class="${cardClass}">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <strong style="color: var(--text-main);">${escapeHtml(a.author_name)}</strong>
+                ${roleBadge}
+              </div>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">${formatDate(a.created_at)}</span>
+            </div>
+
+            <div class="latex-renderable" style="font-size: 1rem; line-height: 1.7; color: var(--text-main); white-space: pre-wrap;">${escapeHtml(a.content_latex || a.content)}</div>
+
+            ${attachmentHtml}
+
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05);">
+              <button class="btn btn-secondary btn-sm" onclick="upvoteAnswer('${a.id}', this)" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">
+                👍 Helpful (${a.upvotes || 0})
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      renderAllMathInElement(container);
+    }
+
+    function closeDetailModal(e) {
+      if (e && e.target && e.target.id !== 'detail-modal-overlay') return;
+      document.getElementById("detail-modal-overlay").style.display = "none";
+      activeQuestion = null;
+    }
+
+    // Upvote Active Question
+    async function upvoteCurrentQuestion() {
+      if (!activeQuestion) return;
+      try {
+        const res = await ZiglagDB.community.upvoteQuestion(activeQuestion.id);
+        if (res && res.upvotes !== undefined) {
+          activeQuestion.upvotes = res.upvotes;
+          document.getElementById("detail-upvotes").innerText = res.upvotes;
+          loadQuestions();
+        }
+      } catch (err) {
+        console.warn("Upvote failed:", err);
+      }
+    }
+
+    // Upvote Answer
+    async function upvoteAnswer(aid, btn) {
+      try {
+        const res = await ZiglagDB.community.upvoteAnswer(aid);
+        if (res && res.upvotes !== undefined) {
+          btn.innerText = `👍 Helpful (${res.upvotes})`;
+        }
+      } catch (err) {
+        console.warn("Answer upvote failed:", err);
+      }
+    }
+
+    // Submit Answer to Active Question
+    async function submitAnswer() {
+      if (!activeQuestion) return;
+      const content = document.getElementById("ans-content-input").value.trim();
+      const name = document.getElementById("ans-author-name").value.trim() || 'Community Scholar';
+      const email = document.getElementById("ans-author-email").value.trim();
+
+      if (!content) {
+        alert("Please write your step-by-step solution before submitting.");
+        return;
+      }
+
+      const btn = document.getElementById("btn-submit-answer");
+      btn.disabled = true;
+      btn.innerText = "Submitting Solution...";
+
+      const payload = {
+        content_latex: content,
+        author_name: name,
+        author_email: email,
+        attachment_url: ansUploadedAttachment ? ansUploadedAttachment.file_url : '',
+        attachment_name: ansUploadedAttachment ? ansUploadedAttachment.file_name : '',
+        attachment_type: ansUploadedAttachment ? ansUploadedAttachment.file_type : ''
+      };
+
+      try {
+        const res = await ZiglagDB.community.postAnswer(activeQuestion.id, payload);
+        if (res && res.success) {
+          document.getElementById("ans-content-input").value = "";
+          document.getElementById("ans-live-preview").innerHTML = '<em style="color: var(--text-muted); font-size: 0.85rem;">Math preview will render here in real time...</em>';
+          document.getElementById("ans-file-name").innerText = "No file attached";
+          ansUploadedAttachment = null;
+          
+          alert("Your solution has been posted successfully! If you provided your email, you will receive notifications for responses.");
+          openQuestionDetail(activeQuestion.id);
+          loadQuestions();
+        } else {
+          throw new Error(res.message || "Failed to post answer.");
+        }
+      } catch (err) {
+        alert("Error posting solution: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Submit Verified Solution ✓";
+      }
+    }
+
+    // Handle Answer File Upload
+    async function handleAnswerFileUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const label = document.getElementById("ans-file-name");
+      label.innerText = `Uploading ${file.name}...`;
+
+      try {
+        const res = await ZiglagDB.community.uploadAttachment(file);
+        if (res && res.success) {
+          ansUploadedAttachment = res;
+          label.innerText = `✓ Attached: ${res.file_name} (${res.file_size})`;
+        } else {
+          throw new Error(res.message || "Upload failed.");
+        }
+      } catch (err) {
+        alert("Upload error: " + err.message);
+        label.innerText = "Upload failed";
+      }
+    }
+
+    // =========================================================================
+    // ASK QUESTION MODAL
+    // =========================================================================
+    function openAskModal() {
+      document.getElementById("ask-modal-overlay").style.display = "flex";
+    }
+
+    function closeAskModal(e) {
+      if (e && e.target && e.target.id !== 'ask-modal-overlay') return;
+      document.getElementById("ask-modal-overlay").style.display = "none";
+    }
+
+    function setupDropzone() {
+      const dropzone = document.getElementById("ask-dropzone");
+      if (!dropzone) return;
+
+      ['dragenter', 'dragover'].forEach(name => {
+        dropzone.addEventListener(name, (e) => {
+          e.preventDefault();
+          dropzone.classList.add("dragover");
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(name => {
+        dropzone.addEventListener(name, (e) => {
+          e.preventDefault();
+          dropzone.classList.remove("dragover");
+        });
+      });
+
+      dropzone.addEventListener("drop", (e) => {
+        if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+          handleQuestionFile(e.dataTransfer.files[0]);
+        }
+      });
+    }
+
+    function handleQuestionFileUpload(input) {
+      if (input.files && input.files[0]) {
+        handleQuestionFile(input.files[0]);
+      }
+    }
+
+    async function handleQuestionFile(file) {
+      const dropzone = document.getElementById("ask-dropzone");
+      const previewWrap = document.getElementById("ask-file-preview-wrap");
+      
+      dropzone.style.display = "none";
+      previewWrap.style.display = "flex";
+      document.getElementById("ask-file-name-label").innerText = `Uploading ${file.name}...`;
+
+      try {
+        const res = await ZiglagDB.community.uploadAttachment(file);
+        if (res && res.success) {
+          askUploadedAttachment = res;
+          document.getElementById("ask-file-icon").innerText = res.file_type === 'pdf' ? '📑' : '🖼️';
+          document.getElementById("ask-file-name-label").innerText = res.file_name;
+          document.getElementById("ask-file-size-label").innerText = `(${res.file_size})`;
+        } else {
+          throw new Error(res.message || "Upload failed");
+        }
+      } catch (err) {
+        alert("File upload failed: " + err.message);
+        removeQuestionFile();
+      }
+    }
+
+    function removeQuestionFile(e) {
+      if (e) e.stopPropagation();
+      askUploadedAttachment = null;
+      document.getElementById("ask-file-input").value = "";
+      document.getElementById("ask-file-preview-wrap").style.display = "none";
+      document.getElementById("ask-dropzone").style.display = "block";
+    }
+
+    // Submit New Question
+    async function handleQuestionSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById("ask-title").value.trim();
+      const subject = document.getElementById("ask-subject").value;
+      const difficulty = document.getElementById("ask-difficulty").value;
+      const content = document.getElementById("ask-content").value.trim();
+      const author_name = document.getElementById("ask-author-name").value.trim();
+      const author_email = document.getElementById("ask-author-email").value.trim();
+
+      if (!title || !content || !author_name || !author_email) {
+        alert("Please complete all required fields.");
+        return;
+      }
+
+      const btn = document.getElementById("btn-submit-question");
+      btn.disabled = true;
+      btn.innerText = "Publishing Question...";
+
+      const payload = {
+        title,
+        subject,
+        difficulty,
+        content_latex: content,
+        author_name,
+        author_email,
+        attachment_url: askUploadedAttachment ? askUploadedAttachment.file_url : '',
+        attachment_name: askUploadedAttachment ? askUploadedAttachment.file_name : '',
+        attachment_type: askUploadedAttachment ? askUploadedAttachment.file_type : ''
+      };
+
+      try {
+        const res = await ZiglagDB.community.askQuestion(payload);
+        if (res && res.success) {
+          alert("Your question has been published to the Community Q&A Hub! Mr. Isaac Olusola has been notified at ziglaginstitute@gmail.com and you will receive an email once a solution is posted.");
+          closeAskModal();
+          document.getElementById("ask-question-form").reset();
+          removeQuestionFile();
+          document.getElementById("ask-live-preview").innerHTML = '<em style="color: var(--text-muted); font-size: 0.85rem;">Math preview will appear here as you type...</em>';
+          loadQuestions();
+          if (res.question && res.question.id) {
+            openQuestionDetail(res.question.id);
+          }
+        } else {
+          throw new Error(res.message || "Failed to publish question.");
+        }
+      } catch (err) {
+        alert("Error publishing question: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Publish Question to Hub 🚀";
+      }
+    }
+
+    // =========================================================================
+    // LATEX UTILITIES & LIVE PREVIEW
+    // =========================================================================
+    function insertLatex(textareaId, snippet) {
+      const textarea = document.getElementById(textareaId);
+      if (!textarea) return;
+
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+
+      textarea.value = text.substring(0, start) + snippet + text.substring(end);
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + snippet.length;
+
+      // Trigger preview update
+      if (textareaId === 'ask-content') updateLivePreview('ask-content', 'ask-live-preview');
+      if (textareaId === 'ans-content-input') updateLivePreview('ans-content-input', 'ans-live-preview');
+    }
+
+    function updateLivePreview(textareaId, previewBoxId) {
+      const textarea = document.getElementById(textareaId);
+      const previewBox = document.getElementById(previewBoxId);
+      if (!textarea || !previewBox) return;
+
+      const text = textarea.value.trim();
+      if (!text) {
+        previewBox.innerHTML = '<em style="color: var(--text-muted); font-size: 0.85rem;">Math preview will appear here as you type...</em>';
+        return;
+      }
+
+      previewBox.innerText = text;
+      renderAllMathInElement(previewBox);
+    }
+
+    function renderAllMathInElement(el) {
+      if (window.renderMathInElement) {
+        try {
+          window.renderMathInElement(el, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+              { left: '\\[', right: '\\]', display: true },
+              { left: '\\(', right: '\\)', display: false }
+            ],
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn("KaTeX render error:", e);
+        }
+      }
+    }
+
+    // Lightbox modal for image view
+    function openLightbox(imgUrl) {
+      const lightbox = document.getElementById("lightbox-modal");
+      document.getElementById("lightbox-img").src = imgUrl;
+      lightbox.style.display = "flex";
+    }
+
+    function closeLightbox() {
+      document.getElementById("lightbox-modal").style.display = "none";
+    }
+
+    // Formatting utilities
+    function formatDate(isoStr) {
+      if (!isoStr) return 'Recently';
+      try {
+        const d = new Date(isoStr);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      } catch (e) {
+        return 'Recently';
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>

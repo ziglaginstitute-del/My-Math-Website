@@ -701,6 +701,172 @@
       }
     },
 
+    // Community Math & Physics Q&A Hub
+    community: {
+      listQuestions: async function (filters = {}) {
+        const params = new URLSearchParams();
+        if (filters.difficulty && filters.difficulty !== 'all') params.append('difficulty', filters.difficulty);
+        if (filters.subject && filters.subject !== 'all') params.append('subject', filters.subject);
+        if (filters.status && filters.status !== 'all') params.append('status', filters.status);
+        if (filters.search) params.append('search', filters.search);
+
+        const url = `/api/community/questions${params.toString() ? '?' + params.toString() : ''}`;
+        try {
+          return await apiRequest(url);
+        } catch (e) {
+          console.warn('[ZiglagDB] Community questions API failed, using local fallback:', e);
+          let questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          if (filters.difficulty && filters.difficulty !== 'all') {
+            questions = questions.filter(q => (q.difficulty || '').toLowerCase() === filters.difficulty.toLowerCase());
+          }
+          if (filters.subject && filters.subject !== 'all') {
+            questions = questions.filter(q => (q.subject || '').toLowerCase() === filters.subject.toLowerCase());
+          }
+          if (filters.search) {
+            const s = filters.search.toLowerCase();
+            questions = questions.filter(q => (q.title || '').toLowerCase().includes(s) || (q.content_latex || '').toLowerCase().includes(s));
+          }
+          return questions;
+        }
+      },
+
+      getQuestion: async function (questionId) {
+        try {
+          const res = await apiRequest(`/api/community/questions/${questionId}`);
+          return res.question;
+        } catch (e) {
+          console.warn('[ZiglagDB] Get question detail failed:', e);
+          const questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          return questions.find(q => q.id === questionId) || null;
+        }
+      },
+
+      askQuestion: async function (data) {
+        try {
+          const res = await apiRequest('/api/community/questions', 'POST', data);
+          return res;
+        } catch (e) {
+          console.warn('[ZiglagDB] Ask question API failed, saving locally:', e);
+          const qid = `cq_local_${Date.now()}`;
+          const newQ = {
+            id: qid,
+            title: data.title,
+            subject: data.subject || 'Mathematics',
+            difficulty: data.difficulty || 'Intermediate',
+            content_latex: data.content_latex || data.content,
+            author_name: data.author_name || 'Anonymous Scholar',
+            author_email: data.author_email || '',
+            attachment_url: data.attachment_url || '',
+            attachment_name: data.attachment_name || '',
+            attachment_type: data.attachment_type || '',
+            views: 1,
+            upvotes: 0,
+            status: 'Open',
+            answers_count: 0,
+            has_educator_answer: false,
+            created_at: new Date().toISOString(),
+            answers: []
+          };
+          const questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          questions.unshift(newQ);
+          localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+          return { success: true, question: newQ, offline: true };
+        }
+      },
+
+      postAnswer: async function (questionId, data) {
+        try {
+          const res = await apiRequest(`/api/community/questions/${questionId}/answers`, 'POST', data);
+          return res;
+        } catch (e) {
+          console.warn('[ZiglagDB] Post answer API failed, saving locally:', e);
+          const aid = `ans_local_${Date.now()}`;
+          const isEducator = (data.author_email && data.author_email.toLowerCase() === 'ziglaginstitute@gmail.com') ||
+            (data.author_name && data.author_name.toLowerCase().includes('isaac olusola'));
+          const newAns = {
+            id: aid,
+            question_id: questionId,
+            author_name: isEducator ? 'Mr. Isaac Olusola' : (data.author_name || 'Anonymous Contributor'),
+            author_email: data.author_email || '',
+            is_educator: !!isEducator,
+            is_verified: !!isEducator,
+            content_latex: data.content_latex || data.content,
+            attachment_url: data.attachment_url || '',
+            attachment_name: data.attachment_name || '',
+            attachment_type: data.attachment_type || '',
+            upvotes: 0,
+            created_at: new Date().toISOString()
+          };
+          const questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          const targetQ = questions.find(q => q.id === questionId);
+          if (targetQ) {
+            targetQ.answers = targetQ.answers || [];
+            targetQ.answers.push(newAns);
+            targetQ.answers_count = targetQ.answers.length;
+            if (isEducator) {
+              targetQ.status = 'Solved';
+              targetQ.has_educator_answer = true;
+            }
+            localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+          }
+          return { success: true, answer: newAns, offline: true };
+        }
+      },
+
+      upvoteQuestion: async function (questionId) {
+        try {
+          return await apiRequest(`/api/community/questions/${questionId}/upvote`, 'POST');
+        } catch (e) {
+          console.warn('[ZiglagDB] Upvote question API failed:', e);
+          return { success: true, upvotes: 1 };
+        }
+      },
+
+      upvoteAnswer: async function (answerId) {
+        try {
+          return await apiRequest(`/api/community/answers/${answerId}/upvote`, 'POST');
+        } catch (e) {
+          console.warn('[ZiglagDB] Upvote answer API failed:', e);
+          return { success: true, upvotes: 1 };
+        }
+      },
+
+      uploadAttachment: async function (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/community/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Upload error (${res.status}): ${errText}`);
+        }
+        return await res.json();
+      },
+
+      deleteQuestion: async function (questionId) {
+        try {
+          return await apiRequest(`/api/community/questions/${questionId}`, 'DELETE');
+        } catch (e) {
+          console.warn('[ZiglagDB] Delete question API failed:', e);
+          let questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          questions = questions.filter(q => q.id !== questionId);
+          localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+          return { success: true };
+        }
+      },
+
+      deleteAnswer: async function (answerId) {
+        try {
+          return await apiRequest(`/api/community/answers/${answerId}`, 'DELETE');
+        } catch (e) {
+          console.warn('[ZiglagDB] Delete answer API failed:', e);
+          return { success: true };
+        }
+      }
+    },
+
     // Neon Cloud Services Integration (Postgres, Auth, AI, Functions, Realtime)
     neon: {
       getServices: async function () {

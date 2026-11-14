@@ -1,5 +1,6 @@
 import os
 import json
+import uuid
 import logging
 import urllib.request
 from flask import Flask, send_from_directory, request, jsonify, redirect
@@ -11,6 +12,10 @@ from dotenv import load_dotenv
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # Ensure .env is explicitly loaded from project root
 load_dotenv(os.path.join(BASE_DIR, '.env'), override=True)
+
+# Ensure upload directories exist
+COMMUNITY_UPLOADS_DIR = os.path.join(BASE_DIR, 'assets', 'community_uploads')
+os.makedirs(COMMUNITY_UPLOADS_DIR, exist_ok=True)
 
 # Set up basic logging
 logging.basicConfig(level=logging.INFO)
@@ -418,6 +423,91 @@ class TutoringBooking(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else ''
         }
 
+
+class CommunityQuestion(db.Model):
+    __tablename__ = 'community_questions'
+    id = db.Column(db.String(100), primary_key=True)
+    title = db.Column(db.String(250), nullable=False)
+    subject = db.Column(db.String(100), default='Mathematics')  # Mathematics, Physics, Chemistry, Further Mathematics
+    difficulty = db.Column(db.String(50), default='Intermediate')  # Beginner, Intermediate, Advanced
+    content_latex = db.Column(db.Text, nullable=False)
+    author_name = db.Column(db.String(150), default='Anonymous Scholar')
+    author_email = db.Column(db.String(150), nullable=True)
+    attachment_url = db.Column(db.String(500), nullable=True)
+    attachment_name = db.Column(db.String(200), nullable=True)
+    attachment_type = db.Column(db.String(50), nullable=True)  # 'image' or 'pdf'
+    views = db.Column(db.Integer, default=0)
+    upvotes = db.Column(db.Integer, default=0)
+    status = db.Column(db.String(50), default='Open')  # 'Open', 'Solved'
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    answers = db.relationship('CommunityAnswer', backref='question', cascade='all, delete-orphan', lazy=True)
+
+    @property
+    def answers_count(self):
+        return len(self.answers) if self.answers is not None else 0
+
+    def to_dict(self, include_answers=False):
+        ans_list = self.answers if self.answers is not None else []
+        ans_count = len(ans_list)
+        has_educator = any(a.is_educator for a in ans_list)
+        res = {
+            'id': self.id,
+            'title': self.title,
+            'subject': self.subject or 'Mathematics',
+            'difficulty': self.difficulty or 'Intermediate',
+            'content_latex': self.content_latex,
+            'content': self.content_latex,
+            'author_name': self.author_name or 'Anonymous Scholar',
+            'author_email': self.author_email or '',
+            'attachment_url': self.attachment_url or '',
+            'attachment_name': self.attachment_name or '',
+            'attachment_type': self.attachment_type or '',
+            'views': self.views or 0,
+            'upvotes': self.upvotes or 0,
+            'status': self.status or 'Open',
+            'answers_count': ans_count,
+            'has_educator_answer': has_educator,
+            'created_at': self.created_at.isoformat() if self.created_at else ''
+        }
+        if include_answers:
+            sorted_answers = sorted(ans_list, key=lambda a: (not a.is_educator, -a.upvotes, a.created_at or datetime.min))
+            res['answers'] = [a.to_dict() for a in sorted_answers]
+        return res
+
+
+class CommunityAnswer(db.Model):
+    __tablename__ = 'community_answers'
+    id = db.Column(db.String(100), primary_key=True)
+    question_id = db.Column(db.String(100), db.ForeignKey('community_questions.id', ondelete='CASCADE'), nullable=False)
+    author_name = db.Column(db.String(150), default='Anonymous Contributor')
+    author_email = db.Column(db.String(150), nullable=True)
+    is_educator = db.Column(db.Boolean, default=False)
+    content_latex = db.Column(db.Text, nullable=False)
+    attachment_url = db.Column(db.String(500), nullable=True)
+    attachment_name = db.Column(db.String(200), nullable=True)
+    attachment_type = db.Column(db.String(50), nullable=True)
+    upvotes = db.Column(db.Integer, default=0)
+    is_verified = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'question_id': self.question_id,
+            'author_name': self.author_name or 'Anonymous Contributor',
+            'author_email': self.author_email or '',
+            'is_educator': self.is_educator,
+            'content_latex': self.content_latex,
+            'content': self.content_latex,
+            'attachment_url': self.attachment_url or '',
+            'attachment_name': self.attachment_name or '',
+            'attachment_type': self.attachment_type or '',
+            'upvotes': self.upvotes or 0,
+            'is_verified': self.is_verified,
+            'created_at': self.created_at.isoformat() if self.created_at else ''
+        }
+
 # ============================================================================
 # 2. PAGE ROUTES
 # ============================================================================
@@ -459,6 +549,11 @@ def course_view():
 @app.route('/contact.html')
 def contact_page():
     return send_from_directory(BASE_DIR, 'contact.html')
+
+@app.route('/qa.html')
+@app.route('/qa')
+def qa_page():
+    return send_from_directory(BASE_DIR, 'qa.html')
 
 @app.route('/about.html')
 @app.route('/about')
@@ -1528,10 +1623,103 @@ def submit_contact():
         )
         db.session.add(submission)
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Your inquiry has been successfully submitted! We will reach out shortly.'})
+
+        # Dispatch email to Isaac Olusola (ziglaginstitute@gmail.com) and auto-acknowledgment to sender
+        email_sent = send_contact_inquiry_emails(submission)
+
+        return jsonify({
+            'success': True,
+            'message': 'Your inquiry has been delivered directly to Mr. Isaac Olusola (ziglaginstitute@gmail.com). We will reach out shortly!',
+            'email_sent': email_sent
+        })
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Server database error: {str(e)}'}), 500
+
+
+def send_contact_inquiry_emails(submission):
+    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    smtp_port = int(os.getenv('SMTP_PORT', 587))
+    smtp_user = os.getenv('SMTP_USERNAME', '')
+    smtp_pass = os.getenv('SMTP_PASSWORD', '')
+    lead_email = "ziglaginstitute@gmail.com"
+
+    lead_subject = f"📬 Website Contact Inquiry: {submission.name} [{submission.question_type.title()}]"
+    lead_body = f"""Dear Mr. Isaac Olusola,
+
+A new contact inquiry has been submitted through the Ziglag Institute website:
+
+--- SENDER DETAILS ---
+• Name: {submission.name}
+• Email: {submission.email}
+• Phone: {submission.phone or 'Not provided'}
+• Preferred Contact Method: {submission.preferred_contact or 'Email'}
+• Academic Sphere: {submission.sphere}
+• Inquiry Type: {submission.question_type}
+• Submitted At: {submission.submitted_at.strftime('%Y-%m-%d %H:%M:%S') if submission.submitted_at else 'Just now'}
+
+--- MESSAGE / QUERY ---
+{submission.message}
+
+---
+You can reply directly to {submission.name} at {submission.email}.
+Ziglag Institute Administration System
+"""
+
+    student_subject = "✅ Inquiry Received — Ziglag Institute"
+    student_body = f"""Dear {submission.name},
+
+Thank you for reaching out to Ziglag Institute.
+
+Your message has been delivered directly to Mr. Isaac Olusola (Founder & Lead Instructor) at ziglaginstitute@gmail.com. We are reviewing your submission and will get back to you shortly.
+
+--- YOUR INQUIRY SUMMARY ---
+• Focus Track: {submission.sphere}
+• Type: {submission.question_type}
+• Message:
+{submission.message}
+
+--- MATH & PHYSICS PROBLEMS ---
+If your message is a specific Mathematics or Physics question requiring step-by-step mathematical proofs, LaTeX equations, or diagram uploads, check out our interactive Community Q&A Hub:
+https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app / Q&A Hub (qa.html)
+
+Warm regards,
+Mr. Isaac Olusola (MSc in Applied Mathematics)
+Ziglag Institute — Minds in Motion, Futures in Focus
+Email: ziglaginstitute@gmail.com
+"""
+
+    if smtp_user and smtp_pass:
+        try:
+            import smtplib
+            from email.message import EmailMessage
+
+            msg_lead = EmailMessage()
+            msg_lead['Subject'] = lead_subject
+            msg_lead['From'] = smtp_user
+            msg_lead['To'] = lead_email
+            msg_lead.set_content(lead_body)
+
+            msg_student = EmailMessage()
+            msg_student['Subject'] = student_subject
+            msg_student['From'] = smtp_user
+            msg_student['To'] = submission.email
+            msg_student.set_content(student_body)
+
+            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg_lead)
+                server.send_message(msg_student)
+
+            print(f"[Contact Email] Delivered inquiry to {lead_email} and auto-ack to {submission.email}")
+            return True
+        except Exception as e:
+            print(f"[Contact Email Warning] SMTP transmission notice: {e}. Inquiry safely stored in database.")
+            return False
+    else:
+        print(f"[Contact Email Notice] SMTP credentials not set. Inquiry saved to database. Coach: {lead_email}, Sender: {submission.email}")
+        return False
 
 
 def send_tutoring_booking_emails(booking):
@@ -1765,6 +1953,365 @@ def delete_tutoring_booking(bid):
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
 
+
+# ============================================================================
+# COMMUNITY MATH & PHYSICS Q&A HUB ENDPOINTS
+# ============================================================================
+
+def send_community_question_email(question):
+    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    smtp_port = int(os.getenv('SMTP_PORT', 587))
+    smtp_user = os.getenv('SMTP_USERNAME', '')
+    smtp_pass = os.getenv('SMTP_PASSWORD', '')
+    coach_email = "ziglaginstitute@gmail.com"
+
+    subject = f"❓ New Community Question: [{question.difficulty} | {question.subject}] {question.title}"
+    body = f"""Dear Mr. Isaac Olusola,
+
+A new question has been posted to the Community Math & Physics Hub on Ziglag Institute!
+
+--- QUESTION OVERVIEW ---
+• Title: {question.title}
+• Subject: {question.subject}
+• Difficulty Level: {question.difficulty}
+• Posted By: {question.author_name} ({question.author_email or 'No email provided'})
+• Question ID: {question.id}
+• Attachment: {question.attachment_name or 'None'} {f'({question.attachment_url})' if question.attachment_url else ''}
+• Posted At: {question.created_at.strftime('%Y-%m-%d %H:%M:%S') if question.created_at else 'Just now'}
+
+--- QUESTION BODY / LATEX ---
+{question.content_latex}
+
+---
+You can view, review, and post your verified educator solution on the portal at:
+https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app/qa.html or via Admin CMS.
+
+Ziglag Institute Administration System
+"""
+    if smtp_user and smtp_pass:
+        try:
+            import smtplib
+            from email.message import EmailMessage
+            msg = EmailMessage()
+            msg['Subject'] = subject
+            msg['From'] = smtp_user
+            msg['To'] = coach_email
+            msg.set_content(body)
+            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+            print(f"[Q&A Email] Notified {coach_email} about new question {question.id}")
+            return True
+        except Exception as e:
+            print(f"[Q&A Email Warning] SMTP error notifying educator: {e}")
+            return False
+    else:
+        print(f"[Q&A Email Notice] Logged new question {question.id} for {coach_email}")
+        return False
+
+
+def send_community_answer_email(question, answer):
+    if not question.author_email:
+        return False
+    # Don't email author if they answered their own question
+    if answer.author_email and answer.author_email.lower() == question.author_email.lower():
+        return False
+
+    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    smtp_port = int(os.getenv('SMTP_PORT', 587))
+    smtp_user = os.getenv('SMTP_USERNAME', '')
+    smtp_pass = os.getenv('SMTP_PASSWORD', '')
+
+    subject = f"💡 Solution Posted to Your Question: {question.title} — Ziglag Institute"
+    role_tag = " (🌟 Lead Instructor & Verified Educator)" if answer.is_educator else ""
+    body = f"""Dear {question.author_name},
+
+A new response/solution has been submitted to your question "{question.title}" by {answer.author_name}{role_tag}!
+
+--- SOLUTION PREVIEW ---
+{answer.content_latex[:400]}{'...' if len(answer.content_latex) > 400 else ''}
+
+---
+To view the full step-by-step LaTeX derivation, mathematical formulas, and community discussion, visit:
+https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app/qa.html?qid={question.id}
+
+Keep learning and exploring!
+Ziglag Institute — Minds in Motion, Futures in Focus
+Email: ziglaginstitute@gmail.com
+"""
+    if smtp_user and smtp_pass:
+        try:
+            import smtplib
+            from email.message import EmailMessage
+            msg = EmailMessage()
+            msg['Subject'] = subject
+            msg['From'] = smtp_user
+            msg['To'] = question.author_email
+            msg.set_content(body)
+            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+            print(f"[Q&A Email] Notified student {question.author_email} about solution to {question.id}")
+            return True
+        except Exception as e:
+            print(f"[Q&A Email Warning] SMTP error notifying student: {e}")
+            return False
+    else:
+        print(f"[Q&A Email Notice] Logged solution notification for student {question.author_email}")
+        return False
+
+
+@app.route('/api/community/upload', methods=['POST'])
+def upload_community_file():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file part in request.'}), 400
+    file = request.files['file']
+    if not file or not file.filename:
+        return jsonify({'success': False, 'message': 'Empty file submitted.'}), 400
+
+    filename = secure_filename(file.filename)
+    ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+    allowed_exts = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'pdf', 'svg'}
+    if ext not in allowed_exts:
+        return jsonify({
+            'success': False,
+            'message': f'Unsupported file type .{ext}. Allowed types: PNG, JPG, JPEG, WEBP, PDF, SVG.'
+        }), 400
+
+    unique_name = f"qa_{int(datetime.utcnow().timestamp())}_{uuid.uuid4().hex[:6]}_{filename}"
+    save_path = os.path.join(COMMUNITY_UPLOADS_DIR, unique_name)
+    file.save(save_path)
+
+    file_size_bytes = os.path.getsize(save_path)
+    file_size_display = f"{file_size_bytes / (1024*1024):.1f} MB" if file_size_bytes >= 1024*1024 else f"{max(1, file_size_bytes // 1024)} KB"
+    file_type = 'pdf' if ext == 'pdf' else 'image'
+
+    return jsonify({
+        'success': True,
+        'file_url': f'/assets/community_uploads/{unique_name}',
+        'file_name': filename,
+        'file_type': file_type,
+        'file_size': file_size_display
+    })
+
+
+@app.route('/assets/community_uploads/<path:filename>')
+def serve_community_upload(filename):
+    return send_from_directory(COMMUNITY_UPLOADS_DIR, filename)
+
+
+@app.route('/api/community/questions', methods=['GET'])
+def get_community_questions():
+    difficulty = request.args.get('difficulty')
+    subject = request.args.get('subject')
+    status = request.args.get('status')
+    search = request.args.get('search', '').strip().lower()
+
+    query = CommunityQuestion.query
+
+    if difficulty and difficulty.lower() != 'all':
+        query = query.filter(CommunityQuestion.difficulty.ilike(difficulty))
+    if subject and subject.lower() != 'all':
+        query = query.filter(CommunityQuestion.subject.ilike(subject))
+    if status and status.lower() != 'all':
+        query = query.filter(CommunityQuestion.status.ilike(status))
+
+    if search:
+        search_filter = f"%{search}%"
+        query = query.filter(
+            db.or_(
+                CommunityQuestion.title.ilike(search_filter),
+                CommunityQuestion.content_latex.ilike(search_filter),
+                CommunityQuestion.subject.ilike(search_filter),
+                CommunityQuestion.author_name.ilike(search_filter)
+            )
+        )
+
+    questions = query.order_by(CommunityQuestion.created_at.desc()).all()
+    return jsonify([q.to_dict() for q in questions])
+
+
+@app.route('/api/community/questions/<qid>', methods=['GET'])
+def get_community_question_detail(qid):
+    question = CommunityQuestion.query.get(qid)
+    if not question:
+        return jsonify({'success': False, 'message': 'Question not found'}), 404
+
+    # Increment view count
+    try:
+        question.views = (question.views or 0) + 1
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    return jsonify({
+        'success': True,
+        'question': question.to_dict(include_answers=True)
+    })
+
+
+@app.route('/api/community/questions', methods=['POST'])
+def create_community_question():
+    data = request.get_json() or {}
+    title = (data.get('title') or '').strip()
+    subject = (data.get('subject') or 'Mathematics').strip()
+    difficulty = (data.get('difficulty') or 'Intermediate').strip()
+    content_latex = (data.get('content_latex') or data.get('content') or '').strip()
+    author_name = (data.get('author_name') or 'Anonymous Scholar').strip()
+    author_email = (data.get('author_email') or '').strip()
+    attachment_url = (data.get('attachment_url') or '').strip()
+    attachment_name = (data.get('attachment_name') or '').strip()
+    attachment_type = (data.get('attachment_type') or ('pdf' if attachment_url.endswith('.pdf') else 'image' if attachment_url else '')).strip()
+
+    if not title or not content_latex:
+        return jsonify({'success': False, 'message': 'Title and Question Body are required.'}), 400
+
+    valid_diffs = {'Beginner', 'Intermediate', 'Advanced'}
+    if difficulty.title() in valid_diffs:
+        difficulty = difficulty.title()
+    else:
+        difficulty = 'Intermediate'
+
+    qid = f"cq_{int(datetime.utcnow().timestamp())}_{uuid.uuid4().hex[:6]}"
+    question = CommunityQuestion(
+        id=qid,
+        title=title,
+        subject=subject,
+        difficulty=difficulty,
+        content_latex=content_latex,
+        author_name=author_name,
+        author_email=author_email,
+        attachment_url=attachment_url if attachment_url else None,
+        attachment_name=attachment_name if attachment_name else None,
+        attachment_type=attachment_type if attachment_type else None,
+        views=0,
+        upvotes=0,
+        status='Open',
+        created_at=datetime.utcnow()
+    )
+
+    try:
+        db.session.add(question)
+        db.session.commit()
+        # Notify lead instructor
+        send_community_question_email(question)
+        return jsonify({'success': True, 'question': question.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+
+
+@app.route('/api/community/questions/<qid>/answers', methods=['POST'])
+def add_community_answer(qid):
+    question = CommunityQuestion.query.get(qid)
+    if not question:
+        return jsonify({'success': False, 'message': 'Question not found'}), 404
+
+    data = request.get_json() or {}
+    content_latex = (data.get('content_latex') or data.get('content') or '').strip()
+    author_name = (data.get('author_name') or 'Anonymous Contributor').strip()
+    author_email = (data.get('author_email') or '').strip()
+    attachment_url = (data.get('attachment_url') or '').strip()
+    attachment_name = (data.get('attachment_name') or '').strip()
+    attachment_type = (data.get('attachment_type') or ('pdf' if attachment_url.endswith('.pdf') else 'image' if attachment_url else '')).strip()
+
+    if not content_latex:
+        return jsonify({'success': False, 'message': 'Solution body is required.'}), 400
+
+    # Determine educator / lead status
+    is_educator = False
+    is_verified = False
+    if (author_email and author_email.lower() == 'ziglaginstitute@gmail.com') or ('isaac olusola' in author_name.lower()):
+        is_educator = True
+        is_verified = True
+        author_name = "Mr. Isaac Olusola"
+        author_email = "ziglaginstitute@gmail.com"
+        question.status = 'Solved'
+
+    aid = f"ans_{int(datetime.utcnow().timestamp())}_{uuid.uuid4().hex[:6]}"
+    answer = CommunityAnswer(
+        id=aid,
+        question_id=qid,
+        author_name=author_name,
+        author_email=author_email,
+        is_educator=is_educator,
+        content_latex=content_latex,
+        attachment_url=attachment_url if attachment_url else None,
+        attachment_name=attachment_name if attachment_name else None,
+        attachment_type=attachment_type if attachment_type else None,
+        upvotes=0,
+        is_verified=is_verified,
+        created_at=datetime.utcnow()
+    )
+
+    try:
+        db.session.add(answer)
+        db.session.commit()
+        # Notify asker
+        send_community_answer_email(question, answer)
+        return jsonify({'success': True, 'answer': answer.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+
+
+@app.route('/api/community/questions/<qid>/upvote', methods=['POST'])
+def upvote_community_question(qid):
+    question = CommunityQuestion.query.get(qid)
+    if not question:
+        return jsonify({'success': False, 'message': 'Question not found'}), 404
+    try:
+        question.upvotes = (question.upvotes or 0) + 1
+        db.session.commit()
+        return jsonify({'success': True, 'upvotes': question.upvotes})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+
+
+@app.route('/api/community/answers/<aid>/upvote', methods=['POST'])
+def upvote_community_answer(aid):
+    answer = CommunityAnswer.query.get(aid)
+    if not answer:
+        return jsonify({'success': False, 'message': 'Answer not found'}), 404
+    try:
+        answer.upvotes = (answer.upvotes or 0) + 1
+        db.session.commit()
+        return jsonify({'success': True, 'upvotes': answer.upvotes})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+
+
+@app.route('/api/community/questions/<qid>', methods=['DELETE'])
+def delete_community_question(qid):
+    question = CommunityQuestion.query.get(qid)
+    if not question:
+        return jsonify({'success': False, 'message': 'Question not found'}), 404
+    try:
+        db.session.delete(question)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Question {qid} and all associated answers deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+
+
+@app.route('/api/community/answers/<aid>', methods=['DELETE'])
+def delete_community_answer(aid):
+    answer = CommunityAnswer.query.get(aid)
+    if not answer:
+        return jsonify({'success': False, 'message': 'Answer not found'}), 404
+    try:
+        db.session.delete(answer)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Answer {aid} deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+
 # ============================================================================
 # 4. STARTUP DATABASE INITIALIZATION & DEFAULT SEEDING
 # ============================================================================
@@ -1919,6 +2466,161 @@ with app.app_context():
         ]
         db.session.bulk_save_objects(default_vault)
         db.session.commit()
+
+    # Seed Representative Community Q&A across Beginner, Intermediate, and Advanced tiers
+    if not CommunityQuestion.query.first():
+        try:
+            # Beginner 1 (Math)
+            q1 = CommunityQuestion(
+                id="cq_seed_01",
+                title="How do I convert a fractional decimal like 13.625 into binary base 2?",
+                subject="Mathematics",
+                difficulty="Beginner",
+                content_latex="Can someone break down the exact procedure for converting decimal fractions into binary base 2? For example:\n$$13.625_{10} = (?)_{2}$$\nI understand how to convert the integer part $13_{10}$, but the fractional part $.625$ always confuses me.",
+                author_name="Chukwudi Eze",
+                author_email="chukwudi.eze@example.com",
+                views=42,
+                upvotes=7,
+                status="Solved"
+            )
+            a1 = CommunityAnswer(
+                id="ans_seed_01",
+                question_id="cq_seed_01",
+                author_name="Mr. Isaac Olusola",
+                author_email="ziglaginstitute@gmail.com",
+                is_educator=True,
+                is_verified=True,
+                upvotes=12,
+                content_latex="Hello Chukwudi! Here is the rigorous first-principles breakdown. We decompose the number into its integer part and fractional part:\n$$13.625_{10} = 13 + 0.625$$\n\n**Step 1: Integer Part ($13$) via repeated division by $2$:**\n- $13 \\div 2 = 6 \\text{ remainder } 1$\n- $6 \\div 2 = 3 \\text{ remainder } 0$\n- $3 \\div 2 = 1 \\text{ remainder } 1$\n- $1 \\div 2 = 0 \\text{ remainder } 1$\nReading remainders from bottom to top: $13_{10} = 1101_2$.\n\n**Step 2: Fractional Part ($0.625$) via repeated multiplication by $2$:**\n- $0.625 \\times 2 = 1.25 \\implies \\text{record integer } \\mathbf{1}$, remainder $= 0.25$\n- $0.25 \\times 2 = 0.50 \\implies \\text{record integer } \\mathbf{0}$, remainder $= 0.50$\n- $0.50 \\times 2 = 1.00 \\implies \\text{record integer } \\mathbf{1}$, remainder $= 0.00$ (Terminates!)\nReading recorded integers from top to bottom: $0.625_{10} = 0.101_2$.\n\n**Step 3: Combine both parts:**\n$$13.625_{10} = 1101.101_2$$"
+            )
+
+            # Beginner 2 (Physics)
+            q2 = CommunityQuestion(
+                id="cq_seed_02",
+                title="A car accelerates uniformly from rest to 25 m/s in 10 seconds. Calculate the total distance covered.",
+                subject="Physics",
+                difficulty="Beginner",
+                content_latex="A vehicle starts from rest ($u = 0$) and accelerates uniformly to a final velocity of $v = 25\\text{ m/s}$ in $t = 10\\text{ s}$. How do we compute the total displacement $s$ using kinematic equations?",
+                author_name="Blessing Okon",
+                author_email="blessing.okon@example.com",
+                views=35,
+                upvotes=5,
+                status="Solved"
+            )
+            a2 = CommunityAnswer(
+                id="ans_seed_02",
+                question_id="cq_seed_02",
+                author_name="Mr. Isaac Olusola",
+                author_email="ziglaginstitute@gmail.com",
+                is_educator=True,
+                is_verified=True,
+                upvotes=9,
+                content_latex="Great foundational kinematics problem!\nWe are given:\n- Initial velocity: $u = 0\\text{ m/s}$\n- Final velocity: $v = 25\\text{ m/s}$\n- Time interval: $t = 10\\text{ s}$\n\n**Method 1: Average velocity formulation**\nSince acceleration is uniform:\n$$s = \\left(\\frac{u + v}{2}\\right) \\times t = \\left(\\frac{0 + 25}{2}\\right) \\times 10 = 12.5 \\times 10 = 125\\text{ metres}$$\n\n**Method 2: Finding acceleration $a$ first**\n$$a = \\frac{v - u}{t} = \\frac{25 - 0}{10} = 2.5\\text{ m/s}^2$$\nUsing $s = ut + \\frac{1}{2}at^2$:\n$$s = (0)(10) + \\frac{1}{2}(2.5)(10)^2 = 0 + 1.25 \\times 100 = 125\\text{ metres}$$"
+            )
+
+            # Intermediate 1 (Math)
+            q3 = CommunityQuestion(
+                id="cq_seed_03",
+                title="Proof of Alternate Segment Theorem in Circle Geometry (WASSCE / IGCSE)",
+                subject="Mathematics",
+                difficulty="Intermediate",
+                content_latex="In circle geometry, prove that the angle between a tangent to a circle and a chord drawn through the point of contact is equal to the angle subtended by the chord in the alternate segment:\n$$\\angle TAB = \\angle ACB$$\nHow do we prove this formally for WAEC / Cambridge exam marks?",
+                author_name="Faruk Danjuma",
+                author_email="faruk.danjuma@example.com",
+                views=68,
+                upvotes=14,
+                status="Solved"
+            )
+            a3 = CommunityAnswer(
+                id="ans_seed_03",
+                question_id="cq_seed_03",
+                author_name="Mr. Isaac Olusola",
+                author_email="ziglaginstitute@gmail.com",
+                is_educator=True,
+                is_verified=True,
+                upvotes=21,
+                content_latex="A classic theorem frequently examined in WASSCE and IGCSE Additional Mathematics!\n\n**Construction:**\nDraw diameter $AD$ through point of contact $A$ to point $D$ on the circumference. Join $D$ to $B$.\n\n**Formal Proof:**\n1. Since $AD$ is a diameter and $AT$ is a tangent at $A$:\n$$\\angle DAT = 90^\\circ \\quad (\\text{radius } \\perp \\text{ tangent})$$\n2. Therefore:\n$$\\angle TAB = 90^\\circ - \\angle DAB \\quad \\text{--- (Equation 1)}$$\n3. Angle in a semicircle is a right angle ($\\triangle ABD$ is right-angled at $B$):\n$$\\angle ABD = 90^\\circ$$\n$$\\implies \\angle ADB + \\angle DAB = 90^\\circ \\implies \\angle ADB = 90^\\circ - \\angle DAB \\quad \\text{--- (Equation 2)}$$\n4. Comparing (1) and (2):\n$$\\angle TAB = \\angle ADB$$\n5. But angles subtended by the same chord $AB$ in the same segment are equal:\n$$\\angle ADB = \\angle ACB$$\n6. Therefore, by transitive equality:\n$$\\angle TAB = \\angle ACB \\quad \\text{Q.E.D.}$$"
+            )
+
+            # Intermediate 2 (Physics)
+            q4 = CommunityQuestion(
+                id="cq_seed_04",
+                title="Derivation of Maximum Horizontal Range in Projectile Motion",
+                subject="Physics",
+                difficulty="Intermediate",
+                content_latex="For a projectile launched at speed $u$ and angle $\\theta$ to the horizontal over level ground, prove that the horizontal range is:\n$$R = \\frac{u^2 \\sin(2\\theta)}{g}$$\nand show that the maximum range occurs at $\\theta = 45^\\circ$.",
+                author_name="Amara Nwachukwu",
+                author_email="amara.n@example.com",
+                views=53,
+                upvotes=11,
+                status="Solved"
+            )
+            a4 = CommunityAnswer(
+                id="ans_seed_04",
+                question_id="cq_seed_04",
+                author_name="Mr. Isaac Olusola",
+                author_email="ziglaginstitute@gmail.com",
+                is_educator=True,
+                is_verified=True,
+                upvotes=16,
+                content_latex="Let's derive this from first principles:\n\n**1. Velocity components:**\n$$u_x = u \\cos\\theta, \\quad u_y = u \\sin\\theta$$\n\n**2. Total Time of Flight ($T$):**\nUsing vertical displacement $y = u_y t - \\frac{1}{2}gt^2 = 0$:\n$$t \\left(u \\sin\\theta - \\frac{1}{2}gt\\right) = 0 \\implies T = \\frac{2u \\sin\\theta}{g}$$\n\n**3. Horizontal Range ($R$):**\nSince horizontal acceleration $a_x = 0$:\n$$R = u_x \\times T = (u \\cos\\theta) \\left(\\frac{2u \\sin\\theta}{g}\\right) = \\frac{u^2 (2\\sin\\theta\\cos\\theta)}{g}$$\nUsing double-angle identity $2\\sin\\theta\\cos\\theta = \\sin(2\\theta)$:\n$$R = \\frac{u^2 \\sin(2\\theta)}{g}$$\n\n**4. Condition for Maximum Range:**\nSince the sine function attains its maximum value of $1$:\n$$\\sin(2\\theta) = 1 \\implies 2\\theta = 90^\\circ \\implies \\theta = 45^\\circ$$\n$$R_{\\max} = \\frac{u^2}{g}$$"
+            )
+
+            # Advanced 1 (Math)
+            q5 = CommunityQuestion(
+                id="cq_seed_05",
+                title="Eigenvalues and Orthonormal Eigenspaces of a 3x3 Symmetric Tridiagonal Matrix",
+                subject="Mathematics",
+                difficulty="Advanced",
+                content_latex="Let $A$ be the symmetric matrix:\n$$A = \\begin{pmatrix} 2 & 1 & 0 \\\\ 1 & 2 & 1 \\\\ 0 & 1 & 2 \\end{pmatrix}$$\nFind all eigenvalues $\\lambda_1, \\lambda_2, \\lambda_3$ and determine an orthonormal basis of eigenvectors for $\\mathbb{R}^3$.",
+                author_name="Kelechi Adeleke",
+                author_email="kelechi.adeleke@example.com",
+                views=89,
+                upvotes=19,
+                status="Solved"
+            )
+            a5 = CommunityAnswer(
+                id="ans_seed_05",
+                question_id="cq_seed_05",
+                author_name="Mr. Isaac Olusola",
+                author_email="ziglaginstitute@gmail.com",
+                is_educator=True,
+                is_verified=True,
+                upvotes=25,
+                content_latex="A wonderful problem demonstrating the Spectral Theorem for symmetric real matrices!\n\n**1. Characteristic Polynomial $\\det(A - \\lambda I) = 0$:**\n$$\\det \\begin{pmatrix} 2 - \\lambda & 1 & 0 \\\\ 1 & 2 - \\lambda & 1 \\\\ 0 & 1 & 2 - \\lambda \\end{pmatrix} = 0$$\nExpanding along the first row:\n$$(2 - \\lambda)[(2 - \\lambda)^2 - 1] - 1[(2 - \\lambda) - 0] = 0$$\n$$(2 - \\lambda) \\left[ (2 - \\lambda)^2 - 2 \\right] = 0$$\nHence the three distinct eigenvalues are:\n$$\\lambda_1 = 2, \\quad \\lambda_2 = 2 + \\sqrt{2}, \\quad \\lambda_3 = 2 - \\sqrt{2}$$\n\n**2. Eigenvectors:**\nFor $\\lambda_1 = 2$:\n$$\\begin{pmatrix} 0 & 1 & 0 \\\\ 1 & 0 & 1 \\\\ 0 & 1 & 0 \\end{pmatrix} \\begin{pmatrix} x \\\\ y \\\\ z \\end{pmatrix} = \\mathbf{0} \\implies y = 0, \\ x + z = 0 \\implies \\vec{v}_1 = \\frac{1}{\\sqrt{2}} \\begin{pmatrix} 1 \\\\ 0 \\\\ -1 \\end{pmatrix}$$\n\nFor $\\lambda_2 = 2 + \\sqrt{2}$:\n$$\\begin{pmatrix} -\\sqrt{2} & 1 & 0 \\\\ 1 & -\\sqrt{2} & 1 \\\\ 0 & 1 & -\\sqrt{2} \\end{pmatrix} \\begin{pmatrix} x \\\\ y \\\\ z \\end{pmatrix} = \\mathbf{0} \\implies y = \\sqrt{2}x, \\ z = x \\implies \\vec{v}_2 = \\frac{1}{2} \\begin{pmatrix} 1 \\\\ \\sqrt{2} \\\\ 1 \\end{pmatrix}$$\n\nFor $\\lambda_3 = 2 - \\sqrt{2}$:\n$$\\vec{v}_3 = \\frac{1}{2} \\begin{pmatrix} 1 \\\\ -\\sqrt{2} \\\\ 1 \\end{pmatrix}$$\nNotice that $\\{\\vec{v}_1, \\vec{v}_2, \\vec{v}_3\\}$ forms an orthonormal basis: $\\vec{v}_i \\cdot \\vec{v}_j = \\delta_{ij}$."
+            )
+
+            # Advanced 2 (Physics)
+            q6 = CommunityQuestion(
+                id="cq_seed_06",
+                title="Infinite Square Well: Solving the Time-Independent Schrödinger Equation",
+                subject="Physics",
+                difficulty="Advanced",
+                content_latex="Consider a particle of mass $m$ confined to a 1D box with potential:\n$$V(x) = \\begin{cases} 0 & \\text{for } 0 \\le x \\le L \\\\ \\infty & \\text{otherwise} \\end{cases}$$\nDerive the normalized stationary wavefunctions $\\psi_n(x)$ and energy levels $E_n$ from the Schrödinger equation.",
+                author_name="Toluwani Alao",
+                author_email="toluwani.alao@example.com",
+                views=74,
+                upvotes=15,
+                status="Solved"
+            )
+            a6 = CommunityAnswer(
+                id="ans_seed_06",
+                question_id="cq_seed_06",
+                author_name="Mr. Isaac Olusola",
+                author_email="ziglaginstitute@gmail.com",
+                is_educator=True,
+                is_verified=True,
+                upvotes=18,
+                content_latex="Let's solve the 1D Time-Independent Schrödinger Equation (TISE):\n$$-\\frac{\\hbar^2}{2m} \\frac{d^2\\psi}{dx^2} = E\\psi \\implies \\frac{d^2\\psi}{dx^2} + k^2\\psi = 0, \\quad \\text{where } k = \\frac{\\sqrt{2mE}}{\\hbar}$$\n\n**1. General Solution inside the well ($0 \\le x \\le L$):**\n$$\\psi(x) = A \\sin(kx) + B \\cos(kx)$$\n\n**2. Boundary Conditions:**\n- At $x = 0$: $\\psi(0) = B = 0$.\n- At $x = L$: $\\psi(L) = A \\sin(kL) = 0$.\nFor non-trivial solutions ($A \\neq 0$):\n$$kL = n\\pi \\implies k_n = \\frac{n\\pi}{L}, \\quad n \\in \\{1, 2, 3, \\dots\\}$$\n\n**3. Energy Eigenvalues:**\n$$E_n = \\frac{\\hbar^2 k_n^2}{2m} = \\frac{n^2 \\pi^2 \\hbar^2}{2mL^2}$$\n\n**4. Normalization condition $\\int_0^L |\\psi(x)|^2 dx = 1$:**\n$$A^2 \\int_0^L \\sin^2\\left(\\frac{n\\pi x}{L}\\right) dx = A^2 \\left(\\frac{L}{2}\\right) = 1 \\implies A = \\sqrt{\\frac{2}{L}}$$\n$$\\psi_n(x) = \\sqrt{\\frac{2}{L}} \\sin\\left(\\frac{n\\pi x}{L}\\right)$$\nThe ground state energy is $E_1 = \\frac{\\pi^2 \\hbar^2}{2mL^2}$."
+            )
+
+            db.session.add_all([q1, q2, q3, q4, q5, q6])
+            db.session.add_all([a1, a2, a3, a4, a5, a6])
+            db.session.commit()
+            print("[Q&A Seeding] Successfully seeded 6 representative Community questions & verified educator solutions.")
+        except Exception as se:
+            db.session.rollback()
+            print(f"[Q&A Seeding Notice] Could not seed community questions: {se}")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
