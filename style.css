@@ -3195,3 +3195,44 @@ textarea.contact-input {
   background: rgba(249, 115, 22, 0.03);
   box-shadow: 0 4px 15px rgba(249, 115, 22, 0.08);
 }
+
+/* Modal Overlays (Community Q&A Detail, Ask Modal, Lightbox) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 11, 20, 0.84);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.modal-overlay.open {
+  display: flex !important;
+}
+
+.modal-overlay .glass-card {
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 35px rgba(14, 165, 233, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  animation: modal-fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+

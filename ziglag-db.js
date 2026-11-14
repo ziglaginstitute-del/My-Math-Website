@@ -9,7 +9,18 @@
   'use strict';
 
   // API helper
+  function getApiBaseUrl() {
+    if (typeof window !== 'undefined' && window.location) {
+      if (window.location.protocol === 'file:' || !window.location.host) {
+        return 'http://127.0.0.1:5000';
+      }
+    }
+    return '';
+  }
+
   async function apiRequest(endpoint, method = 'GET', body = null) {
+    const baseUrl = getApiBaseUrl();
+    const fullUrl = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
     const opts = {
       method: method,
       headers: {
@@ -19,7 +30,7 @@
     if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
       opts.body = JSON.stringify(body);
     }
-    const response = await fetch(endpoint, opts);
+    const response = await fetch(fullUrl, opts);
     if (!response.ok) {
       const err = await response.text();
       throw new Error(`API error (${response.status}): ${err}`);
@@ -703,6 +714,190 @@
 
     // Community Math & Physics Q&A Hub
     community: {
+      _getFallbackQuestions: function () {
+        let stored = localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          } catch (e) { }
+        }
+        const seeds = [
+          {
+            id: "cq_seed_01",
+            title: "Conversion of Fractional Decimal Numbers to Binary (Base 2)",
+            subject: "Mathematics",
+            difficulty: "Beginner",
+            content_latex: "What is the exact procedure for converting decimal fractions into binary base 2? For example:\n$$13.625_{10} = (?)_{2}$$\nI understand how to convert the integer part $13_{10}$, but the fractional part $.625$ always confuses me.",
+            author_name: "Chukwudi Eze",
+            author_email: "chukwudi.eze@example.com",
+            views: 42,
+            upvotes: 7,
+            status: "Solved",
+            answers_count: 1,
+            has_educator_answer: true,
+            created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+            answers: [
+              {
+                id: "ans_seed_01",
+                question_id: "cq_seed_01",
+                author_name: "Mr. Isaac Olusola",
+                author_email: "ziglaginstitute@gmail.com",
+                is_educator: true,
+                is_verified: true,
+                upvotes: 18,
+                created_at: new Date(Date.now() - 86400000 * 2.8).toISOString(),
+                content_latex: "To convert a fractional decimal number like $13.625_{10}$ to binary, decompose it into its **integer part** ($13$) and **fractional part** ($0.625$).\n\n### Step 1: Integer Part by Repeated Division by 2\n$$13 \\div 2 = 6 \\text{ rem } 1$$\n$$6 \\div 2 = 3 \\text{ rem } 0$$\n$$3 \\div 2 = 1 \\text{ rem } 1$$\n$$1 \\div 2 = 0 \\text{ rem } 1$$\nReading remainders bottom-up gives: $$13_{10} = 1101_2$$\n\n### Step 2: Fractional Part by Repeated Multiplication by 2\nMultiply the fraction by 2 and record the integer carry:\n$$0.625 \\times 2 = 1.250 \\rightarrow \\text{record } 1, \\text{ remainder } 0.250$$\n$$0.250 \\times 2 = 0.500 \\rightarrow \\text{record } 0, \\text{ remainder } 0.500$$\n$$0.500 \\times 2 = 1.000 \\rightarrow \\text{record } 1, \\text{ remainder } 0.000 \\text{ (terminates)}$$\nReading integers top-down gives: $$0.625_{10} = 0.101_2$$\n\n### Step 3: Combine\n$$13.625_{10} = 1101.101_2$$\nThis is an essential question type in JAMB, WASSCE General Mathematics, and Computer Studies."
+              }
+            ]
+          },
+          {
+            id: "cq_seed_02",
+            title: "Uniform Acceleration Kinematics (JAMB / WASSCE Physics)",
+            subject: "Physics",
+            difficulty: "Beginner",
+            content_latex: "A vehicle starts from rest ($u = 0$) and accelerates uniformly to a final velocity of $v = 25\\text{ m/s}$ in $t = 10\\text{ s}$. How do we compute the total displacement $s$ using kinematic equations?",
+            author_name: "Blessing Okon",
+            author_email: "blessing.okon@example.com",
+            views: 35,
+            upvotes: 5,
+            status: "Solved",
+            answers_count: 1,
+            has_educator_answer: true,
+            created_at: new Date(Date.now() - 86400000 * 2.5).toISOString(),
+            answers: [
+              {
+                id: "ans_seed_02",
+                question_id: "cq_seed_02",
+                author_name: "Mr. Isaac Olusola",
+                author_email: "ziglaginstitute@gmail.com",
+                is_educator: true,
+                is_verified: true,
+                upvotes: 12,
+                created_at: new Date(Date.now() - 86400000 * 2.3).toISOString(),
+                content_latex: "### Given Parameters:\n- Initial velocity $u = 0\\text{ m/s}$\n- Final velocity $v = 25\\text{ m/s}$\n- Time $t = 10\\text{ s}$\n\n### Method 1: Average Velocity Formula\n$$s = \\left(\\frac{u + v}{2}\\right) t$$\n$$s = \\left(\\frac{0 + 25}{2}\\right) \\times 10 = 12.5 \\times 10 = 125\\text{ meters}$$\n\n### Method 2: Via Acceleration $a$\n$$a = \\frac{v - u}{t} = \\frac{25 - 0}{10} = 2.5\\text{ m/s}^2$$\n$$s = ut + \\frac{1}{2}at^2 = (0)(10) + \\frac{1}{2}(2.5)(10^2) = 0.5 \\times 2.5 \\times 100 = 125\\text{ meters}$$\nBoth kinematic approaches yield $125\\text{ m}$."
+              }
+            ]
+          },
+          {
+            id: "cq_seed_03",
+            title: "Proof of Alternate Segment Theorem in Circle Geometry (WASSCE / IGCSE)",
+            subject: "Mathematics",
+            difficulty: "Intermediate",
+            content_latex: "In circle geometry, prove that the angle between a tangent to a circle and a chord drawn through the point of contact is equal to the angle subtended by the chord in the alternate segment:\n$$\\angle TAB = \\angle ACB$$\nHow do we prove this formally for WAEC / Cambridge exam marks?",
+            author_name: "Faruk Danjuma",
+            author_email: "faruk.danjuma@example.com",
+            views: 68,
+            upvotes: 14,
+            status: "Solved",
+            answers_count: 1,
+            has_educator_answer: true,
+            created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+            answers: [
+              {
+                id: "ans_seed_03",
+                question_id: "cq_seed_03",
+                author_name: "Mr. Isaac Olusola",
+                author_email: "ziglaginstitute@gmail.com",
+                is_educator: true,
+                is_verified: true,
+                upvotes: 24,
+                created_at: new Date(Date.now() - 86400000 * 1.8).toISOString(),
+                content_latex: "### Formal Proof:\n1. Draw circle with center $O$ and tangent line $TAT'$ contacting at $A$.\n2. Draw diameter $AOD$ through $O$ to point $D$ on the circumference, and connect $DB$.\n3. Since tangent $TAT' \\perp$ radius $OA$:\n$$\\angle TAD = 90^\\circ$$\n$$\\angle TAB = \\angle TAD - \\angle DAB = 90^\\circ - \\angle DAB$$\n4. In $\\triangle ABD$, angle in a semicircle is $90^\\circ$, so $\\angle ABD = 90^\\circ$.\nSum of angles in $\\triangle ABD$:\n$$\\angle ADB = 180^\\circ - 90^\\circ - \\angle DAB = 90^\\circ - \\angle DAB$$\n5. Therefore: $$\\angle TAB = \\angle ADB$$\n6. Angles subtended by the same chord $AB$ in the same segment are equal: $$\\angle ADB = \\angle ACB$$\n7. By transitivity: $$\\angle TAB = \\angle ACB \\quad \\text{Q.E.D.}$$"
+              }
+            ]
+          },
+          {
+            id: "cq_seed_04",
+            title: "Derivation of Maximum Horizontal Range in Projectile Motion",
+            subject: "Physics",
+            difficulty: "Intermediate",
+            content_latex: "For a projectile launched at speed $u$ and angle $\\theta$ to the horizontal over level ground, prove that the horizontal range is:\n$$R = \\frac{u^2 \\sin(2\\theta)}{g}$$\nand show that the maximum range occurs at $\\theta = 45^\\circ$.",
+            author_name: "Amara Nwachukwu",
+            author_email: "amara.n@example.com",
+            views: 53,
+            upvotes: 11,
+            status: "Solved",
+            answers_count: 1,
+            has_educator_answer: true,
+            created_at: new Date(Date.now() - 86400000 * 1.5).toISOString(),
+            answers: [
+              {
+                id: "ans_seed_04",
+                question_id: "cq_seed_04",
+                author_name: "Mr. Isaac Olusola",
+                author_email: "ziglaginstitute@gmail.com",
+                is_educator: true,
+                is_verified: true,
+                upvotes: 21,
+                created_at: new Date(Date.now() - 86400000 * 1.2).toISOString(),
+                content_latex: "### Derivation:\nVelocity components:\n$$u_x = u \\cos\\theta, \\quad u_y = u \\sin\\theta$$\nTotal time of flight $T$ (setting vertical displacement $y = 0$):\n$$0 = u_y T - \\frac{1}{2}g T^2 \\implies T = \\frac{2u \\sin\\theta}{g}$$\nHorizontal displacement $R$:\n$$R = u_x \\times T = (u \\cos\\theta)\\left(\\frac{2u \\sin\\theta}{g}\\right) = \\frac{u^2 (2\\sin\\theta \\cos\\theta)}{g}$$\nUsing double-angle identity $2\\sin\\theta \\cos\\theta = \\sin(2\\theta)$:\n$$R = \\frac{u^2 \\sin(2\\theta)}{g}$$\n\n### Maximum Range:\n$R$ is maximized when $\\sin(2\\theta)$ reaches its absolute maximum of $1$:\n$$\\sin(2\\theta) = 1 \\implies 2\\theta = 90^\\circ \\implies \\theta = 45^\\circ$$\n$$R_{\\max} = \\frac{u^2}{g}$$"
+              }
+            ]
+          },
+          {
+            id: "cq_seed_05",
+            title: "Eigenvalues and Orthonormal Eigenspaces of a 3x3 Symmetric Tridiagonal Matrix",
+            subject: "Mathematics",
+            difficulty: "Advanced",
+            content_latex: "Let $A$ be the symmetric matrix:\n$$A = \\begin{pmatrix} 2 & 1 & 0 \\\\ 1 & 2 & 1 \\\\ 0 & 1 & 2 \\end{pmatrix}$$\nFind all eigenvalues $\\lambda_1, \\lambda_2, \\lambda_3$ and determine an orthonormal basis of eigenvectors for $\\mathbb{R}^3$.",
+            author_name: "Kelechi Adeleke",
+            author_email: "kelechi.adeleke@example.com",
+            views: 89,
+            upvotes: 19,
+            status: "Solved",
+            answers_count: 1,
+            has_educator_answer: true,
+            created_at: new Date(Date.now() - 86400000).toISOString(),
+            answers: [
+              {
+                id: "ans_seed_05",
+                question_id: "cq_seed_05",
+                author_name: "Mr. Isaac Olusola",
+                author_email: "ziglaginstitute@gmail.com",
+                is_educator: true,
+                is_verified: true,
+                upvotes: 31,
+                created_at: new Date(Date.now() - 86400000 * 0.8).toISOString(),
+                content_latex: "### Step 1: Characteristic Polynomial\n$$\\det(A - \\lambda I) = \\begin{vmatrix} 2-\\lambda & 1 & 0 \\\\ 1 & 2-\\lambda & 1 \\\\ 0 & 1 & 2-\\lambda \\end{vmatrix} = 0$$\nLet $\\mu = 2 - \\lambda$. Then:\n$$\\det = \\mu(\\mu^2 - 1) - 1(\\mu) = \\mu(\\mu^2 - 2) = 0$$\n$$\\mu = 0 \\quad \\text{or} \\quad \\mu = \\pm\\sqrt{2}$$\n\nSubstituting back $\\lambda = 2 - \\mu$:\n$$\\lambda_1 = 2 + \\sqrt{2}, \\quad \\lambda_2 = 2, \\quad \\lambda_3 = 2 - \\sqrt{2}$$\n\n### Step 2: Orthonormal Eigenvectors\n- For $\\lambda_2 = 2$ ($\\\\mu = 0$): $\\vec{v}_2 = \\frac{1}{\\sqrt{2}}\\begin{pmatrix} 1 \\\\ 0 \\\\ -1 \\end{pmatrix}$\n- For $\\lambda_1 = 2 + \\sqrt{2}$: $\\vec{v}_1 = \\frac{1}{2}\\begin{pmatrix} 1 \\\\ \\sqrt{2} \\\\ 1 \\end{pmatrix}$\n- For $\\lambda_3 = 2 - \\sqrt{2}$: $\\vec{v}_3 = \\frac{1}{2}\\begin{pmatrix} 1 \\\\ -\\sqrt{2} \\\\ 1 \\end{pmatrix}$\nBecause $A$ is symmetric, all eigenvectors are mutually orthogonal and form an orthonormal basis."
+              }
+            ]
+          },
+          {
+            id: "cq_seed_06",
+            title: "Infinite Square Well: Solving the Time-Independent Schrödinger Equation",
+            subject: "Physics",
+            difficulty: "Advanced",
+            content_latex: "Consider a particle of mass $m$ confined to a 1D box with potential:\n$$V(x) = \\begin{cases} 0 & \\text{for } 0 \\le x \\le L \\\\ \\infty & \\text{otherwise} \\end{cases}$$\nDerive the normalized stationary wavefunctions $\\psi_n(x)$ and energy levels $E_n$ from the Schrödinger equation.",
+            author_name: "Toluwani Alao",
+            author_email: "toluwani.alao@example.com",
+            views: 74,
+            upvotes: 15,
+            status: "Solved",
+            answers_count: 1,
+            has_educator_answer: true,
+            created_at: new Date(Date.now() - 86400000 * 0.5).toISOString(),
+            answers: [
+              {
+                id: "ans_seed_06",
+                question_id: "cq_seed_06",
+                author_name: "Mr. Isaac Olusola",
+                author_email: "ziglaginstitute@gmail.com",
+                is_educator: true,
+                is_verified: true,
+                upvotes: 27,
+                created_at: new Date(Date.now() - 86400000 * 0.3).toISOString(),
+                content_latex: "### Formulation & Solution:\nInside the well ($0 < x < L$), $V(x) = 0$, so the 1D Schrödinger equation is:\n$$-\\frac{\\hbar^2}{2m} \\frac{d^2\\psi}{dx^2} = E\\psi \\implies \\frac{d^2\\psi}{dx^2} + k^2\\psi = 0, \\quad k = \\frac{\\sqrt{2mE}}{\\hbar}$$\nGeneral solution:\n$$\\psi(x) = A \\sin(kx) + B \\cos(kx)$$\n\n### Boundary Conditions:\n- At $x = 0$: $\\psi(0) = B = 0$\n- At $x = L$: $\\psi(L) = A \\sin(kL) = 0 \\implies kL = n\\pi, \\quad n \\in \\{1, 2, 3, \\dots\\}$\n\n### Quantized Energies:\n$$k_n = \\frac{n\\pi}{L} \\implies E_n = \\frac{\\hbar^2 k_n^2}{2m} = \\frac{n^2 \\pi^2 \\hbar^2}{2m L^2} = \\frac{n^2 h^2}{8m L^2}$$\n\n### Normalization:\n$$\\int_0^L |\\psi_n(x)|^2 dx = 1 \\implies A^2 \\int_0^L \\sin^2\\left(\\frac{n\\pi x}{L}\\right) dx = A^2 \\left(\\frac{L}{2}\\right) = 1 \\implies A = \\sqrt{\\frac{2}{L}}$$\n$$\\psi_n(x) = \\sqrt{\\frac{2}{L}} \\sin\\left(\\frac{n\\pi x}{L}\\right)$$"
+              }
+            ]
+          }
+        ];
+        try {
+          localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(seeds));
+        } catch (e) { }
+        return seeds;
+      },
+
       listQuestions: async function (filters = {}) {
         const params = new URLSearchParams();
         if (filters.difficulty && filters.difficulty !== 'all') params.append('difficulty', filters.difficulty);
@@ -715,12 +910,15 @@
           return await apiRequest(url);
         } catch (e) {
           console.warn('[ZiglagDB] Community questions API failed, using local fallback:', e);
-          let questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          let questions = this._getFallbackQuestions();
           if (filters.difficulty && filters.difficulty !== 'all') {
             questions = questions.filter(q => (q.difficulty || '').toLowerCase() === filters.difficulty.toLowerCase());
           }
           if (filters.subject && filters.subject !== 'all') {
             questions = questions.filter(q => (q.subject || '').toLowerCase() === filters.subject.toLowerCase());
+          }
+          if (filters.status && filters.status !== 'all') {
+            questions = questions.filter(q => (q.status || '').toLowerCase() === filters.status.toLowerCase());
           }
           if (filters.search) {
             const s = filters.search.toLowerCase();
@@ -736,7 +934,7 @@
           return res.question;
         } catch (e) {
           console.warn('[ZiglagDB] Get question detail failed:', e);
-          const questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          const questions = this._getFallbackQuestions();
           return questions.find(q => q.id === questionId) || null;
         }
       },
@@ -754,7 +952,7 @@
             subject: data.subject || 'Mathematics',
             difficulty: data.difficulty || 'Intermediate',
             content_latex: data.content_latex || data.content,
-            author_name: data.author_name || 'Anonymous Scholar',
+            author_name: data.author_name || 'Student Scholar',
             author_email: data.author_email || '',
             attachment_url: data.attachment_url || '',
             attachment_name: data.attachment_name || '',
@@ -767,9 +965,11 @@
             created_at: new Date().toISOString(),
             answers: []
           };
-          const questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          const questions = this._getFallbackQuestions();
           questions.unshift(newQ);
-          localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+          try {
+            localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+          } catch (e) { }
           return { success: true, question: newQ, offline: true };
         }
       },
@@ -786,7 +986,7 @@
           const newAns = {
             id: aid,
             question_id: questionId,
-            author_name: isEducator ? 'Mr. Isaac Olusola' : (data.author_name || 'Anonymous Contributor'),
+            author_name: isEducator ? 'Mr. Isaac Olusola' : (data.author_name || 'Community Scholar'),
             author_email: data.author_email || '',
             is_educator: !!isEducator,
             is_verified: !!isEducator,
@@ -797,7 +997,7 @@
             upvotes: 0,
             created_at: new Date().toISOString()
           };
-          const questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          const questions = this._getFallbackQuestions();
           const targetQ = questions.find(q => q.id === questionId);
           if (targetQ) {
             targetQ.answers = targetQ.answers || [];
@@ -807,7 +1007,9 @@
               targetQ.status = 'Solved';
               targetQ.has_educator_answer = true;
             }
-            localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+            try {
+              localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+            } catch (e) { }
           }
           return { success: true, answer: newAns, offline: true };
         }
@@ -817,8 +1019,18 @@
         try {
           return await apiRequest(`/api/community/questions/${questionId}/upvote`, 'POST');
         } catch (e) {
-          console.warn('[ZiglagDB] Upvote question API failed:', e);
-          return { success: true, upvotes: 1 };
+          console.warn('[ZiglagDB] Upvote question API failed, updating locally:', e);
+          const questions = this._getFallbackQuestions();
+          const q = questions.find(item => item.id === questionId);
+          let count = 1;
+          if (q) {
+            q.upvotes = (q.upvotes || 0) + 1;
+            count = q.upvotes;
+            try {
+              localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+            } catch (e) { }
+          }
+          return { success: true, upvotes: count, offline: true };
         }
       },
 
@@ -826,23 +1038,58 @@
         try {
           return await apiRequest(`/api/community/answers/${answerId}/upvote`, 'POST');
         } catch (e) {
-          console.warn('[ZiglagDB] Upvote answer API failed:', e);
-          return { success: true, upvotes: 1 };
+          console.warn('[ZiglagDB] Upvote answer API failed, updating locally:', e);
+          const questions = this._getFallbackQuestions();
+          let count = 1;
+          for (const q of questions) {
+            if (q.answers) {
+              const a = q.answers.find(ans => ans.id === answerId);
+              if (a) {
+                a.upvotes = (a.upvotes || 0) + 1;
+                count = a.upvotes;
+                break;
+              }
+            }
+          }
+          try {
+            localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+          } catch (e) { }
+          return { success: true, upvotes: count, offline: true };
         }
       },
 
       uploadAttachment: async function (file) {
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch('/api/community/upload', {
-          method: 'POST',
-          body: formData
-        });
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(`Upload error (${res.status}): ${errText}`);
+        const baseUrl = getApiBaseUrl();
+        try {
+          const res = await fetch(`${baseUrl}/api/community/upload`, {
+            method: 'POST',
+            body: formData
+          });
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`Upload error (${res.status}): ${errText}`);
+          }
+          return await res.json();
+        } catch (e) {
+          console.warn('[ZiglagDB] Server upload failed, falling back to client-side data URL:', e);
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const isPdf = file.type === 'application/pdf' || file.name.endsWith('.pdf');
+              resolve({
+                success: true,
+                file_url: reader.result,
+                file_name: file.name,
+                file_size: (file.size / 1024).toFixed(1) + ' KB',
+                file_type: isPdf ? 'pdf' : 'image',
+                offline: true
+              });
+            };
+            reader.readAsDataURL(file);
+          });
         }
-        return await res.json();
       },
 
       deleteQuestion: async function (questionId) {
@@ -850,9 +1097,11 @@
           return await apiRequest(`/api/community/questions/${questionId}`, 'DELETE');
         } catch (e) {
           console.warn('[ZiglagDB] Delete question API failed:', e);
-          let questions = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS') || '[]');
+          let questions = this._getFallbackQuestions();
           questions = questions.filter(q => q.id !== questionId);
-          localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+          try {
+            localStorage.setItem('ZIGLAG_LOCAL_COMMUNITY_QUESTIONS', JSON.stringify(questions));
+          } catch (e) { }
           return { success: true };
         }
       },

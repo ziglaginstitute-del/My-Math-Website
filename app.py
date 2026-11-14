@@ -23,6 +23,23 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-secret-key-12345')
 
+# CORS handler for cross-origin access (e.g. file:///, localhost dev, or external origins)
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+    return response
+
+@app.route('/api/<path:dummy>', methods=['OPTIONS'])
+def options_preflight(dummy=''):
+    response = app.make_default_options_response()
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+    return response
+
+
 # ============================================================================
 # NEON CLOUD SERVICES CONFIGURATION (Postgres, Auth, Functions, AI, Realtime)
 # ============================================================================

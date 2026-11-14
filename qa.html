@@ -10,7 +10,7 @@
   <!-- KaTeX for live mathematical typesetting -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.__katexLoaded = true; if(window.renderAllMathOnPage) window.renderAllMathOnPage();"></script>
 </head>
 <body>
 
@@ -215,7 +215,7 @@
           <h3 style="font-family: var(--font-display); font-size: 1.3rem;">
             Solutions & Responses (<span id="detail-answers-count">0</span>)
           </h3>
-          <a href="#submit-answer-section" class="btn btn-secondary btn-sm" onclick="document.getElementById('ans-content-input').focus()">+ Write Solution</a>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="scrollToAnswerBox()">+ Write Solution</button>
         </div>
 
         <div id="detail-answers-list">
@@ -423,13 +423,13 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
           <div>
             <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">Your Name / Alias</label>
-            <input type="text" id="ask-author-name" class="contact-input" placeholder="e.g. Chioma Adeyemi" required>
+            <input type="text" id="ask-author-name" class="contact-input" placeholder="e.g. Chioma Adeyemi (or Scholar)">
           </div>
           <div>
             <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
-              Your Email Address (For solution notification)
+              Your Email Address (Optional — for solution notification)
             </label>
-            <input type="email" id="ask-author-email" class="contact-input" placeholder="chioma@example.com" required>
+            <input type="email" id="ask-author-email" class="contact-input" placeholder="chioma@example.com">
           </div>
         </div>
 
@@ -963,6 +963,17 @@
       document.getElementById("ask-dropzone").style.display = "block";
     }
 
+    function scrollToAnswerBox() {
+      const box = document.getElementById("submit-answer-section");
+      if (box) {
+        box.scrollIntoView({ behavior: 'smooth' });
+      }
+      const inp = document.getElementById("ans-content-input");
+      if (inp) {
+        setTimeout(() => inp.focus(), 300);
+      }
+    }
+
     // Submit New Question
     async function handleQuestionSubmit(e) {
       e.preventDefault();
@@ -970,11 +981,11 @@
       const subject = document.getElementById("ask-subject").value;
       const difficulty = document.getElementById("ask-difficulty").value;
       const content = document.getElementById("ask-content").value.trim();
-      const author_name = document.getElementById("ask-author-name").value.trim();
+      const author_name = document.getElementById("ask-author-name").value.trim() || 'Student Scholar';
       const author_email = document.getElementById("ask-author-email").value.trim();
 
-      if (!title || !content || !author_name || !author_email) {
-        alert("Please complete all required fields.");
+      if (!title || !content) {
+        alert("Please enter both a question title and describe the mathematical/physical problem.");
         return;
       }
 
@@ -1052,7 +1063,18 @@
       renderAllMathInElement(previewBox);
     }
 
+    function renderAllMathOnPage() {
+      const container = document.getElementById("qa-questions-container");
+      if (container) renderAllMathInElement(container);
+      const detail = document.getElementById("detail-content");
+      if (detail) renderAllMathInElement(detail);
+      const answers = document.getElementById("detail-answers-list");
+      if (answers) renderAllMathInElement(answers);
+    }
+    window.renderAllMathOnPage = renderAllMathOnPage;
+
     function renderAllMathInElement(el) {
+      if (!el) return;
       if (window.renderMathInElement) {
         try {
           window.renderMathInElement(el, {
@@ -1067,6 +1089,12 @@
         } catch (e) {
           console.warn("KaTeX render error:", e);
         }
+      } else {
+        setTimeout(() => {
+          if (window.renderMathInElement) {
+            renderAllMathInElement(el);
+          }
+        }, 300);
       }
     }
 
