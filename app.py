@@ -1718,6 +1718,113 @@ def submit_contact():
         return jsonify({'success': False, 'message': f'Server database error: {str(e)}'}), 500
 
 
+
+def send_system_email(to_email, subject, body_text, reply_to=None):
+    """
+    Robust universal email sender:
+    1. Supports Resend API (HTTPS port 443) if RESEND_API_KEY is present
+       (bypasses cloud host free-tier SMTP port blocks completely).
+    2. Fallback to Gmail / Standard SMTP with support for both:
+       - SMTP_USERNAME / SMTP_PASSWORD
+       - MAIL_USERNAME / MAIL_PASSWORD
+       - Port 587 (STARTTLS) and Port 465 (SSL)
+    """
+    if not to_email:
+        return False
+
+    resend_key = (os.getenv('RESEND_API_KEY') or '').strip()
+    if resend_key:
+        try:
+            import json
+            import urllib.request
+            sender = (
+                os.getenv('MAIL_DEFAULT_SENDER')
+                or os.getenv('SMTP_USERNAME')
+                or os.getenv('MAIL_USERNAME')
+                or 'onboarding@resend.dev'
+            ).strip()
+            if '@gmail.com' in sender and not os.getenv('RESEND_CUSTOM_DOMAIN'):
+                from_header = "Ziglag Institute <onboarding@resend.dev>"
+            else:
+                from_header = f"Ziglag Institute <{sender}>"
+
+            payload = {
+                "from": from_header,
+                "to": [to_email],
+                "subject": subject,
+                "text": body_text
+            }
+            if reply_to:
+                payload["reply_to"] = reply_to
+
+            req = urllib.request.Request(
+                "https://api.resend.com/emails",
+                data=json.dumps(payload).encode('utf-8'),
+                headers={
+                    "Authorization": f"Bearer {resend_key}",
+                    "Content-Type": "application/json",
+                    "User-Agent": "ZiglagMathPortal/1.0"
+                },
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                if resp.status in (200, 201):
+                    print(f"[Email Resend API] Sent email to {to_email}")
+                    return True
+        except Exception as re_err:
+            print(f"[Email Resend Warning] Failed via Resend API: {re_err}")
+
+    # Standard SMTP
+    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    try:
+        smtp_port = int(os.getenv('SMTP_PORT', 587))
+    except (ValueError, TypeError):
+        smtp_port = 587
+
+    smtp_user = (
+        os.getenv('SMTP_USERNAME')
+        or os.getenv('MAIL_USERNAME')
+        or os.getenv('MAIL_DEFAULT_SENDER')
+        or ''
+    ).strip()
+    smtp_pass = (
+        os.getenv('SMTP_PASSWORD')
+        or os.getenv('MAIL_PASSWORD')
+        or ''
+    ).replace(' ', '').strip()
+
+    if not smtp_user or not smtp_pass:
+        print(f"[Email Notice] Credentials not configured for sending to {to_email} (Checked SMTP_USERNAME/SMTP_PASSWORD and MAIL_USERNAME/MAIL_PASSWORD)")
+        return False
+
+    try:
+        import smtplib
+        from email.message import EmailMessage
+
+        msg = EmailMessage()
+        msg['Subject'] = subject
+        msg['From'] = smtp_user
+        msg['To'] = to_email
+        if reply_to:
+            msg['Reply-To'] = reply_to
+        msg.set_content(body_text)
+
+        if smtp_port == 465:
+            with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=12) as server:
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+        else:
+            with smtplib.SMTP(smtp_server, smtp_port, timeout=12) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+
+        print(f"[Email SMTP] Sent email to {to_email}")
+        return True
+    except Exception as err:
+        print(f"[Email SMTP Warning] Transmission notice to {to_email}: {err}")
+        return False
+
 def send_contact_inquiry_emails(submission):
     smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
     smtp_port = int(os.getenv('SMTP_PORT', 587))
@@ -1770,37 +1877,9 @@ Ziglag Institute — Minds in Motion, Futures in Focus
 Email: ziglaginstitute@gmail.com
 """
 
-    if smtp_user and smtp_pass:
-        try:
-            import smtplib
-            from email.message import EmailMessage
-
-            msg_lead = EmailMessage()
-            msg_lead['Subject'] = lead_subject
-            msg_lead['From'] = smtp_user
-            msg_lead['To'] = lead_email
-            msg_lead.set_content(lead_body)
-
-            msg_student = EmailMessage()
-            msg_student['Subject'] = student_subject
-            msg_student['From'] = smtp_user
-            msg_student['To'] = submission.email
-            msg_student.set_content(student_body)
-
-            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
-                server.starttls()
-                server.login(smtp_user, smtp_pass)
-                server.send_message(msg_lead)
-                server.send_message(msg_student)
-
-            print(f"[Contact Email] Delivered inquiry to {lead_email} and auto-ack to {submission.email}")
-            return True
-        except Exception as e:
-            print(f"[Contact Email Warning] SMTP transmission notice: {e}. Inquiry safely stored in database.")
-            return False
-    else:
-        print(f"[Contact Email Notice] SMTP credentials not set. Inquiry saved to database. Coach: {lead_email}, Sender: {submission.email}")
-        return False
+    sent_lead = send_system_email(lead_email, lead_subject, lead_body, reply_to=submission.email)
+    sent_student = send_system_email(submission.email, student_subject, student_body, reply_to=lead_email)
+    return sent_lead or sent_student
 
 
 def send_tutoring_booking_emails(booking):
@@ -1880,37 +1959,9 @@ Thank you for choosing Ziglag Institute.
 Minds in Motion, Futures in Focus.
 """
 
-    if smtp_user and smtp_pass:
-        try:
-            import smtplib
-            from email.message import EmailMessage
-
-            msg_coach = EmailMessage()
-            msg_coach['Subject'] = coach_subject
-            msg_coach['From'] = smtp_user
-            msg_coach['To'] = coach_email
-            msg_coach.set_content(coach_body)
-
-            msg_student = EmailMessage()
-            msg_student['Subject'] = student_subject
-            msg_student['From'] = smtp_user
-            msg_student['To'] = booking.student_email
-            msg_student.set_content(student_body)
-
-            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
-                server.starttls()
-                server.login(smtp_user, smtp_pass)
-                server.send_message(msg_coach)
-                server.send_message(msg_student)
-
-            print(f"[Tutoring Email] Sent booking notifications to {coach_email} and {booking.student_email}")
-            return True
-        except Exception as e:
-            print(f"[Tutoring Email Warning] SMTP transmission notice: {e}. Session is safely stored in database.")
-            return False
-    else:
-        print(f"[Tutoring Email Notice] SMTP_USERNAME or SMTP_PASSWORD not set. Booking saved to database. Coach: {coach_email}, Student: {booking.student_email}")
-        return False
+    sent_coach = send_system_email(coach_email, coach_subject, coach_body, reply_to=booking.student_email)
+    sent_student = send_system_email(booking.student_email, student_subject, student_body, reply_to=coach_email)
+    return sent_coach or sent_student
 
 
 @app.route('/api/tutoring/book', methods=['POST'])
@@ -2069,27 +2120,7 @@ https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app/qa.html or vi
 
 Ziglag Institute Administration System
 """
-    if smtp_user and smtp_pass:
-        try:
-            import smtplib
-            from email.message import EmailMessage
-            msg = EmailMessage()
-            msg['Subject'] = subject
-            msg['From'] = smtp_user
-            msg['To'] = coach_email
-            msg.set_content(body)
-            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
-                server.starttls()
-                server.login(smtp_user, smtp_pass)
-                server.send_message(msg)
-            print(f"[Q&A Email] Notified {coach_email} about new question {question.id}")
-            return True
-        except Exception as e:
-            print(f"[Q&A Email Warning] SMTP error notifying educator: {e}")
-            return False
-    else:
-        print(f"[Q&A Email Notice] Logged new question {question.id} for {coach_email}")
-        return False
+    return send_system_email(coach_email, subject, body, reply_to=question.author_email)
 
 
 def send_community_answer_email(question, answer):
@@ -2121,27 +2152,7 @@ Keep learning and exploring!
 Ziglag Institute — Minds in Motion, Futures in Focus
 Email: ziglaginstitute@gmail.com
 """
-    if smtp_user and smtp_pass:
-        try:
-            import smtplib
-            from email.message import EmailMessage
-            msg = EmailMessage()
-            msg['Subject'] = subject
-            msg['From'] = smtp_user
-            msg['To'] = question.author_email
-            msg.set_content(body)
-            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
-                server.starttls()
-                server.login(smtp_user, smtp_pass)
-                server.send_message(msg)
-            print(f"[Q&A Email] Notified student {question.author_email} about solution to {question.id}")
-            return True
-        except Exception as e:
-            print(f"[Q&A Email Warning] SMTP error notifying student: {e}")
-            return False
-    else:
-        print(f"[Q&A Email Notice] Logged solution notification for student {question.author_email}")
-        return False
+    return send_system_email(question.author_email, subject, body, reply_to="ziglaginstitute@gmail.com")
 
 
 @app.route('/api/community/upload', methods=['POST'])
