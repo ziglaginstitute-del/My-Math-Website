@@ -643,6 +643,51 @@
         return await apiRequest(`/api/contact/submissions/${subId}`, 'DELETE');
       }
     },
+    tutoring: {
+      book: async function (bookingData) {
+        try {
+          const res = await apiRequest('/api/tutoring/book', 'POST', bookingData);
+          if (res && res.success) return res;
+        } catch (e) {
+          console.warn('[ZiglagDB] Tutoring booking API warning, saving locally:', e);
+        }
+
+        const payload = {
+          id: bookingData.id || ('book_' + Date.now()),
+          ...bookingData,
+          status: 'Confirmed',
+          created_at: new Date().toISOString()
+        };
+        const list = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_BOOKINGS') || '[]');
+        list.unshift(payload);
+        localStorage.setItem('ZIGLAG_LOCAL_BOOKINGS', JSON.stringify(list));
+        return { success: true, booking: payload, localFallback: true };
+      },
+
+      listBookings: async function () {
+        try {
+          const list = await apiRequest('/api/tutoring/bookings');
+          if (list && Array.isArray(list)) return list;
+        } catch (e) {
+          console.warn('[ZiglagDB] List tutoring bookings API warning:', e);
+        }
+        return JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_BOOKINGS') || '[]');
+      },
+
+      deleteBooking: async function (bookingId) {
+        try {
+          const res = await apiRequest('/api/tutoring/bookings/' + encodeURIComponent(bookingId), 'DELETE');
+          if (res && res.success) return true;
+        } catch (e) {
+          console.warn('[ZiglagDB] Delete tutoring booking API warning:', e);
+        }
+        let list = JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_BOOKINGS') || '[]');
+        list = list.filter(b => b.id !== bookingId);
+        localStorage.setItem('ZIGLAG_LOCAL_BOOKINGS', JSON.stringify(list));
+        return true;
+      }
+    },
+
     siteContent: {
       get: async function () {
         try {

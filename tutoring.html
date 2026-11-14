@@ -3,9 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ziglag Institute | 1-on-1 Tutor Scheduling</title>
-  <meta name="description" content="Schedule private whiteboard sessions with phd university professors and curriculum prep experts for advanced and high school mathematics.">
+  <title>Ziglag Institute | 1-on-1 Private Tutoring</title>
+  <meta name="description" content="Schedule private 1-on-1 whiteboard coaching with Mr. Isaac Olusola for Secondary, JAMB, WASSCE, GCSE, and A-Level Mathematics, Physics, and Chemistry.">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Scoped Tutoring Page Styles */
+    .calendar-day.sunday-disabled {
+      opacity: 0.35 !important;
+      cursor: not-allowed !important;
+      background: rgba(239, 68, 68, 0.04) !important;
+      color: #ef4444 !important;
+      position: relative;
+    }
+    .calendar-day.sunday-disabled:hover {
+      background: rgba(239, 68, 68, 0.08) !important;
+      border-color: rgba(239, 68, 68, 0.3) !important;
+    }
+    .calendar-day-label.sunday-label {
+      color: #ef4444 !important;
+      font-weight: 700;
+    }
+    .rate-badge-local {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+    }
+    .rate-badge-intl {
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+    }
+    .tutoring-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-hover);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition-fast);
+    }
+    .tutoring-input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+    .tutoring-textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-hover);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      outline: none;
+      min-height: 110px;
+      resize: vertical;
+      transition: var(--transition-fast);
+    }
+    .tutoring-textarea:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+    .toast-notice {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1e1b4b;
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-md);
+      border-left: 4px solid var(--primary-color);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      z-index: 1000;
+      display: none;
+      max-width: 400px;
+      animation: slide-up 0.3s ease-out;
+    }
+  </style>
 </head>
 <body>
 
@@ -42,13 +127,22 @@
     <!-- Header Title Banner -->
     <section class="section-wrapper" style="padding-bottom: 0.5rem; animation: fade-in 0.6s ease-out;">
       <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-pill); padding: 0.35rem 0.85rem; font-size: 0.82rem; font-weight: 600; color: #10b981; margin-bottom: 0.75rem;">
-        <span>🟢</span> Now Booking Private Classes • WASSCE, UTME & Undergrad
+        <span>🟢</span> Now Booking Private Classes • Mon – Sat Live Sessions
       </div>
       <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">Personalized Coaching & Mentorship</span>
       <h1 style="font-size: 3rem;">1-on-1 Private Tutoring</h1>
-      <p style="margin-top: 0.5rem; max-width: 720px; font-size: 1.05rem; line-height: 1.6;">
-        Reach out for dedicated private classes. Learn directly with <strong>Mr. Isaac Olusola</strong> (MSc in Applied Mathematics) for personalized WASSCE, JAMB UTME, NECO, and College-level Mathematics & Physics guidance. Select your preferred date, topic focus, and schedule a live whiteboard session.
+      <p style="margin-top: 0.5rem; max-width: 760px; font-size: 1.05rem; line-height: 1.6;">
+        Book dedicated private classes with <strong>Mr. Isaac Olusola</strong> (MSc in Applied Mathematics). Targeted coaching in <strong>Secondary Mathematics</strong>, <strong>JAMB (Maths & Physics)</strong>, <strong>WASSCE (Maths & Physics)</strong>, <strong>GCSE (Maths, Physics & Chemistry)</strong>, and <strong>A-Level (Maths & Physics)</strong>. Define your priority topics, choose your session duration, and lock in your live interactive whiteboard slot.
       </p>
+
+      <!-- Direct Contact Notice Banner -->
+      <div style="margin-top: 1rem; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-md); padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <span style="font-size: 1.25rem;">✉️</span>
+        <span style="font-size: 0.88rem; color: var(--text-muted);">
+          Have direct questions or custom syllabus requirements? You can contact Mr. Isaac Olusola directly via email only:
+          <a href="mailto:ziglaginstitute@gmail.com" style="color: var(--primary-color); font-weight: 600; text-decoration: underline; margin-left: 0.25rem;">ziglaginstitute@gmail.com</a>
+        </span>
+      </div>
     </section>
 
     <!-- Interactive Grid Area -->
@@ -58,119 +152,178 @@
         <!-- Interactive Booking Form Left Column -->
         <div style="display:flex; flex-direction:column; gap:2rem;">
           
-          <!-- Step 1: Tutor Selection -->
+          <!-- Step 1: Tutor Profile -->
           <div class="glass-card">
             <h3 style="margin-bottom: 1rem; color:var(--primary-color);">Step 1: Your Lead Instructor</h3>
-            <div style="display:flex; flex-direction:column; gap:1.25rem;" id="tutor-cards-container">
-              <!-- Dynamically rendered via app.js dataset -->
+            <div class="glass-card" style="display: flex; gap: 1.5rem; align-items: center; background: rgba(99, 102, 241, 0.05); border-color: var(--primary-color);">
+              <div style="font-size: 2.8rem; background: rgba(255,255,255,0.06); width: 72px; height: 72px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border-color); flex-shrink: 0;">
+                👨‍🏫
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+                  <div>
+                    <h4 style="font-size: 1.25rem; color: var(--text-main); margin: 0 0 0.2rem 0;">Mr. Isaac Olusola</h4>
+                    <p style="font-size: 0.85rem; color: var(--accent-color); font-weight: 600; margin: 0 0 0.4rem 0;">MSc in Applied Mathematics • Founder & Lead Instructor</p>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-weight: 700; color: #818cf8; font-family: var(--font-mono); font-size: 0.95rem;">International: $25 / hr</div>
+                    <div style="font-weight: 700; color: #10b981; font-family: var(--font-mono); font-size: 0.85rem;">Local Exams: $15 / hr (₦24,000)</div>
+                  </div>
+                </div>
+                <p style="font-size: 0.88rem; line-height: 1.45; color: var(--text-muted); margin: 0.4rem 0 0.75rem 0;">
+                  Applied mathematician specializing in making complex mathematical, physical, and chemical proofs intuitive. Over 5 years guiding candidates to distinctions in national and international examinations through structured problem breakdown.
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                  <span class="sphere-tag" style="font-size: 0.72rem; padding: 0.2rem 0.55rem;">Secondary Mathematics</span>
+                  <span class="sphere-tag" style="font-size: 0.72rem; padding: 0.2rem 0.55rem;">JAMB Maths & Physics</span>
+                  <span class="sphere-tag" style="font-size: 0.72rem; padding: 0.2rem 0.55rem;">WASSCE Maths & Physics</span>
+                  <span class="sphere-tag" style="font-size: 0.72rem; padding: 0.2rem 0.55rem;">GCSE Maths, Physics & Chemistry</span>
+                  <span class="sphere-tag" style="font-size: 0.72rem; padding: 0.2rem 0.55rem;">A-Level Maths & Physics</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Step 2: Date and Hour Selection -->
           <div class="glass-card booking-calendar-card">
-            <h3 style="color:var(--primary-color);">Step 2: Choose Date & Time Slot</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+              <h3 style="color:var(--primary-color); margin:0;">Step 2: Choose Date & Time Slot</h3>
+              <span style="font-size:0.8rem; background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.25); padding:0.2rem 0.6rem; border-radius:var(--radius-pill); font-weight:600;">
+                Sundays Closed (Unavailable)
+              </span>
+            </div>
             
-            <!-- Calendar Grid -->
+            <!-- Dynamic Interactive Calendar -->
             <div>
-              <div class="calendar-header" style="margin-bottom:1rem;">
-                <h4 id="calendar-month-year" style="font-size: 1.1rem; color: var(--text-main);">June 2026</h4>
+              <div class="calendar-header" style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+                <h4 id="calendar-month-year" style="font-size: 1.15rem; color: var(--text-main); margin:0;">November 2026</h4>
                 <div style="display:flex; gap:0.5rem;">
-                  <button class="btn btn-secondary btn-sm" onclick="alert('Viewing Previous Month (Simulation Only)')" style="padding:0.25rem 0.5rem;">◀</button>
-                  <button class="btn btn-secondary btn-sm" onclick="alert('Viewing Next Month (Simulation Only)')" style="padding:0.25rem 0.5rem;">▶</button>
+                  <button class="btn btn-secondary btn-sm" id="cal-prev-btn" onclick="navigateCalendarMonth(-1)" style="padding:0.35rem 0.65rem;" title="Previous Month">◀</button>
+                  <button class="btn btn-secondary btn-sm" id="cal-next-btn" onclick="navigateCalendarMonth(1)" style="padding:0.35rem 0.65rem;" title="Next Month">▶</button>
                 </div>
               </div>
               
-              <div class="calendar-grid">
-                <!-- Day Names -->
-                <div class="calendar-day-label">Su</div>
-                <div class="calendar-day-label">Mo</div>
-                <div class="calendar-day-label">Tu</div>
-                <div class="calendar-day-label">We</div>
-                <div class="calendar-day-label">Th</div>
-                <div class="calendar-day-label">Fr</div>
-                <div class="calendar-day-label">Sa</div>
-                
-                <!-- Day Cells Injected -->
-                <!-- First week blanks -->
-                <div class="calendar-day empty"></div>
-                <div class="calendar-day disabled">1</div>
-                <div class="calendar-day disabled">2</div>
-                <div class="calendar-day disabled">3</div>
-                <div class="calendar-day disabled">4</div>
-                <div class="calendar-day disabled">5</div>
-                <div class="calendar-day disabled">6</div>
-                
-                <!-- Week 2 -->
-                <div class="calendar-day disabled">7</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 8)">8</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 9)">9</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 10)">10</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 11)">11</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 12)">12</div>
-                <div class="calendar-day disabled">13</div>
-                
-                <!-- Week 3 -->
-                <div class="calendar-day disabled">14</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 15)">15</div>
-                <div class="calendar-day active" onclick="selectCalendarDate(this, 16)">16</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 17)">17</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 18)">18</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 19)">19</div>
-                <div class="calendar-day disabled">20</div>
+              <div class="calendar-grid" id="calendar-days-container">
+                <!-- Injected via renderCalendar() -->
+              </div>
 
-                <!-- Week 4 -->
-                <div class="calendar-day disabled">21</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 22)">22</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 23)">23</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 24)">24</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 25)">25</div>
-                <div class="calendar-day" onclick="selectCalendarDate(this, 26)">26</div>
-                <div class="calendar-day disabled">27</div>
+              <div style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; color:var(--text-muted); padding: 0 0.5rem;">
+                <span>🟢 Select any active date (Mon – Sat)</span>
+                <span style="color:#f87171;">🚫 Sundays are reserved for rest & study prep</span>
               </div>
             </div>
 
             <!-- Available Time Slots -->
-            <div style="border-top:1px solid var(--border-color); padding-top:1rem;">
-              <h4 style="margin-bottom:0.5rem;">Available Hourly Slots (June <span id="slot-day-display">16</span>)</h4>
+            <div style="border-top:1px solid var(--border-color); padding-top:1.25rem; margin-top:1.25rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+                <h4 style="margin:0; font-size: 0.95rem;">Available Hourly Slots for <strong id="slot-day-display" style="color:var(--primary-color);">Selected Date</strong></h4>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">West Africa Time (WAT / GMT+1)</span>
+              </div>
               <div class="slots-grid" id="slots-render-box">
                 <button class="slot-btn active" onclick="selectTimeSlot(this, '09:00 AM')">09:00 AM</button>
                 <button class="slot-btn" onclick="selectTimeSlot(this, '11:00 AM')">11:00 AM</button>
-                <button class="slot-btn disabled" disabled>01:00 PM</button>
-                <button class="slot-btn" onclick="selectTimeSlot(this, '03:00 PM')">03:00 PM</button>
-                <button class="slot-btn" onclick="selectTimeSlot(this, '05:00 PM')">05:00 PM</button>
+                <button class="slot-btn" onclick="selectTimeSlot(this, '02:00 PM')">02:00 PM</button>
+                <button class="slot-btn" onclick="selectTimeSlot(this, '04:00 PM')">04:00 PM</button>
+                <button class="slot-btn" onclick="selectTimeSlot(this, '06:00 PM')">06:00 PM</button>
+                <button class="slot-btn" onclick="selectTimeSlot(this, '08:00 PM')">08:00 PM</button>
               </div>
             </div>
           </div>
 
-          <!-- Step 3: Priority Details -->
+          <!-- Step 3: Priority Focus Topics & Student Details -->
           <div class="glass-card">
-            <h3 style="margin-bottom: 1rem; color:var(--primary-color);">Step 3: Define Priority Focus Topic</h3>
-            <div style="display:flex; flex-direction:column; gap:1rem;">
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
-                <div style="display:flex; flex-direction:column; gap:0.4rem;">
-                  <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Math Level / Exam</label>
-                  <select id="booking-level" style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface-hover); color:var(--text-main); border:1px solid var(--border-color); font-family:var(--font-body); font-size:0.95rem;">
-                    <option value="AP Calculus BC">AP Calculus BC</option>
-                    <option value="Linear Algebra">Undergrad Linear Algebra</option>
-                    <option value="IGCSE Math Extended">IGCSE Math Extended</option>
-                    <option value="GCSE Mathematics">GCSE Mathematics</option>
-                    <option value="Secondary School Trig">Secondary Trigonometry</option>
-                  </select>
-                </div>
-                <div style="display:flex; flex-direction:column; gap:0.4rem;">
-                  <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Lesson Duration</label>
-                  <select id="booking-hours" onchange="recalculatePrice()" style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface-hover); color:var(--text-main); border:1px solid var(--border-color); font-family:var(--font-body); font-size:0.95rem;">
-                    <option value="1">1.0 Hour</option>
-                    <option value="1.5">1.5 Hours</option>
-                    <option value="2" selected>2.0 Hours</option>
-                  </select>
+            <h3 style="margin-bottom: 1.25rem; color:var(--primary-color);">Step 3: Define Priority Focus Topics</h3>
+            
+            <form id="booking-form" onsubmit="event.preventDefault(); confirmAppointment();" style="display:flex; flex-direction:column; gap:1.25rem;">
+              
+              <!-- Subject / Examination Track -->
+              <div>
+                <label style="font-size:0.88rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.4rem;">
+                  Examination / Curriculum Area <span style="color:#ef4444;">*</span>
+                </label>
+                <select id="booking-level" class="tutoring-input" onchange="onSubjectOrDurationChange()" required>
+                  <optgroup label="Local Examinations ($15 / hr • Payable in Naira)">
+                    <option value="Secondary Mathematics" data-rate="15" data-category="Local" selected>Secondary Mathematics ($15/hr • ~₦24,000/hr)</option>
+                    <option value="JAMB Mathematics" data-rate="15" data-category="Local">JAMB Mathematics ($15/hr • ~₦24,000/hr)</option>
+                    <option value="JAMB Physics" data-rate="15" data-category="Local">JAMB Physics ($15/hr • ~₦24,000/hr)</option>
+                    <option value="WASSCE Mathematics" data-rate="15" data-category="Local">WASSCE Mathematics ($15/hr • ~₦24,000/hr)</option>
+                    <option value="WASSCE Physics" data-rate="15" data-category="Local">WASSCE Physics ($15/hr • ~₦24,000/hr)</option>
+                  </optgroup>
+                  <optgroup label="International Examinations ($25 / hr)">
+                    <option value="GCSE Mathematics" data-rate="25" data-category="International">GCSE Mathematics ($25/hr)</option>
+                    <option value="GCSE Physics" data-rate="25" data-category="International">GCSE Physics ($25/hr)</option>
+                    <option value="GCSE Chemistry" data-rate="25" data-category="International">GCSE Chemistry ($25/hr)</option>
+                    <option value="A-Level Mathematics" data-rate="25" data-category="International">A-Level Mathematics ($25/hr)</option>
+                    <option value="A-Level Physics" data-rate="25" data-category="International">A-Level Physics ($25/hr)</option>
+                  </optgroup>
+                </select>
+                <div id="subject-rate-helper" style="font-size:0.78rem; margin-top:0.35rem; color:#10b981; display:flex; align-items:center; gap:0.35rem;">
+                  <span class="rate-badge-local" id="subject-badge-pill">Local Exam Track</span>
+                  <span id="subject-rate-text">Rate: $15.00 / hour (Payable in Naira at ~₦24,000/hr)</span>
                 </div>
               </div>
-              <div style="display:flex; flex-direction:column; gap:0.4rem;">
-                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">What specific concepts or questions do you want to cover?</label>
-                <textarea id="booking-notes" placeholder="Example: Reviewing eigenvalue eigenvectors proof formulas, or IGCSE vectors past paper questions..." style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface-hover); color:var(--text-main); border:1px solid var(--border-color); min-height:100px; resize:vertical; font-family:var(--font-body); outline:none; font-size:0.95rem;"></textarea>
+
+              <!-- Lesson Duration -->
+              <div>
+                <label style="font-size:0.88rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.4rem;">
+                  Expected Session Duration <span style="color:#ef4444;">*</span>
+                </label>
+                <select id="booking-hours" class="tutoring-input" onchange="onSubjectOrDurationChange()" required>
+                  <option value="1.0" selected>1.0 Hour (Intensive Topic Drill)</option>
+                  <option value="1.5">1.5 Hours (Deep-Dive & Problem Solving)</option>
+                  <option value="2.0">2.0 Hours (Comprehensive Mastery)</option>
+                  <option value="3.0">3.0 Hours (Extended Masterclass)</option>
+                </select>
               </div>
-            </div>
+
+              <!-- Priority Focus Topics -->
+              <div>
+                <label style="font-size:0.88rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.4rem;">
+                  Topic(s) or Specific Areas You Want Taught <span style="color:#ef4444;">*</span>
+                </label>
+                <input type="text" id="booking-topic" class="tutoring-input" placeholder="e.g. Circle Geometry Theorems, Number Bases, Kinematics & Projectiles, Calculus Optimization..." required oninput="updateReceiptTopic(this.value)">
+                <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.3rem;">
+                  Type the exact subject topics or chapters you want Mr. Isaac Olusola to focus on.
+                </span>
+              </div>
+
+              <!-- Specific Difficulties -->
+              <div>
+                <label style="font-size:0.88rem; font-weight:600; color:var(--text-main); display:block; margin-bottom:0.4rem;">
+                  Specific Difficulties or Areas of Concern <span style="color:#ef4444;">*</span>
+                </label>
+                <textarea id="booking-difficulties" class="tutoring-textarea" placeholder="Detail any specific difficulties you face (e.g., getting confused by 3D angles in trigonometry, proof techniques in circle theorems, solving past question word problems, or stoichiometric calculations)..." required></textarea>
+                <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.3rem;">
+                  Providing clear challenges helps Mr. Isaac prepare personalized whiteboard diagrams and question sets beforehand.
+                </span>
+              </div>
+
+              <!-- Student Profile -->
+              <div style="border-top:1px solid var(--border-color); padding-top:1.25rem;">
+                <h4 style="font-size:0.95rem; margin:0 0 1rem 0; color:var(--text-main);">Your Contact & Booking Information</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                  <div>
+                    <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.35rem;">
+                      Student Full Name <span style="color:#ef4444;">*</span>
+                    </label>
+                    <input type="text" id="student-name" class="tutoring-input" placeholder="e.g. Emmanuel Adeyemi" required>
+                  </div>
+                  <div>
+                    <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.35rem;">
+                      Email Address (for Session Invite) <span style="color:#ef4444;">*</span>
+                    </label>
+                    <input type="email" id="student-email" class="tutoring-input" placeholder="student@example.com" required>
+                  </div>
+                </div>
+                <div style="margin-top:0.75rem;">
+                  <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.35rem;">
+                    Phone Number / WhatsApp (Optional)
+                  </label>
+                  <input type="tel" id="student-phone" class="tutoring-input" placeholder="+234 800 000 0000">
+                </div>
+              </div>
+
+            </form>
           </div>
 
         </div>
@@ -179,53 +332,75 @@
         <div style="position:sticky; top:100px; display:flex; flex-direction:column; gap:1.5rem;">
           
           <div class="glass-card card-header-accent" style="--primary-color: var(--accent-color);">
-            <h3 style="margin-bottom:1.25rem;">Appointment Receipt</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+              <h3 style="margin:0;">Appointment Receipt</h3>
+              <span id="receipt-category-pill" class="rate-badge-local">Local Exam Track</span>
+            </div>
             
-            <div style="display:flex; flex-direction:column; gap:1rem;">
-              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
-                <span style="color:var(--text-muted);">Tutor Selection:</span>
-                <strong id="receipt-tutor-name" style="color:var(--text-main);">Mr. Isaac Olusola</strong>
+            <div style="display:flex; flex-direction:column; gap:0.9rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.92rem;">
+                <span style="color:var(--text-muted);">Lead Instructor:</span>
+                <strong style="color:var(--text-main);">Mr. Isaac Olusola</strong>
               </div>
-              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.92rem;">
+                <span style="color:var(--text-muted);">Subject / Exam:</span>
+                <span id="receipt-subject-name" style="color:var(--text-main); font-weight:600; text-align:right;">Secondary Mathematics</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.92rem;">
                 <span style="color:var(--text-muted);">Hourly Rate:</span>
-                <span id="receipt-hourly-rate" style="color:var(--text-main); font-family:var(--font-mono); font-weight:600;">$50 / hr</span>
+                <span id="receipt-hourly-rate" style="color:var(--text-main); font-family:var(--font-mono); font-weight:600;">$15.00 / hr (~₦24,000)</span>
               </div>
-              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.92rem;">
                 <span style="color:var(--text-muted);">Appointment Date:</span>
-                <span id="receipt-date" style="color:var(--text-main);">June 16, 2026</span>
+                <span id="receipt-date" style="color:var(--text-main); font-weight:600;">Mon, Nov 16, 2026</span>
               </div>
-              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.92rem;">
                 <span style="color:var(--text-muted);">Time Slot Selected:</span>
-                <span id="receipt-slot" style="color:var(--text-main);">09:00 AM</span>
+                <span id="receipt-slot" style="color:var(--text-main); font-weight:600;">09:00 AM (WAT)</span>
               </div>
-              <div style="display:flex; justify-content:space-between; font-size:0.95rem;">
-                <span style="color:var(--text-muted);">Syllabus / Exam:</span>
-                <span id="receipt-exam-level" style="color:var(--text-main);">AP Calculus BC</span>
+              <div style="display:flex; justify-content:space-between; font-size:0.92rem;">
+                <span style="color:var(--text-muted);">Session Duration:</span>
+                <span id="receipt-duration-text" style="color:var(--text-main); font-weight:600;">1.0 Hour</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.92rem; border-top:1px solid var(--border-color); padding-top:0.75rem;">
+                <span style="color:var(--text-muted);">Priority Topic:</span>
+                <span id="receipt-topic-preview" style="color:var(--text-main); font-style:italic; max-width:180px; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">(Enter in form)</span>
               </div>
               
-              <!-- Coupon Area -->
-              <div style="border-top:1px solid var(--border-color); border-bottom:1px solid var(--border-color); padding: 1rem 0; display:flex; gap:0.5rem;">
-                <input type="text" id="coupon-input" placeholder="Promo Code (MATH50)" style="flex:1; padding:0.5rem; background:rgba(0,0,0,0.15); border:1px solid var(--border-color); color:var(--text-main); font-family:var(--font-body); border-radius:var(--radius-sm); font-size:0.85rem; outline:none;">
+              <!-- Promo Coupon -->
+              <div style="border-top:1px solid var(--border-color); border-bottom:1px solid var(--border-color); padding: 0.85rem 0; display:flex; gap:0.5rem;">
+                <input type="text" id="coupon-input" placeholder="Promo Code (MATH50)" style="flex:1; padding:0.5rem 0.75rem; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:var(--text-main); font-family:var(--font-body); border-radius:var(--radius-sm); font-size:0.85rem; outline:none;">
                 <button class="btn btn-secondary btn-sm" onclick="applyPromoCode()">Apply</button>
               </div>
 
               <!-- Price Totals -->
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1.1rem; font-weight:700;">Grand Total:</span>
+              <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.25rem;">
+                <div>
+                  <span style="font-size:1.05rem; font-weight:700; display:block;">Total Session Fee:</span>
+                  <span id="receipt-naira-note" style="font-size:0.75rem; color:#10b981; font-weight:500;">Payable in Naira (₦)</span>
+                </div>
                 <div style="text-align:right;">
-                  <span id="receipt-slashed-total" style="color:#f87171; text-decoration:line-through; font-family:var(--font-mono); font-size:1rem; display:none; margin-right: 0.5rem;">$130.00</span>
-                  <span id="receipt-total" style="font-size:1.8rem; font-weight:800; color:var(--accent-color); font-family:var(--font-mono);">$130.00</span>
+                  <span id="receipt-slashed-total" style="color:#f87171; text-decoration:line-through; font-family:var(--font-mono); font-size:0.95rem; display:none; margin-right: 0.5rem;">$30.00</span>
+                  <span id="receipt-total" style="font-size:1.6rem; font-weight:800; color:var(--accent-color); font-family:var(--font-mono);">$15.00</span>
                 </div>
               </div>
 
-              <button class="btn btn-primary" onclick="confirmAppointment()" style="padding:1rem; width:100%; font-size:1.1rem; margin-top:0.5rem;">Confirm & Reserve Session</button>
-              <p style="font-size:0.75rem; text-align:center; color:var(--text-muted);">Free cancellations up to 24 hours prior to appointment.</p>
+              <button class="btn btn-primary" id="confirm-booking-btn" onclick="confirmAppointment()" style="padding:1rem; width:100%; font-size:1.05rem; margin-top:0.5rem; display:flex; justify-content:center; align-items:center; gap:0.5rem;">
+                <span>Reserve 1-on-1 Session</span> <span>🚀</span>
+              </button>
+              
+              <div style="font-size:0.75rem; text-align:center; color:var(--text-muted); line-height:1.4;">
+                🔒 Upon confirmation, an email notification is automatically sent to both you and Mr. Isaac Olusola.
+              </div>
             </div>
           </div>
 
           <!-- Existing Active Bookings Card -->
-          <div class="glass-card" style="max-height:250px; overflow-y:auto;">
-            <h4 style="margin-bottom:0.75rem;">Your Scheduled Sessions</h4>
+          <div class="glass-card" style="max-height:280px; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <h4 style="margin:0; font-size:0.95rem;">Your Scheduled Sessions</h4>
+              <span id="bookings-count-pill" style="font-size:0.72rem; background:rgba(255,255,255,0.06); padding:0.15rem 0.5rem; border-radius:var(--radius-pill); font-family:var(--font-mono);">0</span>
+            </div>
             <div id="active-bookings-list" style="display:flex; flex-direction:column; gap:0.75rem;">
               <p style="font-size:0.85rem; color:var(--text-muted);">No current sessions booked. Reserve a slot above!</p>
             </div>
@@ -236,30 +411,77 @@
       </div>
       
       <!-- Success Booking Confirmed Screen -->
-      <div id="booking-success-screen" class="glass-card card-header-accent" style="display:none; max-width:600px; margin: 4rem auto; text-align:center; padding:3rem; --primary-color: var(--accent-color); animation: slide-up 0.5s ease-out;">
+      <div id="booking-success-screen" class="glass-card card-header-accent" style="display:none; max-width:680px; margin: 3rem auto; text-align:center; padding:3rem; --primary-color: var(--accent-color); animation: slide-up 0.5s ease-out;">
         <span style="font-size:4rem; display:block; margin-bottom:1rem; animation: pulse-slow 2s infinite alternate;">🎉</span>
-        <h2 style="color:var(--accent-color); margin-bottom:1rem;">Booking Confirmed!</h2>
-        <p style="margin-bottom:2rem;">
-          Your 1-on-1 interactive math whiteboard session has been secured in our scheduler system. Check your receipt parameters below:
+        <h2 style="color:var(--accent-color); margin-bottom:0.5rem;">1-on-1 Session Confirmed!</h2>
+        <p style="margin-bottom:1.75rem; color:var(--text-muted); font-size:0.98rem; line-height:1.6;">
+          Your private whiteboard appointment with <strong>Mr. Isaac Olusola</strong> has been secured and registered in the system. Check your appointment docket below:
         </p>
         
-        <div class="glass-card" style="text-align:left; background:rgba(0,0,0,0.15); margin-bottom:2rem; padding:1.5rem; display:flex; flex-direction:column; gap:0.75rem; font-size:0.95rem;">
-          <div><strong style="color:var(--text-muted);">Coach:</strong> <span id="succ-tutor" style="float:right; font-weight:600; color:var(--text-main);"></span></div>
-          <div><strong style="color:var(--text-muted);">Date & Time:</strong> <span id="succ-datetime" style="float:right; color:var(--text-main);"></span></div>
-          <div><strong style="color:var(--text-muted);">Math Priority:</strong> <span id="succ-subject" style="float:right; color:var(--text-main);"></span></div>
-          <div><strong style="color:var(--text-muted);">Receipt total:</strong> <span id="succ-total" style="float:right; font-weight:700; color:var(--accent-color); font-family:var(--font-mono);"></span></div>
+        <div class="glass-card" style="text-align:left; background:rgba(0,0,0,0.25); margin-bottom:1.75rem; padding:1.5rem; display:flex; flex-direction:column; gap:0.85rem; font-size:0.92rem; border-color:var(--border-color);">
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.6rem;">
+            <strong style="color:var(--text-muted);">Booking Reference ID:</strong>
+            <span id="succ-ref-id" style="font-family:var(--font-mono); font-weight:700; color:#38bdf8;">ZIG-TUT-XXXX</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <strong style="color:var(--text-muted);">Instructor:</strong>
+            <span id="succ-tutor" style="font-weight:600; color:var(--text-main);">Mr. Isaac Olusola (MSc)</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <strong style="color:var(--text-muted);">Subject Track:</strong>
+            <span id="succ-subject" style="font-weight:600; color:var(--text-main);"></span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <strong style="color:var(--text-muted);">Scheduled Date & Time:</strong>
+            <span id="succ-datetime" style="color:var(--text-main); font-weight:600;"></span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <strong style="color:var(--text-muted);">Duration:</strong>
+            <span id="succ-duration" style="color:var(--text-main);"></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; flex-direction:column; gap:0.25rem;">
+            <strong style="color:var(--text-muted);">Priority Focus Topic:</strong>
+            <span id="succ-topic" style="color:var(--text-main); background:rgba(255,255,255,0.03); padding:0.4rem 0.75rem; border-radius:var(--radius-sm); font-size:0.88rem;"></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border-color); padding-top:0.6rem;">
+            <strong style="color:var(--text-muted);">Total Session Fee:</strong>
+            <span id="succ-total" style="font-weight:700; color:var(--accent-color); font-family:var(--font-mono); font-size:1.15rem;"></span>
+          </div>
         </div>
 
-        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:2rem;">
-          A calendar invite with the whiteboard classroom link has been prepared and sent to your email address.
-        </p>
+        <!-- Automatic Email Confirmation Notice -->
+        <div style="background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.3); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1.75rem; text-align:left; font-size:0.88rem; color:#10b981; line-height:1.5;">
+          <strong>✅ Email Notifications Dispatched:</strong><br>
+          • A booking confirmation has been prepared for <strong id="succ-student-email" style="color:#fff;">your email</strong>.<br>
+          • Mr. Isaac Olusola has been notified of your priority topics at <strong style="color:#fff;">ziglaginstitute@gmail.com</strong>.<br>
+          • <em>Need to make changes or ask a question? Contact Mr. Isaac directly via email only at <a href="mailto:ziglaginstitute@gmail.com" style="color:#fff; text-decoration:underline;">ziglaginstitute@gmail.com</a>.</em>
+        </div>
 
-        <div style="display:flex; gap:1rem; justify-content:center;">
+        <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+          <a id="succ-cal-btn" href="#" target="_blank" rel="noopener" class="btn btn-secondary" style="display:flex; align-items:center; gap:0.4rem;">
+            <span>📅</span> Add to Google Calendar
+          </a>
+          <a id="succ-mailto-btn" href="mailto:ziglaginstitute@gmail.com" class="btn btn-secondary" style="display:flex; align-items:center; gap:0.4rem;">
+            <span>✉️</span> Email Mr. Isaac
+          </a>
           <button class="btn btn-primary" onclick="resetBookingFlow()">Book Another Session</button>
           <a href="index.html" class="btn btn-secondary">Return to Dashboard</a>
         </div>
       </div>
     </section>
+
+    <!-- Scoped Toast Notice for Sunday selection -->
+    <div id="sunday-toast" class="toast-notice">
+      <div style="display:flex; align-items:flex-start; gap:0.75rem;">
+        <span style="font-size:1.5rem;">🚫</span>
+        <div>
+          <strong style="color:#f87171; display:block; margin-bottom:0.25rem;">Sundays Unavailable</strong>
+          <span style="font-size:0.85rem; color:#cbd5e1; line-height:1.4;">
+            Mr. Isaac Olusola is unavailable on Sundays for rest and syllabus research. Please choose any active slot from Monday through Saturday!
+          </span>
+        </div>
+      </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -291,16 +513,16 @@
         <div class="footer-links-col">
           <h4>Spheres of Study</h4>
           <ul>
-            <li><a href="courses.html?sphere=secondary">NECO & GCE Prep</a></li>
-            <li><a href="courses.html?sphere=exams">WASSCE & UTME/POST UTME Prep</a></li>
-            <li><a href="courses.html?sphere=exams">GCSE & IGCSE Prep</a></li>
-            <li><a href="courses.html?sphere=undergrad">Undergrad College Math</a></li>
+            <li><a href="courses.html?sphere=secondary">Secondary Maths</a></li>
+            <li><a href="courses.html?sphere=exams">WASSCE & JAMB Prep</a></li>
+            <li><a href="courses.html?sphere=exams">GCSE & A-Level</a></li>
+            <li><a href="courses.html?sphere=undergrad">Undergrad Math</a></li>
           </ul>
         </div>
         <div class="footer-links-col">
           <h4>Organization</h4>
           <ul>
-            <li><a href="about.html#people">Our People</a></li>
+            <li><a href="about.html">About Us</a></li>
             <li><a href="contact.html">Contact Us</a></li>
             <li><a href="tutoring.html">Book 1-on-1 Session</a></li>
             <li><a href="courses.html">Browse Syllabus</a></li>
@@ -317,154 +539,402 @@
 
   </div>
 
+  <script src="ziglag-db.js"></script>
   <script src="app.js"></script>
   <script>
-    // Tutoring Page Specific Controller
-    let selectedTutor = null;
-    let selectedDate = "June 16, 2026";
-    let selectedTime = "09:00 AM";
-    let appliedPromoDiscount = 0; // percentage, e.g. 0.5 for 50%
+    // ========================================================================
+    // TUTORING PAGE CONTROLLER
+    // ========================================================================
+    const MONTH_NAMES = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // Default select first tutor
-      selectedTutor = MATH_DATABASE.tutors[0];
-      
-      renderTutors();
-      recalculatePrice();
-      renderBookingsList();
+    // Calendar & Selection State
+    let calendarViewYear = 2026;
+    let calendarViewMonth = 10; // 0-indexed: 10 = November
+    let selectedDateISO = "2026-11-16"; // YYYY-MM-DD
+    let selectedDateFormatted = "Mon, Nov 16, 2026";
+    let selectedTimeSlot = "09:00 AM";
+    let appliedPromoDiscount = 0; // percentage, e.g. 0.50
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Initialize Calendar to Current Date or November 2026
+      const now = new Date();
+      if (now.getFullYear() >= 2026) {
+        calendarViewYear = now.getFullYear();
+        calendarViewMonth = now.getMonth();
+      }
+
+      // Find first non-Sunday date to select
+      initDefaultDate();
+      renderCalendar();
+      onSubjectOrDurationChange();
+      await loadAndRenderScheduledSessions();
     });
 
-    function renderTutors() {
-      const container = document.getElementById("tutor-cards-container");
-      container.innerHTML = "";
-      
-      MATH_DATABASE.tutors.forEach(t => {
-        const isSelected = selectedTutor.id === t.id;
-        const card = document.createElement("div");
-        card.className = "glass-card";
-        card.style.cursor = "pointer";
-        card.style.display = "flex";
-        card.style.gap = "1.5rem";
-        card.style.alignItems = "center";
-        card.style.borderColor = isSelected ? "var(--primary-color)" : "var(--border-color)";
-        card.style.background = isSelected ? "rgba(99, 102, 241, 0.05)" : "var(--surface-color)";
-        card.onclick = () => selectTutor(t.id);
-        
-        card.innerHTML = `
-          <div style="font-size: 2.5rem; background: rgba(255,255,255,0.05); width:64px; height:64px; border-radius:50%; display:flex; justify-content:center; align-items:center; border:1px solid var(--border-color);">
-            ${t.avatar}
-          </div>
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h4 style="font-size: 1.15rem; color: ${isSelected ? 'var(--primary-color)' : 'var(--text-main)'};">${t.name}</h4>
-              <span style="font-weight: 700; color: var(--accent-color); font-family: var(--font-mono);">$${t.hourlyRate} / hr</span>
-            </div>
-            <p style="font-size: 0.85rem; color: var(--accent-color); font-weight: 600; margin-bottom: 0.25rem;">${t.title}</p>
-            <p style="font-size: 0.85rem; line-height:1.4; margin-bottom: 0.5rem;">${t.bio}</p>
-            <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
-              ${t.specialties.map(spec => `<span class="sphere-tag" style="font-size:0.7rem; padding: 0.15rem 0.5rem;">${spec}</span>`).join('')}
-            </div>
-          </div>
-        `;
-        
-        container.appendChild(card);
-      });
-    }
-
-    function selectTutor(tutorId) {
-      selectedTutor = MATH_DATABASE.tutors.find(t => t.id === tutorId);
-      renderTutors();
-      recalculatePrice();
-    }
-
-    function selectCalendarDate(element, day) {
-      // Deactivate siblings
-      const days = document.querySelectorAll(".calendar-day");
-      days.forEach(d => d.classList.remove("active"));
-      
-      element.classList.add("active");
-      selectedDate = `June ${day}, 2026`;
-      document.getElementById("slot-day-display").innerText = day;
-      
-      // Update receipt
-      document.getElementById("receipt-date").innerText = selectedDate;
-    }
-
-    function selectTimeSlot(element, slot) {
-      const slots = document.querySelectorAll(".slot-btn");
-      slots.forEach(s => s.classList.remove("active"));
-      
-      element.classList.add("active");
-      selectedTime = slot;
-      
-      // Update receipt
-      document.getElementById("receipt-slot").innerText = selectedTime;
-    }
-
-    function recalculatePrice() {
-      if (!selectedTutor) return;
-      
-      const durationHours = parseFloat(document.getElementById("booking-hours").value);
-      const baseCost = selectedTutor.hourlyRate * durationHours;
-      
-      document.getElementById("receipt-tutor-name").innerText = selectedTutor.name;
-      document.getElementById("receipt-hourly-rate").innerText = `$${selectedTutor.hourlyRate} / hr`;
-      document.getElementById("receipt-exam-level").innerText = document.getElementById("booking-level").value;
-      
-      let grandTotal = baseCost;
-      if (appliedPromoDiscount > 0) {
-        grandTotal = baseCost * (1 - appliedPromoDiscount);
-        
-        document.getElementById("receipt-slashed-total").innerText = `$${baseCost.toFixed(2)}`;
-        document.getElementById("receipt-slashed-total").style.display = "inline";
+    function initDefaultDate() {
+      const today = new Date();
+      let testDate = new Date(today);
+      if (testDate.getFullYear() < 2026) {
+        testDate = new Date(2026, 10, 16); // Mon Nov 16, 2026
       } else {
-        document.getElementById("receipt-slashed-total").style.display = "none";
+        testDate.setDate(testDate.getDate() + 1); // Start with tomorrow
       }
+
+      // If Sunday (0), advance to Monday (1)
+      if (testDate.getDay() === 0) {
+        testDate.setDate(testDate.getDate() + 1);
+      }
+
+      calendarViewYear = testDate.getFullYear();
+      calendarViewMonth = testDate.getMonth();
+      setDateSelection(testDate.getFullYear(), testDate.getMonth(), testDate.getDate());
+    }
+
+    // ========================================================================
+    // DYNAMIC CALENDAR COMPONENT (SUNDAYS BLOCKED & DISABLED)
+    // ========================================================================
+    function renderCalendar() {
+      const titleElem = document.getElementById("calendar-month-year");
+      titleElem.textContent = `${MONTH_NAMES[calendarViewMonth]} ${calendarViewYear}`;
+
+      const container = document.getElementById("calendar-days-container");
+      container.innerHTML = "";
+
+      // Day Header Labels (Su, Mo, Tu, We, Th, Fr, Sa)
+      const dayHeaders = [
+        { label: "Su 🚫", isSunday: true, title: "Sundays Unavailable" },
+        { label: "Mo", isSunday: false },
+        { label: "Tu", isSunday: false },
+        { label: "We", isSunday: false },
+        { label: "Th", isSunday: false },
+        { label: "Fr", isSunday: false },
+        { label: "Sa", isSunday: false }
+      ];
+
+      dayHeaders.forEach(dh => {
+        const lbl = document.createElement("div");
+        lbl.className = `calendar-day-label ${dh.isSunday ? 'sunday-label' : ''}`;
+        if (dh.title) lbl.title = dh.title;
+        lbl.textContent = dh.label;
+        container.appendChild(lbl);
+      });
+
+      // Days In Month Calculation
+      const firstDayOfMonth = new Date(calendarViewYear, calendarViewMonth, 1).getDay();
+      const daysInMonth = new Date(calendarViewYear, calendarViewMonth + 1, 0).getDate();
+
+      // Empty lead cells
+      for (let i = 0; i < firstDayOfMonth; i++) {
+        const emptyCell = document.createElement("div");
+        emptyCell.className = "calendar-day empty";
+        container.appendChild(emptyCell);
+      }
+
+      // Date cells
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const thisDate = new Date(calendarViewYear, calendarViewMonth, day);
+        const dayOfWeek = thisDate.getDay();
+        const isoString = formatDateISO(calendarViewYear, calendarViewMonth, day);
+
+        const cell = document.createElement("div");
+        cell.textContent = day;
+
+        // RULE 3: SUNDAYS ARE COMPLETELY DISABLED
+        if (dayOfWeek === 0) {
+          cell.className = "calendar-day sunday-disabled";
+          cell.title = "Sundays Unavailable (Rest & Preparation)";
+          cell.onclick = () => showSundayNotice();
+        } else if (thisDate < today && thisDate.getFullYear() === today.getFullYear() && thisDate.getMonth() === today.getMonth()) {
+          // Past days
+          cell.className = "calendar-day disabled";
+          cell.title = "Date in the past";
+        } else {
+          // Valid selectable day
+          const isSelected = (isoString === selectedDateISO);
+          cell.className = `calendar-day ${isSelected ? 'active' : ''}`;
+          cell.onclick = () => {
+            setDateSelection(calendarViewYear, calendarViewMonth, day);
+            renderCalendar();
+          };
+        }
+
+        container.appendChild(cell);
+      }
+    }
+
+    function navigateCalendarMonth(direction) {
+      calendarViewMonth += direction;
+      if (calendarViewMonth > 11) {
+        calendarViewMonth = 0;
+        calendarViewYear += 1;
+      } else if (calendarViewMonth < 0) {
+        calendarViewMonth = 11;
+        calendarViewYear -= 1;
+      }
+      renderCalendar();
+    }
+
+    function setDateSelection(year, month, day) {
+      const dt = new Date(year, month, day);
+      if (dt.getDay() === 0) {
+        showSundayNotice();
+        return;
+      }
+
+      selectedDateISO = formatDateISO(year, month, day);
+      const dayName = DAY_NAMES[dt.getDay()].substring(0, 3);
+      const monthShort = MONTH_NAMES[month].substring(0, 3);
+      selectedDateFormatted = `${dayName}, ${monthShort} ${day}, ${year}`;
+
+      document.getElementById("slot-day-display").textContent = selectedDateFormatted;
+      document.getElementById("receipt-date").textContent = selectedDateFormatted;
+    }
+
+    function formatDateISO(year, month, day) {
+      const m = String(month + 1).padStart(2, '0');
+      const d = String(day).padStart(2, '0');
+      return `${year}-${m}-${d}`;
+    }
+
+    function showSundayNotice() {
+      const toast = document.getElementById("sunday-toast");
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 4000);
+    }
+
+    function selectTimeSlot(btnElement, slotText) {
+      document.querySelectorAll(".slot-btn").forEach(b => b.classList.remove("active"));
+      btnElement.classList.add("active");
+      selectedTimeSlot = slotText;
+      document.getElementById("receipt-slot").textContent = `${slotText} (WAT)`;
+    }
+
+    // ========================================================================
+    // PRICING & SUBJECT SELECTION
+    // ========================================================================
+    function onSubjectOrDurationChange() {
+      const subjectSelect = document.getElementById("booking-level");
+      const selectedOption = subjectSelect.options[subjectSelect.selectedIndex];
+      const subjectName = selectedOption.value;
+      const hourlyRate = parseFloat(selectedOption.getAttribute("data-rate") || "15");
+      const category = selectedOption.getAttribute("data-category") || "Local";
+
+      const hours = parseFloat(document.getElementById("booking-hours").value || "1.0");
+
+      // Update Subtitle / helper badges
+      const badgePill = document.getElementById("subject-badge-pill");
+      const rateText = document.getElementById("subject-rate-text");
+      const receiptCategory = document.getElementById("receipt-category-pill");
+      const nairaNote = document.getElementById("receipt-naira-note");
+
+      if (category === "International") {
+        badgePill.className = "rate-badge-intl";
+        badgePill.textContent = "International Exam Track";
+        receiptCategory.className = "rate-badge-intl";
+        receiptCategory.textContent = "International Exam ($25/hr)";
+        rateText.textContent = "Rate: $25.00 / hour (USD)";
+        nairaNote.textContent = "Billed at $25.00 / hour (International)";
+        nairaNote.style.color = "#818cf8";
+      } else {
+        badgePill.className = "rate-badge-local";
+        badgePill.textContent = "Local Exam Track";
+        receiptCategory.className = "rate-badge-local";
+        receiptCategory.textContent = "Local Exam ($15/hr)";
+        rateText.textContent = "Rate: $15.00 / hour (Payable in Naira at ~₦24,000/hr)";
+        nairaNote.textContent = "Payable in Naira (₦) via bank transfer";
+        nairaNote.style.color = "#10b981";
+      }
+
+      // Update Receipt
+      document.getElementById("receipt-subject-name").textContent = subjectName;
+      document.getElementById("receipt-duration-text").textContent = `${hours} Hour${hours > 1 ? 's' : ''}`;
       
-      document.getElementById("receipt-total").innerText = `$${grandTotal.toFixed(2)}`;
+      const baseCost = hourlyRate * hours;
+      if (category === "Local") {
+        const nairaTotal = Math.round(baseCost * 1600);
+        document.getElementById("receipt-hourly-rate").textContent = `$${hourlyRate.toFixed(2)} / hr (~₦24,000)`;
+        
+        let finalCost = baseCost;
+        if (appliedPromoDiscount > 0) {
+          finalCost = baseCost * (1 - appliedPromoDiscount);
+          document.getElementById("receipt-slashed-total").textContent = `$${baseCost.toFixed(2)}`;
+          document.getElementById("receipt-slashed-total").style.display = "inline";
+        } else {
+          document.getElementById("receipt-slashed-total").style.display = "none";
+        }
+
+        const finalNaira = Math.round(finalCost * 1600);
+        document.getElementById("receipt-total").textContent = `$${finalCost.toFixed(2)} (~₦${finalNaira.toLocaleString()})`;
+      } else {
+        document.getElementById("receipt-hourly-rate").textContent = `$${hourlyRate.toFixed(2)} / hr`;
+        
+        let finalCost = baseCost;
+        if (appliedPromoDiscount > 0) {
+          finalCost = baseCost * (1 - appliedPromoDiscount);
+          document.getElementById("receipt-slashed-total").textContent = `$${baseCost.toFixed(2)}`;
+          document.getElementById("receipt-slashed-total").style.display = "inline";
+        } else {
+          document.getElementById("receipt-slashed-total").style.display = "none";
+        }
+
+        document.getElementById("receipt-total").textContent = `$${finalCost.toFixed(2)}`;
+      }
+    }
+
+    function updateReceiptTopic(val) {
+      const preview = document.getElementById("receipt-topic-preview");
+      preview.textContent = val.trim() ? val.trim() : "(Enter in form)";
     }
 
     function applyPromoCode() {
       const code = document.getElementById("coupon-input").value.trim().toUpperCase();
       if (code === "MATH50") {
-        appliedPromoDiscount = 0.50; // 50% discount
-        alert("Coupon Applied successfully! 50% Discount has been deducted.");
-        recalculatePrice();
+        appliedPromoDiscount = 0.50;
+        alert("🎉 Promo Code Applied! 50% discount has been applied to this session.");
+        onSubjectOrDurationChange();
       } else if (code !== "") {
-        alert("Invalid promo code. Enter 'MATH50' to get 50% off details!");
+        alert("Invalid promo code. Enter 'MATH50' for trial discount.");
       }
     }
 
-    function confirmAppointment() {
-      if (!selectedTutor) return;
-      
-      const durationHours = parseFloat(document.getElementById("booking-hours").value);
-      const baseCost = selectedTutor.hourlyRate * durationHours;
-      const totalCost = appliedPromoDiscount > 0 ? baseCost * (1 - appliedPromoDiscount) : baseCost;
-      
-      const subjectSelected = document.getElementById("booking-level").value;
-      
-      const bookingRecord = {
-        tutorName: selectedTutor.name,
-        avatar: selectedTutor.avatar,
-        dateTime: `${selectedDate} at ${selectedTime}`,
-        subject: subjectSelected,
-        totalPaid: `$${totalCost.toFixed(2)}`
+    // ========================================================================
+    // CONFIRM APPOINTMENT & SEND NOTIFICATIONS
+    // ========================================================================
+    async function confirmAppointment() {
+      const studentName = document.getElementById("student-name").value.trim();
+      const studentEmail = document.getElementById("student-email").value.trim();
+      const studentPhone = document.getElementById("student-phone").value.trim();
+      const topic = document.getElementById("booking-topic").value.trim();
+      const difficulties = document.getElementById("booking-difficulties").value.trim();
+
+      if (!studentName) {
+        alert("Please enter your Full Name.");
+        document.getElementById("student-name").focus();
+        return;
+      }
+      if (!studentEmail || !studentEmail.includes("@")) {
+        alert("Please enter a valid Email Address for session confirmation.");
+        document.getElementById("student-email").focus();
+        return;
+      }
+      if (!topic) {
+        alert("Please specify the Topic(s) or Specific Areas you want taught.");
+        document.getElementById("booking-topic").focus();
+        return;
+      }
+      if (!difficulties) {
+        alert("Please describe any specific difficulties or questions you want Mr. Isaac to cover.");
+        document.getElementById("booking-difficulties").focus();
+        return;
+      }
+
+      // Check Sunday constraint
+      const checkDate = new Date(selectedDateISO);
+      if (checkDate.getDay() === 0) {
+        showSundayNotice();
+        return;
+      }
+
+      const subjectSelect = document.getElementById("booking-level");
+      const selectedOption = subjectSelect.options[subjectSelect.selectedIndex];
+      const subject = selectedOption.value;
+      const category = selectedOption.getAttribute("data-category") || "Local";
+      const durationHours = parseFloat(document.getElementById("booking-hours").value || "1.0");
+
+      const confirmBtn = document.getElementById("confirm-booking-btn");
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = `<span>Booking Session...</span> <span style="display:inline-block; animation:spin 1s linear infinite;">⏳</span>`;
+
+      const payload = {
+        student_name: studentName,
+        student_email: studentEmail,
+        student_phone: studentPhone,
+        subject: subject,
+        exam_category: category,
+        topic: topic,
+        difficulties: difficulties,
+        booking_date: selectedDateFormatted,
+        booking_time: selectedTimeSlot,
+        duration_hours: durationHours
       };
-      
-      // Save utilizing AppState helper
-      AppState.addBooking(bookingRecord);
-      
-      // Success screen injection
-      document.getElementById("succ-tutor").innerText = bookingRecord.tutorName;
-      document.getElementById("succ-datetime").innerText = bookingRecord.dateTime;
-      document.getElementById("succ-subject").innerText = bookingRecord.subject;
-      document.getElementById("succ-total").innerText = bookingRecord.totalPaid;
-      
-      document.getElementById("main-tutoring-interface").style.display = "none";
-      document.getElementById("booking-success-screen").style.display = "block";
-      
-      renderBookingsList();
+
+      try {
+        let result;
+        if (window.ZiglagDB && window.ZiglagDB.tutoring) {
+          result = await window.ZiglagDB.tutoring.book(payload);
+        } else {
+          const res = await fetch('/api/tutoring/book', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          result = await res.json();
+        }
+
+        if (result && result.success) {
+          const booking = result.booking || payload;
+          
+          // Also sync to client AppState
+          if (window.AppState && window.AppState.addBooking) {
+            window.AppState.addBooking({
+              tutorName: "Mr. Isaac Olusola",
+              avatar: "👨‍🏫",
+              dateTime: `${selectedDateFormatted} at ${selectedTimeSlot}`,
+              subject: subject,
+              topic: topic,
+              totalPaid: booking.total_price || document.getElementById("receipt-total").textContent
+            });
+          }
+
+          // Show confirmation screen
+          const refId = booking.id ? booking.id.toUpperCase() : `ZIG-TUT-${Date.now().toString().slice(-4)}`;
+          document.getElementById("succ-ref-id").textContent = refId;
+          document.getElementById("succ-tutor").textContent = "Mr. Isaac Olusola (MSc in Applied Mathematics)";
+          document.getElementById("succ-subject").textContent = `${subject} (${category} Exam Track)`;
+          document.getElementById("succ-datetime").textContent = `${selectedDateFormatted} at ${selectedTimeSlot} (WAT)`;
+          document.getElementById("succ-duration").textContent = `${durationHours} Hour${durationHours > 1 ? 's' : ''}`;
+          document.getElementById("succ-topic").textContent = topic;
+          document.getElementById("succ-total").textContent = booking.total_price || document.getElementById("receipt-total").textContent;
+          document.getElementById("succ-student-email").textContent = studentEmail;
+
+          // Configure Google Calendar Link
+          const calUrl = buildGoogleCalendarUrl({
+            title: `1-on-1 Math Tutoring with Isaac Olusola: ${subject}`,
+            dateISO: selectedDateISO,
+            timeSlot: selectedTimeSlot,
+            durationHours: durationHours,
+            details: `Ziglag Institute 1-on-1 Private Tutoring Session.\n\n• Instructor: Mr. Isaac Olusola (ziglaginstitute@gmail.com)\n• Subject: ${subject}\n• Focus Topic: ${topic}\n• Difficulties to cover: ${difficulties}\n\nRoom Link: Will be provided via email by Mr. Isaac Olusola.`
+          });
+          document.getElementById("succ-cal-btn").href = calUrl;
+
+          // Configure Mailto Button
+          const mailtoUrl = `mailto:ziglaginstitute@gmail.com?subject=${encodeURIComponent(`Regarding Tutoring Session [${refId}]: ${subject}`)}&body=${encodeURIComponent(`Dear Mr. Isaac Olusola,\n\nI have booked a 1-on-1 tutoring session with you on ${selectedDateFormatted} at ${selectedTimeSlot} for ${subject}.\n\nTopic: ${topic}\n\nMy Question/Note:\n`)}`;
+          document.getElementById("succ-mailto-btn").href = mailtoUrl;
+
+          // Transition screens
+          document.getElementById("main-tutoring-interface").style.display = "none";
+          document.getElementById("booking-success-screen").style.display = "block";
+          window.scrollTo({ top: 120, behavior: "smooth" });
+
+          await loadAndRenderScheduledSessions();
+        } else {
+          alert("Booking notice: " + (result.message || "Failed to reserve slot."));
+        }
+      } catch (err) {
+        console.error("Booking error:", err);
+        alert("Booking notice: " + err.message);
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = `<span>Reserve 1-on-1 Session</span> <span>🚀</span>`;
+      }
     }
 
     function resetBookingFlow() {
@@ -472,41 +942,79 @@
       document.getElementById("booking-success-screen").style.display = "none";
       appliedPromoDiscount = 0;
       document.getElementById("coupon-input").value = "";
-      recalculatePrice();
+      document.getElementById("booking-topic").value = "";
+      document.getElementById("booking-difficulties").value = "";
+      updateReceiptTopic("");
+      onSubjectOrDurationChange();
+      window.scrollTo({ top: 120, behavior: "smooth" });
     }
 
-    function renderBookingsList() {
-      const list = document.getElementById("active-bookings-list");
-      list.innerHTML = "";
-      
-      if (AppState.bookings.length === 0) {
-        list.innerHTML = `<p style="font-size:0.85rem; color:var(--text-muted);">No current sessions booked. Reserve a slot above!</p>`;
+    function buildGoogleCalendarUrl({ title, dateISO, timeSlot, durationHours, details }) {
+      try {
+        // e.g. dateISO: 2026-11-16, timeSlot: 09:00 AM
+        const [timePart, meridiem] = timeSlot.split(" ");
+        let [hours, minutes] = timePart.split(":").map(Number);
+        if (meridiem === "PM" && hours < 12) hours += 12;
+        if (meridiem === "AM" && hours === 12) hours = 0;
+
+        const [y, m, d] = dateISO.split("-").map(Number);
+        const start = new Date(y, m - 1, d, hours, minutes);
+        const end = new Date(start.getTime() + durationHours * 3600 * 1000);
+
+        const formatGCal = (dt) => dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+        const dates = `${formatGCal(start)}/${formatGCal(end)}`;
+
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${dates}&details=${encodeURIComponent(details)}&location=${encodeURIComponent("Live Virtual Whiteboard (Ziglag Institute)")}`;
+      } catch (e) {
+        return "#";
+      }
+    }
+
+    // ========================================================================
+    // SCHEDULED SESSIONS SIDEBAR LIST
+    // ========================================================================
+    async function loadAndRenderScheduledSessions() {
+      const listContainer = document.getElementById("active-bookings-list");
+      const countPill = document.getElementById("bookings-count-pill");
+
+      let bookings = [];
+      try {
+        if (window.ZiglagDB && window.ZiglagDB.tutoring) {
+          bookings = await window.ZiglagDB.tutoring.listBookings();
+        }
+      } catch (e) {
+        console.warn("Could not fetch remote bookings:", e);
+      }
+
+      if (!bookings || bookings.length === 0) {
+        if (window.AppState && window.AppState.bookings) {
+          bookings = window.AppState.bookings;
+        }
+      }
+
+      countPill.textContent = bookings.length;
+
+      if (!bookings || bookings.length === 0) {
+        listContainer.innerHTML = `<p style="font-size:0.85rem; color:var(--text-muted);">No current sessions booked. Reserve a slot above!</p>`;
         return;
       }
-      
-      AppState.bookings.forEach(b => {
-        const item = document.createElement("div");
-        item.style.padding = "0.75rem";
-        item.style.background = "rgba(255,255,255,0.03)";
-        item.style.border = "1px solid var(--border-color)";
-        item.style.borderRadius = "var(--radius-sm)";
-        item.style.fontSize = "0.85rem";
-        item.style.display = "flex";
-        item.style.alignItems = "center";
-        item.style.gap = "0.75rem";
-        
-        item.innerHTML = `
-          <div style="font-size: 1.5rem; background:rgba(255,255,255,0.05); width:32px; height:32px; border-radius:50%; display:flex; justify-content:center; align-items:center;">
-            ${b.avatar}
-          </div>
-          <div style="flex:1;">
-            <p style="font-weight:600; margin:0; color:var(--text-main);">${b.tutorName}</p>
-            <span style="font-size:0.75rem; color:var(--accent-color);">${b.subject}</span>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">${b.dateTime}</p>
+
+      listContainer.innerHTML = bookings.map(b => {
+        const studentInfo = b.student_name ? ` • Student: ${b.student_name}` : '';
+        const dt = b.booking_date ? `${b.booking_date} at ${b.booking_time}` : (b.dateTime || 'Scheduled');
+        return `
+          <div style="padding:0.75rem; background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:var(--radius-sm); font-size:0.85rem; display:flex; align-items:center; gap:0.75rem;">
+            <div style="font-size: 1.4rem; background:rgba(255,255,255,0.05); width:34px; height:34px; border-radius:50%; display:flex; justify-content:center; align-items:center; flex-shrink:0;">
+              👨‍🏫
+            </div>
+            <div style="flex:1; overflow:hidden;">
+              <p style="font-weight:600; margin:0; color:var(--text-main); font-size:0.88rem;">${b.subject || 'Math Coaching'}</p>
+              <div style="font-size:0.75rem; color:var(--accent-color); margin:0.15rem 0;">${b.topic ? `Focus: ${b.topic}` : (b.totalPaid || '$15.00')}</div>
+              <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">${dt}${studentInfo}</p>
+            </div>
           </div>
         `;
-        list.appendChild(item);
-      });
+      }).join('');
     }
   </script>
 </body>

@@ -37,6 +37,10 @@ if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 300
+}
 
 db = SQLAlchemy(app)
 
@@ -367,6 +371,51 @@ class SiteSetting(db.Model):
             'key': self.key,
             'value': val,
             'updated_at': self.updated_at.isoformat() if self.updated_at else ''
+        }
+
+
+class TutoringBooking(db.Model):
+    __tablename__ = 'tutoring_bookings'
+    id = db.Column(db.String(100), primary_key=True)
+    student_name = db.Column(db.String(150), nullable=False)
+    student_email = db.Column(db.String(150), nullable=False)
+    student_phone = db.Column(db.String(50), nullable=True)
+    instructor_name = db.Column(db.String(100), default="Mr. Isaac Olusola")
+    instructor_email = db.Column(db.String(150), default="ziglaginstitute@gmail.com")
+    subject = db.Column(db.String(150), nullable=False)
+    exam_category = db.Column(db.String(50), default="Local")  # 'Local' or 'International'
+    topic = db.Column(db.Text, nullable=False)
+    difficulties = db.Column(db.Text, nullable=True)
+    booking_date = db.Column(db.String(50), nullable=False)
+    booking_time = db.Column(db.String(50), nullable=False)
+    duration_hours = db.Column(db.Float, default=1.0)
+    hourly_rate = db.Column(db.Float, default=15.0)
+    total_price = db.Column(db.String(100), nullable=False)
+    currency = db.Column(db.String(20), default="USD")
+    status = db.Column(db.String(50), default="Confirmed")
+    notes = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'student_name': self.student_name,
+            'student_email': self.student_email,
+            'student_phone': self.student_phone or '',
+            'instructor_name': self.instructor_name,
+            'instructor_email': self.instructor_email,
+            'subject': self.subject,
+            'exam_category': self.exam_category,
+            'topic': self.topic,
+            'difficulties': self.difficulties or '',
+            'booking_date': self.booking_date,
+            'booking_time': self.booking_time,
+            'duration_hours': self.duration_hours,
+            'hourly_rate': self.hourly_rate,
+            'total_price': self.total_price,
+            'currency': self.currency,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else ''
         }
 
 # ============================================================================
@@ -1483,6 +1532,238 @@ def submit_contact():
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Server database error: {str(e)}'}), 500
+
+
+def send_tutoring_booking_emails(booking):
+    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    smtp_port = int(os.getenv('SMTP_PORT', 587))
+    smtp_user = os.getenv('SMTP_USERNAME', '')
+    smtp_pass = os.getenv('SMTP_PASSWORD', '')
+    coach_email = "ziglaginstitute@gmail.com"
+
+    # Coach notification email
+    coach_subject = f"🎓 New 1-on-1 Tutoring Booking: {booking.student_name} ({booking.subject})"
+    coach_body = f"""Dear Mr. Isaac Olusola,
+
+A new 1-on-1 private tutoring session has been booked on the Ziglag Institute Math Portal!
+
+--- STUDENT & SESSION DETAILS ---
+• Student Name: {booking.student_name}
+• Student Email: {booking.student_email}
+• Student Phone / WhatsApp: {booking.student_phone or 'Not provided'}
+• Examination Track: {booking.subject} ({booking.exam_category} Exam)
+• Scheduled Date: {booking.booking_date}
+• Scheduled Time: {booking.booking_time} (West Africa Time, WAT / GMT+1)
+• Duration: {booking.duration_hours} hour(s)
+• Rate: ${booking.hourly_rate:.2f}/hr
+• Total Amount: {booking.total_price}
+
+--- LEARNING PRIORITIES ---
+• Priority Focus Topic:
+{booking.topic}
+
+• Specific Difficulties & Questions:
+{booking.difficulties or 'None specified'}
+
+• Booking Reference ID: {booking.id}
+• Booked At: {booking.created_at.strftime('%Y-%m-%d %H:%M:%S') if booking.created_at else 'Just now'}
+
+---
+You can reply directly to the student at {booking.student_email} to share virtual whiteboard access or session notes.
+Ziglag Institute Administration System
+"""
+
+    # Student confirmation email
+    student_subject = f"✅ Booking Confirmed: 1-on-1 Tutoring with Mr. Isaac Olusola ({booking.subject})"
+    payment_note = ""
+    if booking.exam_category == "Local":
+        payment_note = f"""• Payment Information:
+  This local curriculum session is billed at ${booking.hourly_rate:.2f}/hr (Total: {booking.total_price}).
+  Payment is payable in Naira (₦) via direct bank transfer. If you have not yet completed payment, details will be communicated via email prior to the session.
+"""
+
+    student_body = f"""Dear {booking.student_name},
+
+Congratulations! Your private 1-on-1 tutoring session with Mr. Isaac Olusola (MSc in Applied Mathematics) has been confirmed on Ziglag Institute.
+
+--- YOUR APPOINTMENT DOCKET ---
+• Instructor: Mr. Isaac Olusola (Founder & Lead Instructor)
+• Subject Track: {booking.subject}
+• Focus Topic: {booking.topic}
+• Difficulties to Cover: {booking.difficulties or 'Comprehensive syllabus revision'}
+• Date: {booking.booking_date}
+• Time: {booking.booking_time} (West Africa Time, WAT / GMT+1)
+• Duration: {booking.duration_hours} hour(s)
+• Total Fee: {booking.total_price}
+• Booking Reference: {booking.id}
+
+{payment_note}
+--- HOW TO PREPARE ---
+1. Prepare any past questions, textbook exercises, or notes on your selected topic ({booking.topic}).
+2. Ensure you have a notebook, writing pens, and calculator accessible.
+3. A live interactive whiteboard link (Zoom or Google Meet) will be provided for your session.
+
+--- CONTACTING YOUR INSTRUCTOR ---
+If you need to make inquiries, send question snapshots beforehand, or communicate changes, you can contact Mr. Isaac Olusola directly via email only:
+✉️ Email: ziglaginstitute@gmail.com
+
+Thank you for choosing Ziglag Institute.
+Minds in Motion, Futures in Focus.
+"""
+
+    if smtp_user and smtp_pass:
+        try:
+            import smtplib
+            from email.message import EmailMessage
+
+            msg_coach = EmailMessage()
+            msg_coach['Subject'] = coach_subject
+            msg_coach['From'] = smtp_user
+            msg_coach['To'] = coach_email
+            msg_coach.set_content(coach_body)
+
+            msg_student = EmailMessage()
+            msg_student['Subject'] = student_subject
+            msg_student['From'] = smtp_user
+            msg_student['To'] = booking.student_email
+            msg_student.set_content(student_body)
+
+            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg_coach)
+                server.send_message(msg_student)
+
+            print(f"[Tutoring Email] Sent booking notifications to {coach_email} and {booking.student_email}")
+            return True
+        except Exception as e:
+            print(f"[Tutoring Email Warning] SMTP transmission notice: {e}. Session is safely stored in database.")
+            return False
+    else:
+        print(f"[Tutoring Email Notice] SMTP_USERNAME or SMTP_PASSWORD not set. Booking saved to database. Coach: {coach_email}, Student: {booking.student_email}")
+        return False
+
+
+@app.route('/api/tutoring/book', methods=['POST'])
+def book_tutoring_session():
+    data = request.get_json() or {}
+    student_name = data.get('student_name') or data.get('name')
+    student_email = data.get('student_email') or data.get('email')
+    student_phone = data.get('student_phone') or data.get('phone') or ''
+    subject = data.get('subject') or data.get('level') or 'Secondary Mathematics'
+    topic = data.get('topic') or data.get('priority_topic') or ''
+    difficulties = data.get('difficulties') or data.get('notes') or ''
+    booking_date = data.get('booking_date') or data.get('date') or ''
+    booking_time = data.get('booking_time') or data.get('slot') or '09:00 AM'
+    try:
+        duration_hours = float(data.get('duration_hours') or data.get('hours') or 1.0)
+    except Exception:
+        duration_hours = 1.0
+
+    if not student_name or not student_email or not topic or not booking_date:
+        return jsonify({
+            'success': False,
+            'message': 'Student Name, Email, Priority Topic, and Booking Date are required.'
+        }), 400
+
+    # Rule 3: Enforce No Sunday Bookings
+    is_sunday = False
+    for fmt in ('%Y-%m-%d', '%B %d, %Y', '%b %d, %Y', '%d %B %Y', '%d %b %Y'):
+        try:
+            dt = datetime.strptime(booking_date.strip(), fmt)
+            if dt.weekday() == 6:  # Sunday is index 6
+                is_sunday = True
+            break
+        except ValueError:
+            pass
+
+    if 'sunday' in booking_date.lower() or is_sunday:
+        return jsonify({
+            'success': False,
+            'message': 'Sundays are unavailable for tutoring sessions. Mr. Isaac Olusola is available Monday through Saturday. Please select a Monday–Saturday date.'
+        }), 400
+
+    # Rules 1 & 2: Pricing determination
+    # GCSE and A-Level = $25/hr
+    # JAMB, WASSCE, Secondary Mathematics = $15/hr (payable in Naira)
+    international_subjects = [
+        'GCSE Mathematics', 'GCSE Physics', 'GCSE Chemistry',
+        'A-Level Mathematics', 'A-Level Physics'
+    ]
+    is_intl = any(is_s.lower() in subject.lower() for is_s in ['gcse', 'a-level', 'alevel', 'international'])
+
+    if is_intl:
+        exam_category = "International"
+        hourly_rate = 25.0
+        total_price = f"${(duration_hours * 25.0):.2f}"
+        currency = "USD"
+    else:
+        exam_category = "Local"
+        hourly_rate = 15.0
+        naira_amt = int(duration_hours * 15.0 * 1600)  # Standard ~$15 = ₦24,000/hr
+        total_price = f"${(duration_hours * 15.0):.2f} (~₦{naira_amt:,})"
+        currency = "NGN / USD"
+
+    bid = f"book_{int(datetime.utcnow().timestamp())}_{int(duration_hours*10)}"
+    booking = TutoringBooking(
+        id=bid,
+        student_name=student_name.strip(),
+        student_email=student_email.strip(),
+        student_phone=student_phone.strip(),
+        instructor_name="Mr. Isaac Olusola",
+        instructor_email="ziglaginstitute@gmail.com",
+        subject=subject.strip(),
+        exam_category=exam_category,
+        topic=topic.strip(),
+        difficulties=difficulties.strip(),
+        booking_date=booking_date.strip(),
+        booking_time=booking_time.strip(),
+        duration_hours=duration_hours,
+        hourly_rate=hourly_rate,
+        total_price=total_price,
+        currency=currency,
+        status="Confirmed"
+    )
+
+    try:
+        db.session.add(booking)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Database error saving booking: {str(e)}'}), 500
+
+    # Dispatch notification emails
+    email_dispatched = send_tutoring_booking_emails(booking)
+
+    return jsonify({
+        'success': True,
+        'message': 'Your tutoring session has been successfully booked and confirmed!',
+        'booking': booking.to_dict(),
+        'email_sent': email_dispatched
+    })
+
+
+@app.route('/api/tutoring/bookings', methods=['GET'])
+def get_tutoring_bookings():
+    try:
+        bookings = TutoringBooking.query.order_by(TutoringBooking.created_at.desc()).all()
+        return jsonify([b.to_dict() for b in bookings])
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+
+
+@app.route('/api/tutoring/bookings/<bid>', methods=['DELETE'])
+def delete_tutoring_booking(bid):
+    booking = TutoringBooking.query.get(bid)
+    if not booking:
+        return jsonify({'success': False, 'message': 'Booking not found'}), 404
+    try:
+        db.session.delete(booking)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Booking {bid} deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
 
 # ============================================================================
 # 4. STARTUP DATABASE INITIALIZATION & DEFAULT SEEDING
