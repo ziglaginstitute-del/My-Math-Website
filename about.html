@@ -74,19 +74,19 @@
       <!-- Live Impact Metrics Grid -->
       <div class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-number">98.4%</div>
+          <div class="metric-number" id="stat-pass-rate">98.4%</div>
           <div class="metric-label">Examination Distinction Rate in JAMB UTME, WASSCE & NECO</div>
         </div>
         <div class="metric-card">
-          <div class="metric-number">1,200+</div>
+          <div class="metric-number" id="stat-video-count">1,200+</div>
           <div class="metric-label">Step-by-Step Mathematical Derivations & Video Proofs</div>
         </div>
         <div class="metric-card">
-          <div class="metric-number">15,000+</div>
+          <div class="metric-number" id="stat-question-count">15,000+</div>
           <div class="metric-label">Standard Exam Questions Calibrated Across 14 STEM Subjects</div>
         </div>
         <div class="metric-card">
-          <div class="metric-number">1-on-1</div>
+          <div class="metric-number" id="stat-coaching-stat">1-on-1</div>
           <div class="metric-label">Direct Whiteboard Mentorship with Lead Applied Mathematicians</div>
         </div>
       </div>
@@ -123,7 +123,7 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; align-items: center;">
               <div>
                 <span style="color: var(--primary-color); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">Our Ultimate Aspiration</span>
-                <h3 style="font-size: 1.85rem; margin: 0.75rem 0 1rem 0; line-height: 1.3;">
+                <h3 style="font-size: 1.85rem; margin: 0.75rem 0 1rem 0; line-height: 1.3;" id="vision-text-title">
                   To be Africa's Standard-Bearer in Mathematical Mastery & Analytical Innovation
                 </h3>
                 <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1.25rem;">
@@ -163,7 +163,7 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; align-items: center;">
               <div>
                 <span style="color: var(--secondary-color); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">Our Daily Mandate</span>
-                <h3 style="font-size: 1.85rem; margin: 0.75rem 0 1rem 0; line-height: 1.3;">
+                <h3 style="font-size: 1.85rem; margin: 0.75rem 0 1rem 0; line-height: 1.3;" id="mission-text-title">
                   Demystifying Quantitative STEM Through First-Principles Pedagogy
                 </h3>
                 <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1.25rem;">
@@ -621,7 +621,31 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       loadMembers();
+      loadSiteContent();
     });
+
+    async function loadSiteContent() {
+      try {
+        const res = await fetch('/api/site-content');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.impact_stats) {
+          const s = data.impact_stats;
+          if (s.pass_rate && document.getElementById('stat-pass-rate')) document.getElementById('stat-pass-rate').textContent = s.pass_rate;
+          if (s.video_count && document.getElementById('stat-video-count')) document.getElementById('stat-video-count').textContent = s.video_count;
+          if (s.question_count && document.getElementById('stat-question-count')) document.getElementById('stat-question-count').textContent = s.question_count;
+          if (s.coaching_stat && document.getElementById('stat-coaching-stat')) document.getElementById('stat-coaching-stat').textContent = s.coaching_stat;
+        }
+        if (data.vision && data.vision.title && document.getElementById('vision-text-title')) {
+          document.getElementById('vision-text-title').textContent = data.vision.title;
+        }
+        if (data.mission && data.mission.title && document.getElementById('mission-text-title')) {
+          document.getElementById('mission-text-title').textContent = data.mission.title;
+        }
+      } catch (e) {
+        console.warn("Using default static about content:", e);
+      }
+    }
 
     // 1. Switch Vision/Mission Tabs
     function switchVisionTab(tabId, btn) {

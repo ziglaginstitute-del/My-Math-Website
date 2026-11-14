@@ -412,6 +412,18 @@
         list.push(payload);
         localStorage.setItem('ZIGLAG_LOCAL_COURSES', JSON.stringify(list));
         return payload;
+      },
+      delete: async function (courseId) {
+        try {
+          const res = await apiRequest(`/api/courses/${encodeURIComponent(courseId)}`, 'DELETE');
+          if (res.success) return true;
+        } catch (e) {
+          console.warn('[ZiglagDB] Delete course API notice:', e);
+        }
+        let list = await this.list();
+        list = list.filter(c => c.id !== courseId);
+        localStorage.setItem('ZIGLAG_LOCAL_COURSES', JSON.stringify(list));
+        return true;
       }
     },
 
@@ -503,6 +515,76 @@
         list.unshift(payload);
         localStorage.setItem('ZIGLAG_LOCAL_VAULT', JSON.stringify(list));
         return payload;
+      },
+      delete: async function (resourceId) {
+        try {
+          const res = await apiRequest(`/api/vault/${encodeURIComponent(resourceId)}`, 'DELETE');
+          if (res.success) return true;
+        } catch (e) {
+          console.warn('[ZiglagDB] Delete vault resource notice:', e);
+        }
+        let list = await this.list();
+        list = list.filter(r => r.id !== resourceId);
+        localStorage.setItem('ZIGLAG_LOCAL_VAULT', JSON.stringify(list));
+        return true;
+      },
+      uploadPdf: async function (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/upload/pdf', {
+          method: 'POST',
+          body: formData
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ message: 'Upload failed' }));
+          throw new Error(err.message || 'File upload error');
+        }
+        return await res.json();
+      }
+    },
+    people: {
+      get: async function () {
+        try {
+          const list = await apiRequest('/api/people');
+          if (list && list.length > 0) return list;
+        } catch (e) {}
+        return [{
+          name: 'Isaac Olusola',
+          role: 'Founder & Lead Applied Mathematician',
+          bio: 'Applied Mathematician and curriculum architect dedicated to demystifying advanced mathematics.',
+          avatar: '👨‍🏫',
+          email: 'ziglaginstitute@gmail.com',
+          linkedin: 'https://www.linkedin.com/in/isaac-olusola-2a2b2218b',
+          github: 'https://github.com/ziglaginstitute-del',
+          youtube: 'https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn'
+        }];
+      },
+      update: async function (profileData) {
+        return await apiRequest('/api/people/update', 'POST', profileData);
+      }
+    },
+    contact: {
+      listSubmissions: async function () {
+        try {
+          return await apiRequest('/api/contact/submissions');
+        } catch (e) {
+          return [];
+        }
+      },
+      deleteSubmission: async function (subId) {
+        return await apiRequest(`/api/contact/submissions/${subId}`, 'DELETE');
+      }
+    },
+    siteContent: {
+      get: async function () {
+        try {
+          return await apiRequest('/api/site-content');
+        } catch (e) {
+          return {};
+        }
+      },
+      save: async function (data) {
+        return await apiRequest('/api/site-content', 'POST', data);
       }
     },
 

@@ -3,6 +3,7 @@ import json
 import logging
 import urllib.request
 from flask import Flask, send_from_directory, request, jsonify, redirect
+from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from dotenv import load_dotenv
@@ -319,6 +320,24 @@ class VaultResource(db.Model):
             'description': self.description or '',
             'downloads_count': self.downloads_count,
             'created_at': self.created_at.isoformat() if self.created_at else ''
+        }
+
+
+class SiteSetting(db.Model):
+    __tablename__ = 'site_settings'
+    key = db.Column(db.String(100), primary_key=True)
+    value = db.Column(db.Text, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        try:
+            val = json.loads(self.value)
+        except Exception:
+            val = self.value
+        return {
+            'key': self.key,
+            'value': val,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else ''
         }
 
 # ============================================================================
@@ -1103,6 +1122,228 @@ def handle_vault():
 
     resources = VaultResource.query.order_by(VaultResource.created_at.desc()).all()
     return jsonify([r.to_dict() for r in resources])
+
+
+# ============================================================================
+# CMS MANAGEMENT ROUTES (Courses, Lectures, Vault PDFs, Site Content, Inquiries)
+# ============================================================================
+
+@app.route('/api/courses/<cid>', methods=['DELETE', 'PUT'])
+def course_detail(cid):
+    course = Course.query.get(cid)
+    if not course:
+        return jsonify({'success': False, 'message': 'Course not found'}), 404
+    
+    if request.method == 'DELETE':
+        Lecture.query.filter_by(course_id=cid).delete()
+        db.session.delete(course)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Course {cid} and its lectures deleted'})
+    
+    data = request.get_json() or {}
+    if 'title' in data: course.title = data['title']
+    if 'category' in data: course.category = data['category']
+    if 'description' in data: course.description = data['description']
+    if 'icon' in data: course.icon = data['icon']
+    if 'badge' in data: course.badge = data['badge']
+    if 'instructor' in data: course.instructor = data['instructor']
+    if 'duration_weeks' in data: course.duration_weeks = int(data['duration_weeks'] or 6)
+    if 'display_order' in data: course.display_order = int(data['display_order'] or 0)
+    db.session.commit()
+    return jsonify({'success': True, 'course': course.to_dict()})
+
+@app.route('/api/lectures/<lid>', methods=['DELETE', 'PUT'])
+def lecture_detail(lid):
+    lec = Lecture.query.get(lid)
+    if not lec:
+        return jsonify({'success': False, 'message': 'Lecture not found'}), 404
+    
+    if request.method == 'DELETE':
+        db.session.delete(lec)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Lecture {lid} deleted'})
+    
+    data = request.get_json() or {}
+    if 'title' in data: lec.title = data['title']
+    if 'description' in data: lec.description = data['description']
+    if 'video_url' in data: lec.video_url = data['video_url']
+    if 'duration' in data: lec.duration = data['duration']
+    if 'order_index' in data: lec.order_index = int(data['order_index'] or 1)
+    if 'notes_url' in data: lec.notes_url = data['notes_url']
+    db.session.commit()
+    return jsonify({'success': True, 'lecture': lec.to_dict()})
+
+@app.route('/api/vault/<rid>', methods=['DELETE', 'PUT'])
+def vault_detail(rid):
+    res = VaultResource.query.get(rid)
+    if not res:
+        return jsonify({'success': False, 'message': 'Resource not found'}), 404
+    
+    if request.method == 'DELETE':
+        db.session.delete(res)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Vault resource {rid} deleted'})
+    
+    data = request.get_json() or {}
+    if 'title' in data: res.title = data['title']
+    if 'category' in data: res.category = data['category']
+    if 'file_url' in data: res.file_url = data['file_url']
+    if 'file_size' in data: res.file_size = data['file_size']
+    if 'badge' in data: res.badge = data['badge']
+    if 'description' in data: res.description = data['description']
+    db.session.commit()
+    return jsonify({'success': True, 'resource': res.to_dict()})
+
+@app.route('/api/upload/pdf', methods=['POST'])
+def upload_pdf():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file part in request'}), 400
+    f = request.files['file']
+    if not f or f.filename == '':
+        return jsonify({'success': False, 'message': 'No file selected'}), 400
+    
+    filename = secure_filename(f.filename)
+    if not filename.lower().endswith('.pdf'):
+        return jsonify({'success': False, 'message': 'Only PDF (.pdf) files are supported'}), 400
+    
+    upload_dir = os.path.join(BASE_DIR, 'assets', 'vault_pdfs')
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    safe_name = f"{int(datetime.utcnow().timestamp())}_{filename}"
+    filepath = os.path.join(upload_dir, safe_name)
+    f.save(filepath)
+    
+    size_bytes = os.path.getsize(filepath)
+    size_str = f"{size_bytes / (1024*1024):.1f} MB" if size_bytes >= 1024*1024 else f"{size_bytes / 1024:.0f} KB"
+    clean_title = filename.replace('.pdf', '').replace('_', ' ').replace('-', ' ').title()
+    
+    return jsonify({
+        'success': True,
+        'filename': safe_name,
+        'file_url': f"/assets/vault_pdfs/{safe_name}",
+        'file_size': size_str,
+        'title': clean_title
+    })
+
+@app.route('/assets/vault_pdfs/<path:filename>')
+def serve_vault_pdf(filename):
+    upload_dir = os.path.join(BASE_DIR, 'assets', 'vault_pdfs')
+    return send_from_directory(upload_dir, filename)
+
+@app.route('/api/people/update', methods=['POST'])
+def update_founder_profile():
+    data = request.get_json() or {}
+    isaac = Member.query.filter(Member.name.like('%Isaac%')).first()
+    if not isaac:
+        isaac = Member(
+            name="Isaac Olusola",
+            role=data.get('role', 'Founder & Lead Applied Mathematician'),
+            bio=data.get('bio', ''),
+            avatar=data.get('avatar', '👨‍🏫'),
+            email=data.get('email', 'ziglaginstitute@gmail.com'),
+            linkedin=data.get('linkedin', ''),
+            github=data.get('github', ''),
+            youtube=data.get('youtube', ''),
+            display_order=1
+        )
+        db.session.add(isaac)
+    else:
+        if 'name' in data: isaac.name = data['name']
+        if 'role' in data: isaac.role = data['role']
+        if 'bio' in data: isaac.bio = data['bio']
+        if 'avatar' in data: isaac.avatar = data['avatar']
+        if 'email' in data: isaac.email = data['email']
+        if 'linkedin' in data: isaac.linkedin = data['linkedin']
+        if 'github' in data: isaac.github = data['github']
+        if 'youtube' in data: isaac.youtube = data['youtube']
+    
+    db.session.commit()
+    return jsonify({
+        'success': True,
+        'member': {
+            'name': isaac.name,
+            'role': isaac.role,
+            'bio': isaac.bio,
+            'avatar': isaac.avatar,
+            'email': isaac.email,
+            'linkedin': isaac.linkedin,
+            'github': isaac.github,
+            'youtube': isaac.youtube
+        }
+    })
+
+@app.route('/api/contact/submissions', methods=['GET'])
+def get_contact_submissions():
+    submissions = ContactSubmission.query.order_by(ContactSubmission.submitted_at.desc()).all()
+    out = []
+    for s in submissions:
+        out.append({
+            'id': s.id,
+            'name': s.name,
+            'email': s.email,
+            'phone': s.phone or '',
+            'sphere': s.sphere,
+            'question_type': s.question_type,
+            'message': s.message,
+            'preferred_contact': s.preferred_contact or 'email',
+            'submitted_at': s.submitted_at.strftime('%Y-%m-%d %H:%M') if s.submitted_at else ''
+        })
+    return jsonify(out)
+
+@app.route('/api/contact/submissions/<int:sub_id>', methods=['DELETE'])
+def delete_contact_submission(sub_id):
+    sub = ContactSubmission.query.get(sub_id)
+    if not sub:
+        return jsonify({'success': False, 'message': 'Submission not found'}), 404
+    db.session.delete(sub)
+    db.session.commit()
+    return jsonify({'success': True, 'message': f'Submission {sub_id} deleted'})
+
+@app.route('/api/site-content', methods=['GET', 'POST'])
+def handle_site_content():
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        for key, val in data.items():
+            str_val = json.dumps(val) if isinstance(val, (dict, list)) else str(val)
+            setting = SiteSetting.query.get(key)
+            if not setting:
+                setting = SiteSetting(key=key, value=str_val)
+                db.session.add(setting)
+            else:
+                setting.value = str_val
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Site content saved successfully'})
+
+    settings = SiteSetting.query.all()
+    settings_dict = {}
+    for s in settings:
+        try:
+            settings_dict[s.key] = json.loads(s.value)
+        except Exception:
+            settings_dict[s.key] = s.value
+
+    # Default fallback values
+    defaults = {
+        'impact_stats': {
+            'pass_rate': '98.4%',
+            'video_count': '1,200+',
+            'question_count': '15,000+',
+            'coaching_stat': '1-on-1'
+        },
+        'vision': {
+            'title': "To be Africa's Standard-Bearer in Mathematical Mastery & Analytical Innovation",
+            'statement': "We envision a continent where every young mind is equipped with the fearless quantitative competence to engineer high-impact solutions in software, artificial intelligence, aerospace, energy, macroeconomic policy, and medicine."
+        },
+        'mission': {
+            'title': "Demystifying Quantitative STEM Through First-Principles Pedagogy",
+            'statement': "Our mission is to obliterate the dread and anxiety that historically surrounds mathematics and physics. We do this by breaking complex theorems into their fundamental building blocks, providing continuous practice under realistic digital exam conditions, and providing personalized guidance."
+        }
+    }
+    for k, v in defaults.items():
+        if k not in settings_dict:
+            settings_dict[k] = v
+
+    return jsonify(settings_dict)
 
 # WORD & PDF QUESTION PARSER ENDPOINT
 @app.route('/api/admin/parse-questions', methods=['POST'])
