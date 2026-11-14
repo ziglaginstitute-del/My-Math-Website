@@ -631,7 +631,7 @@
           name: 'Isaac Olusola',
           role: 'Founder & Lead Applied Mathematician',
           bio: 'Applied Mathematician and curriculum architect dedicated to demystifying advanced mathematics.',
-          avatar: '👨‍🏫',
+          avatar: 'IMG_1399.JPG',
           email: 'ziglaginstitute@gmail.com',
           linkedin: 'https://www.linkedin.com/in/isaac-olusola-2a2b2218b',
           github: 'https://github.com/ziglaginstitute-del',

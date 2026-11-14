@@ -57,6 +57,13 @@
         Encountering a thorny proof, circle theorem, projectile motion problem, or matrix eigenvalue calculation? Post your questions with live <strong style="color: var(--accent-color); font-family: var(--font-mono);">$\LaTeX$</strong> math notation, upload photos of your working notes or past papers, and explore verified step-by-step solutions provided by <strong>Mr. Isaac Olusola</strong> and peer scholars.
       </p>
 
+      <div style="display: inline-flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); padding: 0.45rem 1rem; border-radius: var(--radius-pill); margin-top: 1.25rem;">
+        <div style="width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--primary-color); flex-shrink: 0;">
+          <img src="IMG_1399.JPG" alt="Mr. Isaac Olusola" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
+        </div>
+        <span style="font-size: 0.84rem; color: var(--text-main);">Solutions curated & verified by <strong>Mr. Isaac Olusola</strong> (MSc in Applied Mathematics)</span>
+      </div>
+
       <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
         <button class="btn btn-primary" onclick="openAskModal()">
           <span>✍️</span> Post a Problem / Question
@@ -759,10 +766,14 @@
           }
         }
 
+        const educatorAvatar = isEducator ? 
+          `<div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--secondary-color); flex-shrink: 0; box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);"><img src="IMG_1399.JPG" alt="Mr. Isaac Olusola" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;"></div>` : '';
+
         html += `
           <div class="${cardClass}">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
               <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                ${educatorAvatar}
                 <strong style="color: var(--text-main);">${escapeHtml(a.author_name)}</strong>
                 ${roleBadge}
               </div>

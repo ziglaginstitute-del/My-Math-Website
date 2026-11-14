@@ -88,7 +88,7 @@ class Member(db.Model):
     name = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(100), nullable=False)
     bio = db.Column(db.Text, nullable=False)
-    avatar = db.Column(db.String(10), nullable=True)
+    avatar = db.Column(db.String(255), nullable=True)
     email = db.Column(db.String(100), nullable=True)
     linkedin = db.Column(db.String(200), nullable=True)
     github = db.Column(db.String(200), nullable=True)
@@ -1446,7 +1446,7 @@ def update_founder_profile():
             name="Isaac Olusola",
             role=data.get('role', 'Founder & Lead Applied Mathematician'),
             bio=data.get('bio', ''),
-            avatar=data.get('avatar', '👨‍🏫'),
+            avatar=data.get('avatar', 'IMG_1399.JPG'),
             email=data.get('email', 'ziglaginstitute@gmail.com'),
             linkedin=data.get('linkedin', ''),
             github=data.get('github', ''),
@@ -1604,7 +1604,7 @@ def get_people():
                 'name': m.name,
                 'role': m.role,
                 'bio': m.bio,
-                'avatar': m.avatar or '👨‍🏫',
+                'avatar': m.avatar or 'IMG_1399.JPG',
                 'email': m.email or '',
                 'linkedin': m.linkedin or '',
                 'github': m.github or '',
@@ -1657,8 +1657,8 @@ def submit_contact():
 def send_contact_inquiry_emails(submission):
     smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
     smtp_port = int(os.getenv('SMTP_PORT', 587))
-    smtp_user = os.getenv('SMTP_USERNAME', '')
-    smtp_pass = os.getenv('SMTP_PASSWORD', '')
+    smtp_user = (os.getenv('SMTP_USERNAME') or '').strip()
+    smtp_pass = (os.getenv('SMTP_PASSWORD') or '').replace(' ', '').strip()
     lead_email = "ziglaginstitute@gmail.com"
 
     lead_subject = f"📬 Website Contact Inquiry: {submission.name} [{submission.question_type.title()}]"
@@ -1742,8 +1742,8 @@ Email: ziglaginstitute@gmail.com
 def send_tutoring_booking_emails(booking):
     smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
     smtp_port = int(os.getenv('SMTP_PORT', 587))
-    smtp_user = os.getenv('SMTP_USERNAME', '')
-    smtp_pass = os.getenv('SMTP_PASSWORD', '')
+    smtp_user = (os.getenv('SMTP_USERNAME') or '').strip()
+    smtp_pass = (os.getenv('SMTP_PASSWORD') or '').replace(' ', '').strip()
     coach_email = "ziglaginstitute@gmail.com"
 
     # Coach notification email
@@ -1978,8 +1978,8 @@ def delete_tutoring_booking(bid):
 def send_community_question_email(question):
     smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
     smtp_port = int(os.getenv('SMTP_PORT', 587))
-    smtp_user = os.getenv('SMTP_USERNAME', '')
-    smtp_pass = os.getenv('SMTP_PASSWORD', '')
+    smtp_user = (os.getenv('SMTP_USERNAME') or '').strip()
+    smtp_pass = (os.getenv('SMTP_PASSWORD') or '').replace(' ', '').strip()
     coach_email = "ziglaginstitute@gmail.com"
 
     subject = f"❓ New Community Question: [{question.difficulty} | {question.subject}] {question.title}"
@@ -2037,8 +2037,8 @@ def send_community_answer_email(question, answer):
 
     smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
     smtp_port = int(os.getenv('SMTP_PORT', 587))
-    smtp_user = os.getenv('SMTP_USERNAME', '')
-    smtp_pass = os.getenv('SMTP_PASSWORD', '')
+    smtp_user = (os.getenv('SMTP_USERNAME') or '').strip()
+    smtp_pass = (os.getenv('SMTP_PASSWORD') or '').replace(' ', '').strip()
 
     subject = f"💡 Solution Posted to Your Question: {question.title} — Ziglag Institute"
     role_tag = " (🌟 Lead Instructor & Verified Educator)" if answer.is_educator else ""

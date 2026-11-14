@@ -114,7 +114,15 @@
           <!-- Overview Container -->
           <div class="tab-content" id="content-overview">
             <h3 style="margin-bottom: 0.75rem;" id="overview-course-title">Linear Algebra & Matrix Theory</h3>
-            <p style="margin-bottom: 1.5rem;" id="overview-course-desc">Dive into vector coordinates, spaces and matrices.</p>
+            <p style="margin-bottom: 1rem;" id="overview-course-desc">Dive into vector coordinates, spaces and matrices.</p>
+            
+            <!-- Instructor Badge -->
+            <div style="display: inline-flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 0.4rem 0.9rem; border-radius: var(--radius-pill); margin-bottom: 1.5rem;">
+              <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--primary-color); flex-shrink: 0;">
+                <img src="IMG_1399.JPG" alt="Mr. Isaac Olusola" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
+              </div>
+              <span style="font-size: 0.84rem; color: var(--text-main);">Masterclass Instructor: <strong>Mr. Isaac Olusola</strong> (MSc in Applied Mathematics)</span>
+            </div>
             
             <h4 style="margin-bottom: 0.5rem; color:var(--accent-color);">What You Will Learn</h4>
             <div class="glass-card" style="padding: 1.5rem;">
@@ -894,8 +902,13 @@
           <div style="line-height:1.5; margin-bottom:0.6rem; font-size:0.9rem; color:var(--text-main);">
             <strong>Detailed Explanation:</strong> ${explainText}
           </div>
-          <div class="cbt-recommendation-box" style="margin-top:0.5rem;">
-            <span>💡 <strong>Recommendation:</strong> Re-watch the video lecture or book a private 1-on-1 class with Mr. Isaac Olusola for personalized guidance.</span>
+          <div class="cbt-recommendation-box" style="margin-top:0.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <div style="width: 26px; height: 26px; border-radius: 50%; overflow: hidden; border: 1px solid var(--primary-color); flex-shrink: 0;">
+                <img src="IMG_1399.JPG" alt="Mr. Isaac Olusola" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
+              </div>
+              <span style="font-size:0.85rem;">💡 <strong>Recommendation:</strong> Re-watch the video lecture or book a private 1-on-1 class with Mr. Isaac Olusola for personalized guidance.</span>
+            </div>
             <div style="display:flex; gap:0.4rem;">
               <button class="btn btn-secondary btn-sm" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="renderQuiz()">Retry ↺</button>
               <a href="tutoring.html" class="btn btn-primary btn-sm" style="padding:0.25rem 0.6rem; font-size:0.75rem;">Book 1-on-1</a>

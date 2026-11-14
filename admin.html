@@ -449,7 +449,9 @@
           </div>
         </div>
         <div class="admin-stat-card">
-          <div class="stat-icon-box" style="color: #10b981;">👨‍🏫</div>
+          <div style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid #10b981; flex-shrink: 0; margin-right: 0.75rem; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);">
+            <img src="IMG_1399.JPG" alt="Mr. Isaac Olusola" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
+          </div>
           <div>
             <div class="stat-val" style="font-size: 1.3rem;">Mr. Isaac Olusola</div>
             <div class="stat-title">Lead Curriculum Instructor</div>
@@ -589,8 +591,13 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
               <div class="form-group">
-                <label>Avatar Emoji / Icon</label>
-                <input type="text" id="founder-avatar" class="admin-input" value="👨‍🏫" required>
+                <label>Profile Photo / Avatar Image</label>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                  <div style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid var(--primary-color); flex-shrink: 0; background: #000;">
+                    <img id="founder-avatar-preview" src="IMG_1399.JPG" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
+                  </div>
+                  <input type="text" id="founder-avatar" class="admin-input" value="IMG_1399.JPG" required oninput="document.getElementById('founder-avatar-preview').src = this.value || 'IMG_1399.JPG'">
+                </div>
               </div>
               <div class="form-group">
                 <label>Direct Contact Email</label>
@@ -1843,7 +1850,10 @@
           const isaac = people[0];
           document.getElementById("founder-name").value = isaac.name || "Isaac Olusola";
           document.getElementById("founder-role").value = isaac.role || "Founder & Lead Applied Mathematician";
-          document.getElementById("founder-avatar").value = isaac.avatar || "👨‍🏫";
+          document.getElementById("founder-avatar").value = isaac.avatar || "IMG_1399.JPG";
+          if (document.getElementById("founder-avatar-preview")) {
+            document.getElementById("founder-avatar-preview").src = isaac.avatar || "IMG_1399.JPG";
+          }
           document.getElementById("founder-email").value = isaac.email || "ziglaginstitute@gmail.com";
           document.getElementById("founder-bio").value = isaac.bio || "";
           document.getElementById("founder-linkedin").value = isaac.linkedin || "";
@@ -1860,7 +1870,7 @@
       const payload = {
         name: document.getElementById("founder-name").value.trim(),
         role: document.getElementById("founder-role").value.trim(),
-        avatar: document.getElementById("founder-avatar").value.trim() || "👨‍🏫",
+        avatar: document.getElementById("founder-avatar").value.trim() || "IMG_1399.JPG",
         email: document.getElementById("founder-email").value.trim(),
         bio: document.getElementById("founder-bio").value.trim(),
         linkedin: document.getElementById("founder-linkedin").value.trim(),
