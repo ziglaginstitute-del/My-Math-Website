@@ -430,41 +430,32 @@
       </div>
     </section>
 
-    <!-- SECTION 4: PEOPLE & ACADEMIC FACULTY -->
+    <!-- SECTION 4: LEADERSHIP & ACADEMIC DIRECTION -->
     <section class="section-wrapper" id="people" style="padding-top: 4rem;">
-      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">The Brain Trust</span>
-      <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Our Academic Faculty & Leadership</h2>
+      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">Leadership & Academic Direction</span>
+      <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Our Founder & Lead Instructor</h2>
       <p style="color: var(--text-muted); max-width: 750px;">
-        Meet the educators, applied mathematicians, and educational technologists dedicated to your mathematical transformation.
+        Meet the applied mathematician and curriculum architect behind Ziglag Institute's first-principles educational philosophy.
       </p>
 
-      <!-- Category Filter Bar -->
-      <div class="people-filter-bar">
-        <button class="filter-btn active" onclick="filterFaculty('all', this)">All Faculty</button>
-        <button class="filter-btn" onclick="filterFaculty('leadership', this)">Leadership</button>
-        <button class="filter-btn" onclick="filterFaculty('stem', this)">STEM & Mathematics</button>
-        <button class="filter-btn" onclick="filterFaculty('cbt', this)">CBT & Psychometrics</button>
-      </div>
-
       <!-- Dynamic People Grid -->
-      <div class="people-grid" id="people-render-grid">
-        <!-- Faculty cards will be loaded dynamically here -->
-        <div class="glass-card" style="grid-column: 1/-1; padding: 4rem; text-align: center;">
+      <div class="people-grid" id="people-render-grid" style="grid-template-columns: minmax(320px, 720px); justify-content: center;">
+        <div class="glass-card" style="padding: 3rem; text-align: center;">
           <span style="font-size: 2rem; display: block; margin-bottom: 1rem;">⏳</span>
-          <h3>Loading Academic Faculty...</h3>
+          <h3>Loading Instructor Profile...</h3>
         </div>
       </div>
 
-      <!-- Faculty Call to Action -->
+      <!-- Mentorship Call to Action -->
       <div class="glass-card" style="margin-top: 3rem; padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(249, 115, 22, 0.08));">
         <div>
           <h3 style="margin: 0; font-size: 1.3rem; color: var(--text-main);">Interested in Private Academic Mentorship?</h3>
           <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.95rem;">
-            Schedule a targeted 1-on-1 live session with our lead instructor, Mr. Isaac Olusola, to prepare for JAMB, WASSCE, or college exams.
+            Schedule a targeted 1-on-1 live session with Mr. Isaac Olusola to prepare for JAMB, WASSCE, or college-level examinations.
           </p>
         </div>
         <a href="tutoring.html" class="btn btn-primary" style="padding: 0.75rem 1.75rem; text-decoration: none;">
-          Book 1-on-1 Class 🚀
+          Book 1-on-1 Class with Isaac 🚀
         </a>
       </div>
     </section>
@@ -617,46 +608,12 @@
       {
         name: "Isaac Olusola",
         role: "Founder & Lead Applied Mathematician",
-        category: "leadership",
-        bio: "Applied Mathematician and curriculum architect dedicated to demystifying advanced mathematics, calculus, and mechanics for secondary and university students across Africa through visual derivations and personalized coaching.",
+        bio: "Applied Mathematician and curriculum architect dedicated to demystifying advanced mathematics, calculus, kinematics, and classical mechanics for secondary and university students across Africa through visual first-principles derivations and personalized whiteboard coaching.",
         avatar: "👨‍🏫",
         email: "ziglaginstitute@gmail.com",
         linkedin: "https://www.linkedin.com/in/isaac-olusola-2a2b2218b",
         github: "https://github.com/ziglaginstitute-del",
         youtube: "https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn"
-      },
-      {
-        name: "Dr. Adebayo Adekunle",
-        role: "Lead STEM Curriculum Advisor & Physics Specialist",
-        category: "stem",
-        bio: "PhD in Theoretical Physics. Oversees the integration of calculus-based classical mechanics, electromagnetism, and modern physics across senior secondary and undergraduate tracks.",
-        avatar: "⚡",
-        email: "adebayo.curriculum@ziglaginstitute.com",
-        linkedin: "https://linkedin.com",
-        github: "https://github.com/ziglaginstitute-del",
-        youtube: ""
-      },
-      {
-        name: "Engr. Chidinma Okafor",
-        role: "Senior Quantitative Tutor & Engineering Mathematics Mentor",
-        category: "stem",
-        bio: "First-Class Mechanical Engineering graduate and seasoned tutor specializing in differential equations, coordinate geometry, matrices, and high-yield JAMB UTME strategies.",
-        avatar: "📐",
-        email: "chidinma.maths@ziglaginstitute.com",
-        linkedin: "https://linkedin.com",
-        github: "https://github.com/ziglaginstitute-del",
-        youtube: ""
-      },
-      {
-        name: "Samuel Alabi",
-        role: "Head of CBT Psychometrics & Exam Simulator Systems",
-        category: "cbt",
-        bio: "Specialist in educational measurement and psychometric evaluation. Manages question calibration, difficulty tiering, and real-time exam timing algorithms for PrepCBT.",
-        avatar: "💻",
-        email: "samuel.cbt@ziglaginstitute.com",
-        linkedin: "https://linkedin.com",
-        github: "https://github.com/ziglaginstitute-del",
-        youtube: ""
       }
     ];
 
@@ -699,7 +656,7 @@
       }
     }
 
-    // 4. Load Faculty Members from Backend or Fallback
+    // 4. Load Instructor Profile from Backend or Fallback
     async function loadMembers() {
       try {
         const response = await fetch("/api/people");
@@ -707,54 +664,20 @@
         const data = await response.json();
         allLoadedMembers = (data && data.length > 0) ? data : FALLBACK_MEMBERS;
       } catch (err) {
-        console.warn("Using fallback faculty data:", err.message);
+        console.warn("Using fallback instructor data:", err.message);
         allLoadedMembers = FALLBACK_MEMBERS;
       }
       renderFacultyList(allLoadedMembers);
     }
 
-    // 5. Filter Faculty by Role Category
-    function filterFaculty(category, btn) {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-
-      if (category === 'all') {
-        renderFacultyList(allLoadedMembers);
-        return;
-      }
-
-      const filtered = allLoadedMembers.filter(m => {
-        const role = (m.role || '').toLowerCase();
-        const bio = (m.bio || '').toLowerCase();
-        const cat = (m.category || '').toLowerCase();
-
-        if (category === 'leadership') {
-          return role.includes('founder') || role.includes('ceo') || role.includes('lead') || role.includes('director') || cat === 'leadership';
-        } else if (category === 'stem') {
-          return role.includes('physics') || role.includes('math') || role.includes('tutor') || role.includes('advisor') || cat === 'stem';
-        } else if (category === 'cbt') {
-          return role.includes('cbt') || role.includes('psychometrics') || role.includes('systems') || cat === 'cbt';
-        }
-        return true;
-      });
-
-      renderFacultyList(filtered);
-    }
-
-    // 6. Render Faculty Cards
+    // 5. Render Instructor Card
     function renderFacultyList(members) {
       const grid = document.getElementById("people-render-grid");
       if (!grid) return;
       grid.innerHTML = "";
 
       if (!members || members.length === 0) {
-        grid.innerHTML = `
-          <div class="glass-card" style="grid-column: 1/-1; padding: 4rem; text-align: center;">
-            <h3>No faculty members matching this filter.</h3>
-            <p style="color: var(--text-muted); margin-top: 0.5rem;">Select "All Faculty" to view our complete team.</p>
-          </div>
-        `;
-        return;
+        members = FALLBACK_MEMBERS;
       }
 
       members.forEach(m => {
@@ -775,30 +698,26 @@
           socialHtml += `<a href="${m.youtube}" target="_blank" rel="noopener noreferrer" class="people-social-link" title="YouTube Channel">🎥 YouTube</a>`;
         }
 
-        const isFounder = (m.role || '').toLowerCase().includes('founder');
-
         card.innerHTML = `
           <div>
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
               <div class="people-avatar-box">
                 ${m.avatar || '👨‍🏫'}
               </div>
-              ${isFounder ? '<span class="badge" style="background: rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3); color: #f97316; font-size:0.75rem;">Leadership</span>' : '<span class="badge" style="font-size:0.75rem;">Faculty</span>'}
+              <span class="badge" style="background: rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3); color: #f97316; font-size:0.75rem;">Leadership & Founder</span>
             </div>
-            <h3 class="people-name">${m.name}</h3>
-            <div class="people-role">${m.role}</div>
-            <p class="people-bio">${m.bio}</p>
+            <h3 class="people-name" style="font-size: 1.5rem;">${m.name}</h3>
+            <div class="people-role" style="font-size: 0.95rem; color: var(--primary-color);">${m.role}</div>
+            <p class="people-bio" style="font-size: 0.95rem; line-height: 1.7; margin-bottom: 1.5rem;">${m.bio}</p>
           </div>
           <div>
-            ${isFounder ? `
-              <div style="margin-bottom: 1rem;">
-                <a href="tutoring.html" class="btn btn-secondary btn-sm" style="width: 100%; text-align: center; font-size: 0.8rem; padding: 0.4rem 0.75rem; text-decoration: none;">
-                  Book 1-on-1 Class with Isaac ➜
-                </a>
-              </div>
-            ` : ''}
+            <div style="margin-bottom: 1.25rem;">
+              <a href="tutoring.html" class="btn btn-primary" style="width: 100%; text-align: center; font-size: 0.9rem; padding: 0.65rem 1rem; text-decoration: none;">
+                Schedule a 1-on-1 Class with Isaac ➜
+              </a>
+            </div>
             <div class="people-socials">
-              ${socialHtml || '<span style="font-size:0.8rem; color:var(--text-muted);">Ziglag Academic Faculty</span>'}
+              ${socialHtml || '<span style="font-size:0.8rem; color:var(--text-muted);">Founder & Lead Educator</span>'}
             </div>
           </div>
         `;
