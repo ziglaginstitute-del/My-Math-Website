@@ -17,11 +17,15 @@ class VercelPathFixerMiddleware:
 
     def __call__(self, environ, start_response):
         matched_path = (
-            environ.get('HTTP_X_VERCEL_MATCHED_PATH')
+            environ.get('HTTP_X_MATCHED_PATH')
+            or environ.get('HTTP_X_VERCEL_MATCHED_PATH')
             or environ.get('HTTP_X_NOW_PATHNAME')
+            or environ.get('HTTP_X_FORWARDED_URI')
             or environ.get('PATH_INFO')
         )
         if matched_path:
+            if '?' in matched_path:
+                matched_path = matched_path.split('?')[0]
             environ['PATH_INFO'] = matched_path
             environ['SCRIPT_NAME'] = ''
         return self.wsgi_app(environ, start_response)
