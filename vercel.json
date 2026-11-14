@@ -3,7 +3,15 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.py"
+      "destination": "/api/index"
+    },
+    {
+      "source": "/assets/community_uploads/(.*)",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/assets/vault_pdfs/(.*)",
+      "destination": "/api/index"
     }
   ]
 }

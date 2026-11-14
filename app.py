@@ -13,9 +13,22 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # Ensure .env is explicitly loaded from project root
 load_dotenv(os.path.join(BASE_DIR, '.env'), override=True)
 
-# Ensure upload directories exist
-COMMUNITY_UPLOADS_DIR = os.path.join(BASE_DIR, 'assets', 'community_uploads')
-os.makedirs(COMMUNITY_UPLOADS_DIR, exist_ok=True)
+# Environment detection
+IS_VERCEL = bool(os.getenv('VERCEL') or os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
+
+# Ensure upload directories exist safely across standard and serverless environments
+if IS_VERCEL:
+    COMMUNITY_UPLOADS_DIR = '/tmp/community_uploads'
+    VAULT_UPLOADS_DIR = '/tmp/vault_pdfs'
+else:
+    COMMUNITY_UPLOADS_DIR = os.path.join(BASE_DIR, 'assets', 'community_uploads')
+    VAULT_UPLOADS_DIR = os.path.join(BASE_DIR, 'assets', 'vault_pdfs')
+
+try:
+    os.makedirs(COMMUNITY_UPLOADS_DIR, exist_ok=True)
+    os.makedirs(VAULT_UPLOADS_DIR, exist_ok=True)
+except Exception as e:
+    logging.warning(f"Could not create upload directories at startup: {e}")
 
 # Set up basic logging
 logging.basicConfig(level=logging.INFO)
@@ -54,7 +67,19 @@ NEON_REALTIME_URL = os.getenv('NEON_REALTIME_URL', '')
 NEON_REALTIME_SECRET = os.getenv('NEON_REALTIME_SECRET', '')
 
 # Database URI configuration: Works with local SQLite or free Neon Serverless PostgreSQL
-db_url = os.getenv('DATABASE_URL', f'sqlite:///{os.path.join(BASE_DIR, "instance", "math_portal.db")}')
+db_url = os.getenv('DATABASE_URL')
+if not db_url:
+    if IS_VERCEL:
+        sqlite_path = '/tmp/math_portal.db'
+    else:
+        instance_dir = os.path.join(BASE_DIR, "instance")
+        try:
+            os.makedirs(instance_dir, exist_ok=True)
+        except Exception:
+            pass
+        sqlite_path = os.path.join(instance_dir, "math_portal.db")
+    db_url = f'sqlite:///{sqlite_path}'
+
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
@@ -1413,8 +1438,11 @@ def upload_pdf():
     if not filename.lower().endswith('.pdf'):
         return jsonify({'success': False, 'message': 'Only PDF (.pdf) files are supported'}), 400
     
-    upload_dir = os.path.join(BASE_DIR, 'assets', 'vault_pdfs')
-    os.makedirs(upload_dir, exist_ok=True)
+    upload_dir = VAULT_UPLOADS_DIR
+    try:
+        os.makedirs(upload_dir, exist_ok=True)
+    except Exception:
+        pass
     
     safe_name = f"{int(datetime.utcnow().timestamp())}_{filename}"
     filepath = os.path.join(upload_dir, safe_name)
@@ -1434,8 +1462,12 @@ def upload_pdf():
 
 @app.route('/assets/vault_pdfs/<path:filename>')
 def serve_vault_pdf(filename):
-    upload_dir = os.path.join(BASE_DIR, 'assets', 'vault_pdfs')
-    return send_from_directory(upload_dir, filename)
+    if os.path.exists(os.path.join(VAULT_UPLOADS_DIR, filename)):
+        return send_from_directory(VAULT_UPLOADS_DIR, filename)
+    fallback_dir = os.path.join(BASE_DIR, 'assets', 'vault_pdfs')
+    if os.path.exists(os.path.join(fallback_dir, filename)):
+        return send_from_directory(fallback_dir, filename)
+    return jsonify({'error': 'File not found'}), 404
 
 @app.route('/api/people/update', methods=['POST'])
 def update_founder_profile():
@@ -2098,6 +2130,10 @@ def upload_community_file():
         }), 400
 
     unique_name = f"qa_{int(datetime.utcnow().timestamp())}_{uuid.uuid4().hex[:6]}_{filename}"
+    try:
+        os.makedirs(COMMUNITY_UPLOADS_DIR, exist_ok=True)
+    except Exception:
+        pass
     save_path = os.path.join(COMMUNITY_UPLOADS_DIR, unique_name)
     file.save(save_path)
 
@@ -2116,7 +2152,12 @@ def upload_community_file():
 
 @app.route('/assets/community_uploads/<path:filename>')
 def serve_community_upload(filename):
-    return send_from_directory(COMMUNITY_UPLOADS_DIR, filename)
+    if os.path.exists(os.path.join(COMMUNITY_UPLOADS_DIR, filename)):
+        return send_from_directory(COMMUNITY_UPLOADS_DIR, filename)
+    fallback_dir = os.path.join(BASE_DIR, 'assets', 'community_uploads')
+    if os.path.exists(os.path.join(fallback_dir, filename)):
+        return send_from_directory(fallback_dir, filename)
+    return jsonify({'error': 'File not found'}), 404
 
 
 @app.route('/api/community/questions', methods=['GET'])
@@ -2332,7 +2373,9 @@ def delete_community_answer(aid):
 # ============================================================================
 # 4. STARTUP DATABASE INITIALIZATION & DEFAULT SEEDING
 # ============================================================================
-with app.app_context():
+_app_ctx = app.app_context()
+_app_ctx.push()
+try:
     db.create_all()
 
     # Seed Founder
@@ -2638,6 +2681,13 @@ with app.app_context():
         except Exception as se:
             db.session.rollback()
             print(f"[Q&A Seeding Notice] Could not seed community questions: {se}")
+except Exception as e:
+    logging.warning(f"[Database Startup Notice] Startup database operation notice: {e}")
+finally:
+    try:
+        _app_ctx.pop()
+    except Exception:
+        pass
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
