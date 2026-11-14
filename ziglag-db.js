@@ -474,8 +474,12 @@
 
       save: async function (lectureData) {
         const normUrl = window.ZiglagDB.utils.normalizeVideoUrl(lectureData.video_url || lectureData.videoUrl || '');
+        const topicCat = lectureData.topic_category || lectureData.group || lectureData.topic || 'General';
         const payloadData = {
           ...lectureData,
+          topic_category: topicCat,
+          group: topicCat,
+          topic: topicCat,
           video_url: normUrl
         };
         try {
@@ -489,6 +493,9 @@
           id: lectureData.id || ('lec_' + Date.now()),
           course_id: lectureData.course_id || lectureData.courseId,
           title: lectureData.title,
+          topic_category: topicCat,
+          group: topicCat,
+          topic: topicCat,
           video_url: normUrl,
           duration: lectureData.duration || '30 mins',
           order_index: parseInt(lectureData.order_index || 1, 10),
@@ -500,6 +507,22 @@
         list.push(payload);
         localStorage.setItem(key, JSON.stringify(list));
         return payload;
+      },
+
+      delete: async function (lectureId, courseId) {
+        try {
+          const res = await apiRequest('/api/lectures/' + encodeURIComponent(lectureId), 'DELETE');
+          if (res && res.success) return true;
+        } catch (e) {
+          console.warn('[ZiglagDB] Delete lecture API notice:', e)
+        }
+        if (courseId) {
+          const key = 'ZIGLAG_LOCAL_LECTURES_' + courseId;
+          let list = JSON.parse(localStorage.getItem(key) || '[]');
+          list = list.filter(l => l.id !== lectureId);
+          localStorage.setItem(key, JSON.stringify(list));
+        }
+        return true;
       }
     },
 

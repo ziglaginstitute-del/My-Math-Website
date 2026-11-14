@@ -89,6 +89,18 @@
               <a id="drive-direct-link" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="white-space:nowrap; border-color:var(--secondary-color); color:var(--secondary-color);">Open in Google Drive ↗</a>
             </div>
           </div>
+
+          <!-- Active Lecture Topic Category & Title Banner -->
+          <div id="active-lecture-banner" style="margin-top:0.75rem; padding:0.85rem 1.25rem; background:rgba(255,255,255,0.03); border-radius:var(--radius-md); border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+              <span id="active-lecture-topic-badge" class="badge" style="background: rgba(147, 51, 234, 0.2); color: #c084fc; font-weight:600; font-size: 0.78rem; padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(147, 51, 234, 0.35);">🏷️ Topic: General</span>
+              <h3 id="active-lecture-title-display" style="margin:0; font-size:1.05rem; color:var(--text-main);">Lecture Session</h3>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+              <span id="active-lecture-duration-display" style="font-size:0.8rem; color:var(--text-muted);">⏱️ 30 mins</span>
+              <a id="active-lecture-notes-link" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display:none; padding:0.25rem 0.6rem; font-size:0.78rem; color:var(--primary-color);">📄 Companion Notes</a>
+            </div>
+          </div>
         </div>
 
         <!-- Tab Details Area -->
@@ -501,14 +513,24 @@
       // Check for live lectures added via Admin CMS
       try {
         if (window.ZiglagDB && window.ZiglagDB.lectures) {
-          const remoteLectures = await window.ZiglagDB.lectures.listByCourse(activeCourse.id);
+          let remoteLectures = await window.ZiglagDB.lectures.listByCourse(activeCourse.id);
+          if ((!remoteLectures || remoteLectures.length === 0) && activeCourse.id === 'jamb-postjamb-prep') {
+            remoteLectures = await window.ZiglagDB.lectures.listByCourse('utme-postutme-prep');
+          } else if ((!remoteLectures || remoteLectures.length === 0) && activeCourse.id === 'utme-postutme-prep') {
+            remoteLectures = await window.ZiglagDB.lectures.listByCourse('jamb-postjamb-prep');
+          }
+
           if (remoteLectures && remoteLectures.length > 0) {
             const formatted = remoteLectures.map(l => ({
+              id: l.id,
               title: l.title,
               length: l.duration || '30 mins',
               seconds: 1800,
-              group: 'Curriculum Masterclasses',
-              videoUrl: window.normalizeVideoUrl ? window.normalizeVideoUrl(l.video_url) : l.video_url
+              group: l.topic_category || l.group || l.topic || 'General',
+              topic: l.topic_category || l.group || l.topic || 'General',
+              videoUrl: window.normalizeVideoUrl ? window.normalizeVideoUrl(l.video_url) : l.video_url,
+              notesUrl: l.notes_url || '',
+              description: l.description || ''
             }));
             const base = COURSE_LECTURES[activeCourse.id] || [];
             const merged = [...formatted];
@@ -516,6 +538,8 @@
               if (!merged.some(m => m.title === b.title)) merged.push(b);
             });
             COURSE_LECTURES[activeCourse.id] = merged;
+            if (activeCourse.id === 'utme-postutme-prep') COURSE_LECTURES['jamb-postjamb-prep'] = merged;
+            if (activeCourse.id === 'jamb-postjamb-prep') COURSE_LECTURES['utme-postutme-prep'] = merged;
           }
         }
       } catch (err) {
@@ -537,7 +561,7 @@
       const list = document.getElementById("lecture-playlist-items");
       list.innerHTML = "";
       
-      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['wassce-gce-neco-prep'];
+      const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['wassce-gce-neco-prep'] || [];
       
       // Sync playlist progress state with local storage
       const completedList = AppState.completedLessons[activeCourse.id] || [];
@@ -545,25 +569,29 @@
       let lastGroup = null;
 
       lectures.forEach((l, index) => {
-        // Group heading separator
-        if (l.group && l.group !== lastGroup) {
+        // Group heading separator for topic categories
+        const currentGroup = l.group || l.topic_category || l.topic || 'General';
+        if (currentGroup && currentGroup !== lastGroup) {
           const header = document.createElement("li");
           header.className = "playlist-group-header";
           header.style.padding = "0.6rem 0.75rem";
           header.style.color = "var(--secondary-color)";
-          header.style.fontWeight = "600";
+          header.style.fontWeight = "700";
           header.style.fontSize = "0.78rem";
-          header.style.letterSpacing = "0.03em";
+          header.style.letterSpacing = "0.04em";
           header.style.textTransform = "uppercase";
-          header.style.background = "rgba(255, 255, 255, 0.02)";
+          header.style.background = "rgba(255, 255, 255, 0.03)";
           header.style.borderLeft = "3px solid var(--secondary-color)";
-          header.style.marginTop = "0.75rem";
-          header.style.marginBottom = "0.25rem";
+          header.style.marginTop = index === 0 ? "0" : "0.85rem";
+          header.style.marginBottom = "0.35rem";
           header.style.listStyle = "none";
           header.style.borderRadius = "var(--radius-sm)";
-          header.innerText = l.group;
+          header.style.display = "flex";
+          header.style.alignItems = "center";
+          header.style.gap = "0.4rem";
+          header.innerHTML = `<span>📑</span> <span>${currentGroup}</span>`;
           list.appendChild(header);
-          lastGroup = l.group;
+          lastGroup = currentGroup;
         }
 
         const item = document.createElement("li");
@@ -577,7 +605,10 @@
           <div class="playlist-status"></div>
           <div style="flex:1;">
             <p style="font-weight: 500; font-size: 0.9rem; color: var(--text-main); margin:0;">${l.title}</p>
-            <span style="font-size:0.75rem; color:var(--text-muted);">Duration: ${l.length} mins</span>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem; flex-wrap:wrap;">
+              <span class="badge" style="background: rgba(147, 51, 234, 0.15); color: #c084fc; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(147, 51, 234, 0.25);">🏷️ ${currentGroup}</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Duration: ${l.length}</span>
+            </div>
           </div>
           <button class="btn btn-secondary btn-sm" style="padding:0.2rem 0.4rem; border:none; background:transparent; font-size: 0.8rem;" onclick="toggleComplete(event, ${index})">
             ${isCompleted ? '↩ Reset' : '✓ Done'}
@@ -617,6 +648,24 @@
       document.getElementById("mini-time-display").innerText = "00:00 / " + lecture.length;
       document.getElementById("video-timer").innerText = "Progress: 00:00 / " + lecture.length;
       document.getElementById("video-progress-bar").style.width = "0%";
+
+      // Update Active Lecture Banner with Topic Category
+      const topicCat = lecture.group || lecture.topic_category || lecture.topic || 'General';
+      const topicBadge = document.getElementById("active-lecture-topic-badge");
+      if (topicBadge) topicBadge.textContent = "🏷️ Topic: " + topicCat;
+      const titleDisplay = document.getElementById("active-lecture-title-display");
+      if (titleDisplay) titleDisplay.textContent = lecture.title;
+      const durationDisplay = document.getElementById("active-lecture-duration-display");
+      if (durationDisplay) durationDisplay.textContent = "⏱️ " + lecture.length;
+      const notesBtn = document.getElementById("active-lecture-notes-link");
+      if (notesBtn) {
+        if (lecture.notesUrl) {
+          notesBtn.href = lecture.notesUrl;
+          notesBtn.style.display = "inline-flex";
+        } else {
+          notesBtn.style.display = "none";
+        }
+      }
 
       // Reset Active Class
       const items = document.querySelectorAll(".playlist-item");

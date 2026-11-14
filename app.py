@@ -291,6 +291,7 @@ class Lecture(db.Model):
     id = db.Column(db.String(100), primary_key=True)
     course_id = db.Column(db.String(100), nullable=False)
     title = db.Column(db.String(200), nullable=False)
+    topic_category = db.Column(db.String(150), default='General')
     description = db.Column(db.Text, nullable=True)
     video_url = db.Column(db.String(500), nullable=False)
     duration = db.Column(db.String(50), default='30 mins')
@@ -300,10 +301,14 @@ class Lecture(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
+        topic = self.topic_category or 'General'
         return {
             'id': self.id,
             'course_id': self.course_id,
             'title': self.title,
+            'topic_category': topic,
+            'group': topic,
+            'topic': topic,
             'description': self.description or '',
             'video_url': self.video_url,
             'videoUrl': self.video_url,
@@ -1108,10 +1113,12 @@ def handle_lectures():
     if request.method == 'POST':
         data = request.get_json() or {}
         lid = data.get('id') or f"lec_{int(datetime.utcnow().timestamp())}"
+        topic_cat = data.get('topic_category') or data.get('group') or data.get('topic') or 'General'
         lec = Lecture(
             id=lid,
             course_id=data.get('course_id') or data.get('courseId'),
             title=data.get('title'),
+            topic_category=topic_cat,
             description=data.get('description', ''),
             video_url=data.get('video_url') or data.get('videoUrl'),
             duration=data.get('duration', '30 mins'),
@@ -1202,6 +1209,9 @@ def lecture_detail(lid):
     if 'description' in data: lec.description = data['description']
     if 'video_url' in data: lec.video_url = data['video_url']
     if 'duration' in data: lec.duration = data['duration']
+    if 'topic_category' in data: lec.topic_category = data['topic_category']
+    elif 'group' in data: lec.topic_category = data['group']
+    elif 'topic' in data: lec.topic_category = data['topic']
     if 'order_index' in data: lec.order_index = int(data['order_index'] or 1)
     if 'notes_url' in data: lec.notes_url = data['notes_url']
     db.session.commit()

@@ -880,6 +880,34 @@
           </div>
 
           <div class="form-group">
+            <label>Topic Category (e.g. Number Bases, Mechanics, Linear Algebra)</label>
+            <input type="text" id="lecture-topic" class="admin-input" placeholder="e.g. Number Bases, Mechanics, Linear Algebra" list="admin-lecture-topics-list" required>
+            <datalist id="admin-lecture-topics-list">
+              <option value="Number Bases">
+              <option value="Algebraic Fractions & Graphs">
+              <option value="Circle Geometry Theorems">
+              <option value="Calculus & Limits">
+              <option value="Complex Numbers & Trigonometry">
+              <option value="Mechanics">
+              <option value="Thermal Energy & Waves">
+              <option value="Electricity & Magnetism">
+              <option value="Mechanics & Heat">
+              <option value="Electricity & Light">
+              <option value="Modern Physics">
+              <option value="IGCSE Mathematics (0580)">
+              <option value="A-Level Pure Mathematics">
+              <option value="IGCSE Physics">
+              <option value="A-Level Physics">
+              <option value="Linear Algebra">
+              <option value="Multivariable Calculus">
+              <option value="Differential Equations">
+            </datalist>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem;">
+              🏷️ Lectures are automatically organized under this topic heading in the Study Room.
+            </div>
+          </div>
+
+          <div class="form-group">
             <label>Lecture Title</label>
             <input type="text" id="lecture-title" class="admin-input" placeholder="e.g. Lesson 1: Limits & First-Principles Derivation" required>
           </div>
@@ -1230,9 +1258,10 @@
                 <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                   ${courseLectures.map(lec => `
                     <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 0.65rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--admin-border);">
-                      <div style="display: flex; align-items: center; gap: 0.75rem;">
+                      <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                         <span style="font-family: monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 0.2rem 0.5rem; border-radius: 4px;">#${lec.order_index || 1}</span>
                         <strong style="font-size: 0.9rem;">${lec.title}</strong>
+                        <span class="badge" style="background: rgba(147, 51, 234, 0.15); color: #c084fc; font-size: 0.75rem; border: 1px solid rgba(147, 51, 234, 0.3);">🏷️ ${lec.topic_category || lec.group || lec.topic || 'General'}</span>
                         <span style="color: var(--text-muted); font-size: 0.8rem;">⏱️ ${lec.duration || '30 mins'}</span>
                       </div>
                       <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -1342,6 +1371,7 @@
         `).join('');
 
       document.getElementById("lecture-title").value = "";
+      document.getElementById("lecture-topic").value = "";
       document.getElementById("lecture-video-url").value = "";
       document.getElementById("lecture-duration").value = "30 mins";
       document.getElementById("lecture-order").value = "1";
@@ -1357,6 +1387,12 @@
       document.getElementById("lecture-course-select").value = courseId;
       const existing = CURRENT_LECTURES.filter(l => l.course_id === courseId);
       document.getElementById("lecture-order").value = existing.length + 1;
+      if (existing.length > 0) {
+        const lastLec = existing[existing.length - 1];
+        if (lastLec.topic_category || lastLec.group || lastLec.topic) {
+          document.getElementById("lecture-topic").value = lastLec.topic_category || lastLec.group || lastLec.topic;
+        }
+      }
     }
 
     function closeLectureModal() {
@@ -1395,9 +1431,13 @@
         return;
       }
 
+      const topicCategory = document.getElementById("lecture-topic").value.trim() || "General";
       const payload = {
         course_id: courseId,
         title: document.getElementById("lecture-title").value.trim(),
+        topic_category: topicCategory,
+        group: topicCategory,
+        topic: topicCategory,
         video_url: formatVideoEmbedUrl(document.getElementById("lecture-video-url").value.trim()),
         duration: document.getElementById("lecture-duration").value.trim() || "30 mins",
         order_index: parseInt(document.getElementById("lecture-order").value) || 1,
