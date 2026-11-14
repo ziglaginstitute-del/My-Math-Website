@@ -458,7 +458,8 @@
     lectures: {
       listByCourse: async function (courseId) {
         try {
-          const list = await apiRequest(`/api/lectures?course_id=${encodeURIComponent(courseId)}`);
+          const url = (courseId && String(courseId).trim()) ? `/api/lectures?course_id=${encodeURIComponent(courseId)}` : '/api/lectures';
+          const list = await apiRequest(url);
           if (list && list.length > 0) return list;
         } catch (e) {
           console.warn('[ZiglagDB] Lectures fetch API error, checking local:', e);
