@@ -28,6 +28,27 @@
   }
 
   const ZiglagDB = {
+    utils: {
+      parseYouTubeId: function (url) {
+        if (!url) return null;
+        const regExp = /(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+        const match = url.match(regExp);
+        return (match && match[1]) ? match[1] : null;
+      },
+      normalizeVideoUrl: function (url) {
+        if (!url) return "";
+        const trimmed = url.trim();
+        const ytId = this.parseYouTubeId(trimmed);
+        if (ytId) {
+          return `https://www.youtube.com/embed/${ytId}`;
+        }
+        if (trimmed.includes("drive.google.com") && trimmed.includes("/view")) {
+          return trimmed.replace(/\/view.*/, "/preview");
+        }
+        return trimmed;
+      }
+    },
+
     config: {
       getUrl: function () {
         return localStorage.getItem('ZIGLAG_DB_URL') || '/api';
@@ -389,6 +410,10 @@
         ]));
       },
 
+      create: async function (courseData) {
+        return await this.save(courseData);
+      },
+
       save: async function (courseData) {
         try {
           const res = await apiRequest('/api/courses', 'POST', courseData);
@@ -402,11 +427,14 @@
           id: courseData.id || ('course_' + Date.now()),
           title: courseData.title,
           slug: courseData.slug || courseData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          category: courseData.category || 'JAMB / Post-JAMB',
+          category: courseData.category || 'exams',
+          subcategory: courseData.subcategory || courseData.subcat || 'General',
           description: courseData.description || '',
           icon: courseData.icon || '📐',
-          badge: courseData.badge || 'Popular',
+          badge: courseData.badge || 'Comprehensive',
           instructor: courseData.instructor || 'Mr. Isaac Olusola',
+          duration_weeks: parseInt(courseData.duration_weeks || 6, 10),
+          syllabus: courseData.syllabus || [],
           display_order: parseInt(courseData.display_order || 0, 10)
         };
         list.push(payload);
@@ -439,9 +467,18 @@
         return JSON.parse(localStorage.getItem('ZIGLAG_LOCAL_LECTURES_' + courseId) || '[]');
       },
 
+      create: async function (lectureData) {
+        return await this.save(lectureData);
+      },
+
       save: async function (lectureData) {
+        const normUrl = window.ZiglagDB.utils.normalizeVideoUrl(lectureData.video_url || lectureData.videoUrl || '');
+        const payloadData = {
+          ...lectureData,
+          video_url: normUrl
+        };
         try {
-          const res = await apiRequest('/api/lectures', 'POST', lectureData);
+          const res = await apiRequest('/api/lectures', 'POST', payloadData);
           if (res.success) return res.lecture;
         } catch (e) {
           console.warn('[ZiglagDB] Save lecture API error, saving locally:', e);
@@ -451,9 +488,11 @@
           id: lectureData.id || ('lec_' + Date.now()),
           course_id: lectureData.course_id || lectureData.courseId,
           title: lectureData.title,
-          video_url: lectureData.video_url || lectureData.videoUrl,
+          video_url: normUrl,
           duration: lectureData.duration || '30 mins',
-          order_index: parseInt(lectureData.order_index || 1, 10)
+          order_index: parseInt(lectureData.order_index || 1, 10),
+          notes_url: lectureData.notes_url || '',
+          description: lectureData.description || ''
         };
         const key = 'ZIGLAG_LOCAL_LECTURES_' + payload.course_id;
         const list = JSON.parse(localStorage.getItem(key) || '[]');
@@ -494,6 +533,10 @@
         ]));
       },
 
+      create: async function (item) {
+        return await this.save(item);
+      },
+
       save: async function (item) {
         try {
           const res = await apiRequest('/api/vault', 'POST', item);
@@ -506,10 +549,11 @@
         const payload = {
           id: item.id || ('res_' + Date.now()),
           title: item.title,
-          category: item.category || 'JAMB UTME',
+          category: item.category || 'exams',
+          subcategory: item.subcategory || item.subcat || 'General',
           file_url: item.file_url || '#',
           file_size: item.file_size || '1.5 MB',
-          badge: item.badge || 'PDF',
+          badge: item.badge || 'PDF Bundle',
           description: item.description || ''
         };
         list.unshift(payload);
@@ -624,4 +668,7 @@
   };
 
   window.ZiglagDB = ZiglagDB;
+  window.normalizeVideoUrl = function (url) {
+    return ZiglagDB.utils ? ZiglagDB.utils.normalizeVideoUrl(url) : (url || "");
+  };
 })(window);

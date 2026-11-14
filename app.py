@@ -246,26 +246,42 @@ class Course(db.Model):
     title = db.Column(db.String(150), nullable=False)
     slug = db.Column(db.String(150), unique=True, nullable=False)
     category = db.Column(db.String(100), nullable=False)
+    subcategory = db.Column(db.String(100), default='General')
     description = db.Column(db.Text, nullable=True)
     icon = db.Column(db.String(20), default='📐')
     badge = db.Column(db.String(50), default='Comprehensive')
     instructor = db.Column(db.String(100), default='Mr. Isaac Olusola')
     duration_weeks = db.Column(db.Integer, default=6)
+    syllabus_json = db.Column(db.Text, default='[]')
     display_order = db.Column(db.Integer, default=0)
     is_published = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
+        try:
+            syl = json.loads(self.syllabus_json) if self.syllabus_json else []
+        except Exception:
+            syl = []
+        weeks = self.duration_weeks or 6
+        dur_display = f"{weeks * 5} Hours"
         return {
             'id': self.id,
             'title': self.title,
             'slug': self.slug,
             'category': self.category,
+            'subcategory': self.subcategory or 'General',
+            'subcat': self.subcategory or 'General',
+            'sphere': self.category,
             'description': self.description or '',
+            'shortDesc': self.description or '',
             'icon': self.icon or '📐',
+            'imageIcon': self.icon or '📐',
             'badge': self.badge or 'Comprehensive',
+            'level': self.badge or 'Comprehensive',
             'instructor': self.instructor or 'Mr. Isaac Olusola',
-            'duration_weeks': self.duration_weeks,
+            'duration_weeks': weeks,
+            'duration': dur_display,
+            'syllabus': syl if (isinstance(syl, list) and len(syl) > 0) else ['Foundational Principles', 'Worked Examples', 'Past Question Walkthrough', 'Exam Mastery Challenge'],
             'display_order': self.display_order,
             'created_at': self.created_at.isoformat() if self.created_at else ''
         }
@@ -290,7 +306,9 @@ class Lecture(db.Model):
             'title': self.title,
             'description': self.description or '',
             'video_url': self.video_url,
+            'videoUrl': self.video_url,
             'duration': self.duration or '30 mins',
+            'length': self.duration or '30 mins',
             'order_index': self.order_index,
             'notes_url': self.notes_url or '',
             'created_at': self.created_at.isoformat() if self.created_at else ''
@@ -301,6 +319,7 @@ class VaultResource(db.Model):
     id = db.Column(db.String(100), primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     category = db.Column(db.String(100), nullable=False)
+    subcategory = db.Column(db.String(100), default='General')
     file_url = db.Column(db.String(500), nullable=False)
     file_size = db.Column(db.String(50), default='1.5 MB')
     badge = db.Column(db.String(50), default='PDF')
@@ -314,9 +333,14 @@ class VaultResource(db.Model):
             'id': self.id,
             'title': self.title,
             'category': self.category,
+            'subcategory': self.subcategory or 'General',
+            'subcat': self.subcategory or 'General',
             'file_url': self.file_url,
+            'fileUrl': self.file_url,
             'file_size': self.file_size or '1.5 MB',
-            'badge': self.badge or 'PDF',
+            'size': self.file_size or '1.5 MB',
+            'badge': self.badge or 'PDF Bundle',
+            'type': self.badge or 'PDF Bundle',
             'description': self.description or '',
             'downloads_count': self.downloads_count,
             'created_at': self.created_at.isoformat() if self.created_at else ''
@@ -1056,16 +1080,20 @@ def handle_courses():
         data = request.get_json() or {}
         cid = data.get('id') or f"course_{int(datetime.utcnow().timestamp())}"
         slug = data.get('slug') or data.get('title', '').lower().replace(' ', '-')
+        syl_data = data.get('syllabus') or []
+        syl_str = json.dumps(syl_data) if isinstance(syl_data, list) else str(syl_data)
         course = Course(
             id=cid,
             title=data.get('title'),
             slug=slug,
-            category=data.get('category', 'JAMB / Post-JAMB'),
+            category=data.get('category', 'exams'),
+            subcategory=data.get('subcategory') or data.get('subcat', 'General'),
             description=data.get('description', ''),
             icon=data.get('icon', '📐'),
-            badge=data.get('badge', 'Popular'),
+            badge=data.get('badge', 'Comprehensive'),
             instructor=data.get('instructor', 'Mr. Isaac Olusola'),
             duration_weeks=int(data.get('duration_weeks') or 6),
+            syllabus_json=syl_str,
             display_order=int(data.get('display_order') or 0)
         )
         db.session.add(course)
@@ -1110,10 +1138,11 @@ def handle_vault():
         res = VaultResource(
             id=rid,
             title=data.get('title'),
-            category=data.get('category', 'JAMB UTME'),
+            category=data.get('category', 'exams'),
+            subcategory=data.get('subcategory') or data.get('subcat', 'General'),
             file_url=data.get('file_url') or data.get('fileUrl', '#'),
             file_size=data.get('file_size', '1.5 MB'),
-            badge=data.get('badge', 'PDF'),
+            badge=data.get('badge', 'PDF Bundle'),
             description=data.get('description', '')
         )
         db.session.add(res)
@@ -1147,6 +1176,11 @@ def course_detail(cid):
     if 'icon' in data: course.icon = data['icon']
     if 'badge' in data: course.badge = data['badge']
     if 'instructor' in data: course.instructor = data['instructor']
+    if 'subcategory' in data: course.subcategory = data['subcategory']
+    if 'subcat' in data: course.subcategory = data['subcat']
+    if 'syllabus' in data:
+        syl = data['syllabus']
+        course.syllabus_json = json.dumps(syl) if isinstance(syl, list) else str(syl)
     if 'duration_weeks' in data: course.duration_weeks = int(data['duration_weeks'] or 6)
     if 'display_order' in data: course.display_order = int(data['display_order'] or 0)
     db.session.commit()
@@ -1187,6 +1221,8 @@ def vault_detail(rid):
     data = request.get_json() or {}
     if 'title' in data: res.title = data['title']
     if 'category' in data: res.category = data['category']
+    if 'subcategory' in data: res.subcategory = data['subcategory']
+    if 'subcat' in data: res.subcategory = data['subcat']
     if 'file_url' in data: res.file_url = data['file_url']
     if 'file_size' in data: res.file_size = data['file_size']
     if 'badge' in data: res.badge = data['badge']

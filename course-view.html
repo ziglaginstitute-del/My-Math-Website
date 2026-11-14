@@ -433,19 +433,53 @@
     COURSE_QUIZZES['wassce-gce-prep'] = COURSE_QUIZZES['wassce-gce-neco-prep'];
     COURSE_QUIZZES['neco-prep'] = COURSE_QUIZZES['wassce-gce-neco-prep'];
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       // Find course parameters
       const params = new URLSearchParams(window.location.search);
       const cid = params.get("id") || "wassce-gce-neco-prep";
       
-      activeCourse = MATH_DATABASE.courses.find(c => c.id === cid) || MATH_DATABASE.courses[0];
+      // Asynchronously fetch latest courses from Neon Database
+      try {
+        if (window.ZiglagDB && window.ZiglagDB.courses) {
+          const liveCourses = await window.ZiglagDB.courses.list();
+          if (liveCourses && liveCourses.length > 0) {
+            liveCourses.forEach(lc => {
+              const existingIdx = MATH_DATABASE.courses.findIndex(c => c.id === lc.id || c.id === lc.slug);
+              const courseObj = {
+                id: lc.id || lc.slug,
+                title: lc.title,
+                category: lc.category,
+                sphere: lc.category || 'exams',
+                subcat: lc.subcategory || lc.subcat || 'General',
+                shortDesc: lc.description || 'Master key principles with Mr. Isaac Olusola.',
+                level: lc.badge || 'Core STEM',
+                duration: `${lc.duration_weeks || 6} Weeks`,
+                materials: 8,
+                rating: 4.9,
+                lectures: 6,
+                imageIcon: lc.icon || '📐',
+                syllabus: (lc.syllabus && lc.syllabus.length > 0) ? lc.syllabus : ['Foundational Concepts', 'Calculated Examples', 'Past Questions Review', 'Mastery Challenge']
+              };
+              if (existingIdx >= 0) {
+                MATH_DATABASE.courses[existingIdx] = { ...MATH_DATABASE.courses[existingIdx], ...courseObj };
+              } else {
+                MATH_DATABASE.courses.push(courseObj);
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Notice loading dynamic courses:', e);
+      }
+
+      activeCourse = MATH_DATABASE.courses.find(c => c.id === cid || c.slug === cid) || MATH_DATABASE.courses[0];
       
       // Inject course content details
       document.getElementById("overview-course-title").innerText = activeCourse.title;
       document.getElementById("overview-course-desc").innerText = activeCourse.shortDesc;
       
       const modulesList = document.getElementById("overview-modules-list");
-      modulesList.innerHTML = activeCourse.syllabus.map(m => `
+      modulesList.innerHTML = (activeCourse.syllabus || []).map(m => `
         <li style="display:flex; align-items:center; gap:0.75rem;">
           <span style="background:rgba(99,102,241,0.1); width:28px; height:28px; border-radius:50%; display:flex; justify-content:center; align-items:center; color:var(--primary-color); font-weight:bold; font-size:0.85rem;">✓</span>
           <span style="color:var(--text-main); font-weight:500;">${m}</span>
@@ -455,7 +489,7 @@
       // Listen to real video ended events to auto-complete the lesson
       const videoPlayer = document.getElementById("actual-video-player");
       videoPlayer.addEventListener("ended", () => {
-        const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['wassce-gce-neco-prep'];
+        const lectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['wassce-gce-neco-prep'] || [];
         if (lectures[activeLectureIndex]) {
           AppState.toggleLessonComplete(activeCourse.id, `lec-${activeLectureIndex}`);
           renderPlaylist();
@@ -464,26 +498,38 @@
         }
       });
 
-      renderPlaylist();
-      renderQuiz();
-      updateProgressUI();
-
-      // Check for live lectures added via Supabase Admin CMS
-      if (window.ZiglagDB && window.ZiglagDB.lectures) {
-        window.ZiglagDB.lectures.listByCourse(activeCourse.id).then(remoteLectures => {
+      // Check for live lectures added via Admin CMS
+      try {
+        if (window.ZiglagDB && window.ZiglagDB.lectures) {
+          const remoteLectures = await window.ZiglagDB.lectures.listByCourse(activeCourse.id);
           if (remoteLectures && remoteLectures.length > 0) {
             const formatted = remoteLectures.map(l => ({
               title: l.title,
               length: l.duration || '30 mins',
               seconds: 1800,
-              group: 'Admin Published (Live)',
-              videoUrl: l.video_url
+              group: 'Curriculum Masterclasses',
+              videoUrl: window.normalizeVideoUrl ? window.normalizeVideoUrl(l.video_url) : l.video_url
             }));
             const base = COURSE_LECTURES[activeCourse.id] || [];
-            COURSE_LECTURES[activeCourse.id] = formatted.concat(base);
-            renderPlaylist();
+            const merged = [...formatted];
+            base.forEach(b => {
+              if (!merged.some(m => m.title === b.title)) merged.push(b);
+            });
+            COURSE_LECTURES[activeCourse.id] = merged;
           }
-        }).catch(err => console.warn('Notice loading dynamic lectures:', err));
+        }
+      } catch (err) {
+        console.warn('Notice loading dynamic lectures:', err);
+      }
+
+      renderPlaylist();
+      renderQuiz();
+      updateProgressUI();
+      
+      // Auto-preview first lecture if available
+      const currentLectures = COURSE_LECTURES[activeCourse.id] || COURSE_LECTURES['wassce-gce-neco-prep'] || [];
+      if (currentLectures.length > 0) {
+        selectLecture(0);
       }
     });
 
@@ -588,21 +634,10 @@
         document.getElementById("video-blackboard").style.display = "none";
         document.getElementById("mock-controls-bar").style.display = "none";
         
-        let targetUrl = lecture.videoUrl;
+        let targetUrl = window.normalizeVideoUrl ? window.normalizeVideoUrl(lecture.videoUrl) : lecture.videoUrl;
         
         if (targetUrl.includes("youtube.com") || targetUrl.includes("youtu.be") || targetUrl.includes("drive.google.com")) {
           iframePlayer.style.display = "block";
-          
-          // Auto-convert standard YouTube watch links or Google Drive view links to embed preview format
-          if (targetUrl.includes("watch?v=")) {
-            const videoId = targetUrl.split("watch?v=")[1].split("&")[0];
-            targetUrl = `https://www.youtube.com/embed/${videoId}`;
-          } else if (targetUrl.includes("youtu.be/")) {
-            const videoId = targetUrl.split("youtu.be/")[1].split("?")[0].split("&")[0];
-            targetUrl = `https://www.youtube.com/embed/${videoId}`;
-          } else if (targetUrl.includes("drive.google.com") && targetUrl.includes("/view")) {
-            targetUrl = targetUrl.replace(/\/view.*/, "/preview");
-          }
 
           if (lecture.videoUrl.includes("drive.google.com")) {
             const directDriveUrl = lecture.videoUrl.replace("/preview", "/view");

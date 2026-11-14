@@ -264,26 +264,32 @@
         }
       }
 
-      // Enrich courses from Supabase Admin CMS
+      // Enrich courses from Neon Database
       try {
         if (window.ZiglagDB && window.ZiglagDB.courses) {
           const liveCourses = await window.ZiglagDB.courses.list();
           if (liveCourses && liveCourses.length > 0 && window.MATH_DATABASE && window.MATH_DATABASE.courses) {
             liveCourses.forEach(lc => {
-              if (!window.MATH_DATABASE.courses.some(c => c.id === lc.id || c.id === lc.slug)) {
-                window.MATH_DATABASE.courses.push({
-                  id: lc.slug || lc.id,
-                  title: lc.title,
-                  category: lc.category,
-                  shortDesc: lc.description || 'Master key principles with Mr. Isaac Olusola.',
-                  level: lc.badge || 'Core STEM',
-                  duration: `${lc.duration_weeks || 6} Weeks`,
-                  materials: 8,
-                  rating: 4.9,
-                  lectures: 12,
-                  sphere: lc.category.toLowerCase().includes('jamb') ? 'exams' : (lc.category.toLowerCase().includes('wassce') ? 'secondary' : 'undergrad'),
-                  syllabus: ['Foundational Concepts', 'Calculated Examples', 'Past Questions Review', 'Mastery Challenge']
-                });
+              const existingIdx = window.MATH_DATABASE.courses.findIndex(c => c.id === lc.id || c.id === lc.slug);
+              const courseObj = {
+                id: lc.id || lc.slug,
+                title: lc.title,
+                category: lc.category,
+                sphere: lc.category || lc.sphere || 'exams',
+                subcat: lc.subcategory || lc.subcat || 'General',
+                shortDesc: lc.description || 'Master key principles with Mr. Isaac Olusola.',
+                level: lc.badge || 'Core STEM',
+                duration: `${lc.duration_weeks || 6} Weeks`,
+                materials: 8,
+                rating: 4.9,
+                lectures: 6,
+                imageIcon: lc.icon || '📐',
+                syllabus: (lc.syllabus && lc.syllabus.length > 0) ? lc.syllabus : ['Foundational Concepts', 'Calculated Examples', 'Past Questions Review', 'Mastery Challenge']
+              };
+              if (existingIdx >= 0) {
+                window.MATH_DATABASE.courses[existingIdx] = { ...window.MATH_DATABASE.courses[existingIdx], ...courseObj };
+              } else {
+                window.MATH_DATABASE.courses.push(courseObj);
               }
             });
           }
@@ -350,12 +356,14 @@
 
         // Exam Target Selection Filter
         if (hasExamSelection) {
-          const matchAp = examAp && (c.id.includes("ap") || c.title.includes("AP"));
-          const matchIgcse = examIgcse && c.id.includes("igcse");
-          const matchGcse = examGcse && c.id.includes("gcse");
-          const matchWassce = examWassce && c.id.includes("wassce");
-          const matchUtme = examUtme && c.id.includes("utme");
-          const matchGce = examGce && c.id.includes("gce");
+          const sub = (c.subcat || '').toUpperCase();
+          const cid = (c.id || '').toLowerCase();
+          const matchAp = examAp && (sub.includes('AP') || cid.includes('ap'));
+          const matchIgcse = examIgcse && (sub.includes('IGCSE') || cid.includes('igcse'));
+          const matchGcse = examGcse && (sub.includes('GCSE') || cid.includes('gcse'));
+          const matchWassce = examWassce && (sub.includes('WASSCE') || cid.includes('wassce'));
+          const matchUtme = examUtme && (sub.includes('JAMB') || sub.includes('UTME') || cid.includes('utme') || cid.includes('jamb'));
+          const matchGce = examGce && (sub.includes('GCE') || cid.includes('gce'));
 
           if (!matchAp && !matchIgcse && !matchGcse && !matchWassce && !matchUtme && !matchGce) {
             return false;

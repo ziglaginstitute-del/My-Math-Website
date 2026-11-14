@@ -256,23 +256,27 @@
   <script>
     // Vault Logic Controller
     document.addEventListener("DOMContentLoaded", async () => {
-      // Enrich vault materials from Supabase Admin CMS
+      // Enrich vault materials from Neon Database
       try {
         if (window.ZiglagDB && window.ZiglagDB.vault) {
           const liveVault = await window.ZiglagDB.vault.list();
           if (liveVault && liveVault.length > 0 && window.MATH_DATABASE && window.MATH_DATABASE.vault) {
             liveVault.forEach(item => {
-              if (!window.MATH_DATABASE.vault.some(v => v.id === item.id)) {
-                window.MATH_DATABASE.vault.unshift({
-                  id: item.id,
-                  title: item.title,
-                  category: item.category === 'Formula Sheets' ? 'formulas' : (item.category.includes('JAMB') ? 'past-papers' : 'lecture-notes'),
-                  subcat: item.category.includes('JAMB') ? 'JAMB' : (item.category.includes('WASSCE') ? 'WASSCE' : 'AP MATHS'),
-                  size: item.file_size || '1.5 MB',
-                  type: 'PDF',
-                  description: item.description || 'Verified study materials and solutions from Ziglag Institute.',
-                  downloadUrl: item.file_url || '#'
-                });
+              const existingIdx = window.MATH_DATABASE.vault.findIndex(v => v.id === item.id);
+              const vaultItem = {
+                id: item.id,
+                title: item.title,
+                category: item.category || 'exams',
+                subcat: item.subcategory || item.subcat || 'General',
+                size: item.file_size || item.size || '1.5 MB',
+                type: item.badge || item.type || 'PDF Bundle',
+                description: item.description || 'Verified study materials and solutions from Ziglag Institute.',
+                fileUrl: item.file_url || item.fileUrl || '#'
+              };
+              if (existingIdx >= 0) {
+                window.MATH_DATABASE.vault[existingIdx] = vaultItem;
+              } else {
+                window.MATH_DATABASE.vault.unshift(vaultItem);
               }
             });
           }
@@ -311,12 +315,13 @@
         
         // Subcat check
         if (hasSubSelection) {
-          const matchAp = subAp && v.subcat === "AP MATHS";
-          const matchIgcse = subIgcse && v.subcat === "IGCSE";
-          const matchGcse = subGcse && v.subcat === "GCSE";
-          const matchWassce = subWassce && v.subcat === "WASSCE";
-          const matchJamb = subJamb && v.subcat === "JAMB";
-          const matchGce = subGce && v.subcat === "GCE";
+          const sub = (v.subcat || '').toUpperCase();
+          const matchAp = subAp && sub.includes('AP');
+          const matchIgcse = subIgcse && sub.includes('IGCSE');
+          const matchGcse = subGcse && sub.includes('GCSE');
+          const matchWassce = subWassce && sub.includes('WASSCE');
+          const matchJamb = subJamb && (sub.includes('JAMB') || sub.includes('UTME'));
+          const matchGce = subGce && sub.includes('GCE');
           
           if (!matchAp && !matchIgcse && !matchGcse && !matchWassce && !matchJamb && !matchGce) return false;
         }
@@ -379,7 +384,7 @@
       document.getElementById("pdf-modal-meta").innerText = `${doc.type.toUpperCase()} • ${doc.size}`;
       
       const scrollContent = document.getElementById("pdf-scroll-content");
-      if (doc.fileUrl) {
+      if (doc.fileUrl && doc.fileUrl !== '#') {
         // Clear padding and inject a full-height iframe to render the actual PDF or Google Drive doc
         scrollContent.style.padding = "0";
         let targetDocUrl = doc.fileUrl;

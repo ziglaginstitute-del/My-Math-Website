@@ -524,7 +524,8 @@
           <thead>
             <tr>
               <th>Document Title</th>
-              <th>Category</th>
+              <th>Sphere</th>
+              <th>Subcategory</th>
               <th>Badge</th>
               <th>File Size</th>
               <th>Published Date</th>
@@ -791,24 +792,50 @@
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="form-group">
-              <label>Curriculum Category</label>
+              <label>Mathematics Sphere (Main Category)</label>
               <select id="course-category" class="admin-select" required>
-                <option value="Senior Secondary WASSCE">Senior Secondary WASSCE / NECO</option>
-                <option value="JAMB / Post-JAMB">JAMB / Post-JAMB</option>
-                <option value="Undergraduate STEM">Undergraduate STEM</option>
-                <option value="General Mastery">General Mathematics Mastery</option>
+                <option value="exams">Special Exams Prep (WASSCE, JAMB, IGCSE, GCSE, A-Levels)</option>
+                <option value="secondary">Secondary School Maths (Grades 4-12, Foundation)</option>
+                <option value="undergrad">Undergraduate Maths (University STEM, Calculus, Linear Algebra)</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Icon Emoji</label>
-              <input type="text" id="course-icon" class="admin-input" value="📐" placeholder="e.g. 📐 or ⚡" required>
+              <label>Exam Target / Subcategory</label>
+              <select id="course-subcategory" class="admin-select" required>
+                <option value="WASSCE">WASSCE / GCE / NECO</option>
+                <option value="JAMB">JAMB / UTME / Post-UTME</option>
+                <option value="IGCSE">Cambridge IGCSE Extended</option>
+                <option value="GCSE">GCSE Mathematics</option>
+                <option value="GCE">GCE A-Levels</option>
+                <option value="Undergraduate">Undergraduate University Math</option>
+                <option value="General">General Videos & Masterclasses</option>
+              </select>
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
             <div class="form-group">
-              <label>Badge / Highlight</label>
-              <input type="text" id="course-badge" class="admin-input" value="Core STEM" placeholder="e.g. Core STEM or Bestseller">
+              <label>Icon Emoji</label>
+              <select id="course-icon" class="admin-select">
+                <option value="🎓">🎓 Graduate Cap (Exam Prep)</option>
+                <option value="⚡">⚡ Lightning (Speedruns & UTME)</option>
+                <option value="📐">📐 Geometry & Foundations</option>
+                <option value="🌌">🌌 Galaxy (Undergrad STEM)</option>
+                <option value="🌍">🌍 Globe (Cambridge / GCSE)</option>
+                <option value="📺">📺 TV / General Extras</option>
+                <option value="🔌">🔌 Electric Circuit Physics</option>
+                <option value="⚛️">⚛️ Atomic Physics</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Level / Badge</label>
+              <select id="course-badge" class="admin-select">
+                <option value="Special Exams">Special Exams</option>
+                <option value="Undergraduate">Undergraduate</option>
+                <option value="Secondary">Secondary</option>
+                <option value="Core STEM">Core STEM</option>
+                <option value="General">General</option>
+              </select>
             </div>
             <div class="form-group">
               <label>Duration (Weeks)</label>
@@ -817,8 +844,13 @@
           </div>
 
           <div class="form-group">
+            <label>Syllabus Modules (Comma-separated or one per line)</label>
+            <textarea id="course-syllabus" class="admin-textarea" rows="2" placeholder="e.g. Number Bases & Modular Arithmetic, Algebraic Fractions, Circle Geometry Theorems"></textarea>
+          </div>
+
+          <div class="form-group">
             <label>Description & Scope</label>
-            <textarea id="course-desc" class="admin-textarea" rows="3" placeholder="Syllabus scope and learning objectives..."></textarea>
+            <textarea id="course-desc" class="admin-textarea" rows="2" placeholder="Syllabus scope and learning objectives..."></textarea>
           </div>
         </div>
         <div class="admin-modal-footer">
@@ -853,8 +885,11 @@
           </div>
 
           <div class="form-group">
-            <label>Video URL (YouTube Watch Link, Google Drive Embed, or MP4)</label>
-            <input type="url" id="lecture-video-url" class="admin-input" placeholder="https://www.youtube.com/watch?v=... or Google Drive URL" required oninput="previewVideoUrl(this.value)">
+            <label>YouTube Video URL (Any Format) / Google Drive</label>
+            <input type="url" id="lecture-video-url" class="admin-input" placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/... or shorts/..." required oninput="previewVideoUrl(this.value)">
+            <div style="font-size: 0.78rem; color: #38bdf8; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+              <span>✅</span> Accepts any YouTube link (watch?v=..., youtu.be/..., shorts/..., embed/..., live/...) and Google Drive.
+            </div>
           </div>
 
           <!-- Live Video Preview Box -->
@@ -934,24 +969,37 @@
             <input type="text" id="vault-title" class="admin-input" placeholder="e.g. Complete JAMB Mathematics Formula Sheet" required>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
             <div class="form-group">
-              <label>Curriculum Category</label>
+              <label>Resource Sphere (Category)</label>
               <select id="vault-category" class="admin-select" required>
-                <option value="JAMB UTME">JAMB UTME</option>
-                <option value="WASSCE / NECO">WASSCE / NECO</option>
-                <option value="Senior Secondary">Senior Secondary School</option>
-                <option value="Undergraduate STEM">Undergraduate STEM</option>
-                <option value="General STEM">General Mathematics</option>
+                <option value="exams">Special Exams</option>
+                <option value="secondary">Secondary School</option>
+                <option value="undergrad">Undergraduate Maths</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Badge Label</label>
+              <label>Exam Subcategory</label>
+              <select id="vault-subcategory" class="admin-select" required>
+                <option value="JAMB">JAMB UTME Exam</option>
+                <option value="WASSCE">WASSCE Exam</option>
+                <option value="GCE">GCE A-Levels</option>
+                <option value="IGCSE">IGCSE Extended</option>
+                <option value="GCSE">GCSE Mathematics</option>
+                <option value="AP">AP Calculus/Stats</option>
+                <option value="Undergraduate">Undergraduate Maths</option>
+                <option value="General">General Formulas & Guides</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Document Type / Badge</label>
               <select id="vault-badge" class="admin-select">
-                <option value="PDF">PDF</option>
-                <option value="FORMULAS">FORMULAS</option>
-                <option value="CHEAT SHEET">CHEAT SHEET</option>
-                <option value="PAST PAPER">PAST PAPER</option>
+                <option value="PDF Bundle">PDF Bundle</option>
+                <option value="Formula Sheet">Formula Sheet</option>
+                <option value="Past Paper">Past Paper</option>
+                <option value="Cheat Sheet">Cheat Sheet</option>
+                <option value="Revision Guide">Revision Guide</option>
+                <option value="Lecture Notes">Lecture Notes</option>
               </select>
             </div>
           </div>
@@ -1141,8 +1189,9 @@
                 <div>
                   <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                     <h3 style="margin: 0; font-size: 1.25rem;">${course.title}</h3>
-                    <span class="badge" style="background: rgba(14,165,233,0.15); color: #38bdf8; font-size: 0.75rem;">${course.category}</span>
-                    <span class="badge" style="font-size: 0.75rem;">${course.badge || 'Core'}</span>
+                    <span class="badge" style="background: rgba(14,165,233,0.15); color: #38bdf8; font-size: 0.75rem;">${course.category === 'exams' ? 'Special Exams' : (course.category === 'secondary' ? 'Secondary' : 'Undergraduate')}</span>
+                    <span class="badge" style="background: rgba(249,115,22,0.15); color: #f97316; font-size: 0.75rem;">${course.subcategory || course.subcat || 'General'}</span>
+                    <span class="badge" style="font-size: 0.75rem;">${course.badge || 'Core STEM'}</span>
                   </div>
                   <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.4rem 0 0.5rem 0; max-width: 650px;">
                     ${course.description || 'Comprehensive curriculum video masterclass.'}
@@ -1207,10 +1256,12 @@
     function openCourseModal() {
       document.getElementById("course-id").value = "";
       document.getElementById("course-title").value = "";
-      document.getElementById("course-category").value = "JAMB / Post-JAMB";
-      document.getElementById("course-icon").value = "📐";
-      document.getElementById("course-badge").value = "Core STEM";
+      document.getElementById("course-category").value = "exams";
+      document.getElementById("course-subcategory").value = "JAMB";
+      document.getElementById("course-icon").value = "🎓";
+      document.getElementById("course-badge").value = "Special Exams";
       document.getElementById("course-duration").value = "6";
+      document.getElementById("course-syllabus").value = "";
       document.getElementById("course-desc").value = "";
       document.getElementById("course-modal-title").textContent = "Create Course Playlist";
       document.getElementById("course-modal").classList.add("active");
@@ -1221,10 +1272,13 @@
       if (!c) return;
       document.getElementById("course-id").value = c.id;
       document.getElementById("course-title").value = c.title || "";
-      document.getElementById("course-category").value = c.category || "JAMB / Post-JAMB";
+      document.getElementById("course-category").value = c.category || "exams";
+      document.getElementById("course-subcategory").value = c.subcategory || c.subcat || "JAMB";
       document.getElementById("course-icon").value = c.icon || "📐";
-      document.getElementById("course-badge").value = c.badge || "Core STEM";
+      document.getElementById("course-badge").value = c.badge || "Comprehensive";
       document.getElementById("course-duration").value = c.duration_weeks || 6;
+      const syl = Array.isArray(c.syllabus) ? c.syllabus.join(', ') : (c.syllabus || '');
+      document.getElementById("course-syllabus").value = syl;
       document.getElementById("course-desc").value = c.description || "";
       document.getElementById("course-modal-title").textContent = "Edit Course Playlist";
       document.getElementById("course-modal").classList.add("active");
@@ -1237,14 +1291,20 @@
     async function handleSaveCourse(e) {
       e.preventDefault();
       const cid = document.getElementById("course-id").value;
+      const rawSyl = document.getElementById("course-syllabus").value.trim();
+      const sylArray = rawSyl ? rawSyl.split(/[,\n]+/).map(s => s.trim()).filter(Boolean) : [];
+      
       const payload = {
         id: cid || undefined,
         title: document.getElementById("course-title").value.trim(),
         category: document.getElementById("course-category").value,
+        subcategory: document.getElementById("course-subcategory").value,
+        subcat: document.getElementById("course-subcategory").value,
         icon: document.getElementById("course-icon").value.trim() || "📐",
-        badge: document.getElementById("course-badge").value.trim() || "Core STEM",
+        badge: document.getElementById("course-badge").value.trim() || "Comprehensive",
         instructor: "Mr. Isaac Olusola",
         duration_weeks: parseInt(document.getElementById("course-duration").value) || 6,
+        syllabus: sylArray,
         description: document.getElementById("course-desc").value.trim()
       };
 
@@ -1273,7 +1333,14 @@
 
     function openLectureModal() {
       document.getElementById("lecture-id").value = "";
-      document.getElementById("lecture-course-select").value = "";
+      
+      // Populate course select options
+      const courseSelect = document.getElementById("lecture-course-select");
+      courseSelect.innerHTML = '<option value="">-- Choose Target Course Playlist --</option>' + 
+        CURRENT_COURSES.map(c => `
+          <option value="${c.id}">[${c.subcategory || c.subcat || 'General'}] ${c.title} (${c.category || 'exams'})</option>
+        `).join('');
+
       document.getElementById("lecture-title").value = "";
       document.getElementById("lecture-video-url").value = "";
       document.getElementById("lecture-duration").value = "30 mins";
@@ -1299,16 +1366,13 @@
 
     function formatVideoEmbedUrl(url) {
       if (!url) return "";
-      if (url.includes("youtube.com/watch?v=")) {
-        const id = url.split("v=")[1].split("&")[0];
-        return `https://www.youtube.com/embed/${id}`;
-      } else if (url.includes("youtu.be/")) {
-        const id = url.split("youtu.be/")[1].split("?")[0];
-        return `https://www.youtube.com/embed/${id}`;
-      } else if (url.includes("drive.google.com") && url.includes("/view")) {
-        return url.replace("/view", "/preview");
+      if (window.normalizeVideoUrl) {
+        return window.normalizeVideoUrl(url);
       }
-      return url;
+      if (window.ZiglagDB && window.ZiglagDB.utils) {
+        return window.ZiglagDB.utils.normalizeVideoUrl(url);
+      }
+      return url.trim();
     }
 
     function previewVideoUrl(url) {
@@ -1401,8 +1465,9 @@
             <div style="font-weight: 600; color: var(--text-main);">${res.title}</div>
             <div style="font-size: 0.8rem; color: var(--text-muted);">${res.description || 'Syllabus notes and revision guide.'}</div>
           </td>
-          <td><span class="badge" style="background: rgba(14,165,233,0.1); color: #38bdf8; font-size: 0.75rem;">${res.category}</span></td>
-          <td><span class="badge" style="font-size: 0.75rem;">${res.badge || 'PDF'}</span></td>
+          <td><span class="badge" style="background: rgba(14,165,233,0.1); color: #38bdf8; font-size: 0.75rem;">${res.category === 'exams' ? 'Special Exams' : (res.category === 'secondary' ? 'Secondary' : 'Undergrad')}</span></td>
+          <td><span class="badge" style="background: rgba(249,115,22,0.1); color: #f97316; font-size: 0.75rem;">${res.subcategory || res.subcat || 'General'}</span></td>
+          <td><span class="badge" style="font-size: 0.75rem;">${res.badge || 'PDF Bundle'}</span></td>
           <td style="font-family: monospace; font-size: 0.85rem;">${res.file_size || '1.5 MB'}</td>
           <td style="color: var(--text-muted); font-size: 0.85rem;">${(res.created_at || '').slice(0, 10) || 'Recent'}</td>
           <td style="text-align: right;">
@@ -1425,8 +1490,9 @@
     function openVaultModal() {
       document.getElementById("vault-id").value = "";
       document.getElementById("vault-title").value = "";
-      document.getElementById("vault-category").value = "JAMB UTME";
-      document.getElementById("vault-badge").value = "PDF";
+      document.getElementById("vault-category").value = "exams";
+      document.getElementById("vault-subcategory").value = "JAMB";
+      document.getElementById("vault-badge").value = "PDF Bundle";
       document.getElementById("vault-size").value = "1.5 MB";
       document.getElementById("vault-file-url").value = "";
       document.getElementById("vault-desc").value = "";
@@ -1496,6 +1562,8 @@
       const payload = {
         title: document.getElementById("vault-title").value.trim(),
         category: document.getElementById("vault-category").value,
+        subcategory: document.getElementById("vault-subcategory").value,
+        subcat: document.getElementById("vault-subcategory").value,
         badge: document.getElementById("vault-badge").value,
         file_url: fileUrl,
         file_size: document.getElementById("vault-size").value.trim() || "1.5 MB",
