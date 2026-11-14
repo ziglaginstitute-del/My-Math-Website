@@ -47,3 +47,5 @@ except Exception as e:
             "message": str(e),
             "traceback": err_tb
         }), 500)
+
+handler = app

@@ -554,17 +554,36 @@ class CommunityAnswer(db.Model):
 # 2. PAGE ROUTES
 # ============================================================================
 
+def _safe_send_html(filename):
+    for candidate_dir in [
+        BASE_DIR,
+        os.path.join(BASE_DIR, '..'),
+        os.getcwd(),
+        '/var/task',
+        '/vercel/path0'
+    ]:
+        try:
+            target = os.path.join(candidate_dir, filename)
+            if os.path.isfile(target):
+                return send_from_directory(candidate_dir, filename)
+        except Exception:
+            pass
+    try:
+        return send_from_directory(BASE_DIR, filename)
+    except Exception:
+        return jsonify({'error': f'{filename} not found'}), 404
+
 @app.route('/')
 def home():
-    return send_from_directory(BASE_DIR, 'index.html')
+    return _safe_send_html('index.html')
 
 @app.route('/index.html')
 def index():
-    return send_from_directory(BASE_DIR, 'index.html')
+    return _safe_send_html('index.html')
 
 @app.route('/courses.html')
 def courses():
-    return send_from_directory(BASE_DIR, 'courses.html')
+    return _safe_send_html('courses.html')
 
 @app.route('/cbt.html')
 @app.route('/cbt')
@@ -578,29 +597,29 @@ def cbt_redirect():
 
 @app.route('/tutoring.html')
 def tutoring():
-    return send_from_directory(BASE_DIR, 'tutoring.html')
+    return _safe_send_html('tutoring.html')
 
 @app.route('/vault.html')
 def vault():
-    return send_from_directory(BASE_DIR, 'vault.html')
+    return _safe_send_html('vault.html')
 
 @app.route('/course-view.html')
 def course_view():
-    return send_from_directory(BASE_DIR, 'course-view.html')
+    return _safe_send_html('course-view.html')
 
 @app.route('/contact.html')
 def contact_page():
-    return send_from_directory(BASE_DIR, 'contact.html')
+    return _safe_send_html('contact.html')
 
 @app.route('/qa.html')
 @app.route('/qa')
 def qa_page():
-    return send_from_directory(BASE_DIR, 'qa.html')
+    return _safe_send_html('qa.html')
 
 @app.route('/about.html')
 @app.route('/about')
 def about_page():
-    return send_from_directory(BASE_DIR, 'about.html')
+    return _safe_send_html('about.html')
 
 @app.route('/people.html')
 @app.route('/people')
@@ -609,11 +628,11 @@ def people_page():
 
 @app.route('/admin.html')
 def admin_page():
-    return send_from_directory(BASE_DIR, 'admin.html')
+    return _safe_send_html('admin.html')
 
 @app.route('/admin')
 def admin_alias():
-    return send_from_directory(BASE_DIR, 'admin.html')
+    return _safe_send_html('admin.html')
 
 # ============================================================================
 # 3. DATABASE REST API ENDPOINTS (Zero Vendor Lock-In)
@@ -2373,321 +2392,325 @@ def delete_community_answer(aid):
 # ============================================================================
 # 4. STARTUP DATABASE INITIALIZATION & DEFAULT SEEDING
 # ============================================================================
-_app_ctx = app.app_context()
-_app_ctx.push()
-try:
-    db.create_all()
+if not IS_VERCEL:
+    _app_ctx = app.app_context()
+    _app_ctx.push()
+    try:
+        db.create_all()
 
-    # Seed Founder
-    if not Member.query.first():
-        default_members = [
-            Member(
-                name="Isaac Olusola",
-                role="Founder & CEO",
-                bio="Isaac is the visionary behind Ziglag Institute, dedicated to providing premium and accessible STEM education.",
-                avatar="🚀",
-                email="ziglaginstitute@gmail.com",
-                linkedin="https://www.linkedin.com/in/isaac-olusola-2a2b2218b",
-                github="https://github.com/ziglaginstitute-del",
-                youtube="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn",
-                display_order=1
+        # Seed Founder
+        if not Member.query.first():
+            default_members = [
+                Member(
+                    name="Isaac Olusola",
+                    role="Founder & CEO",
+                    bio="Isaac is the visionary behind Ziglag Institute, dedicated to providing premium and accessible STEM education.",
+                    avatar="🚀",
+                    email="ziglaginstitute@gmail.com",
+                    linkedin="https://www.linkedin.com/in/isaac-olusola-2a2b2218b",
+                    github="https://github.com/ziglaginstitute-del",
+                    youtube="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn",
+                    display_order=1
+                )
+            ]
+            db.session.bulk_save_objects(default_members)
+            db.session.commit()
+
+        # Seed Demo Candidate (Ifeoma Adaeze Jude)
+        if not Candidate.query.first():
+            demo_candidate = Candidate(
+                id="cand_demo_01",
+                full_name="Ifeoma Adaeze Jude",
+                username="JAMB/2026/170",
+                category="Biological & Medical",
+                exam_type="JAMB UTME",
+                registered_subjects='["english", "mathematics", "physics", "chemistry"]',
+                center="PrepCBT Center 01 (Main Auditorium)",
+                seat_number="Seat 54",
+                status="Active"
             )
-        ]
-        db.session.bulk_save_objects(default_members)
-        db.session.commit()
-
-    # Seed Demo Candidate (Ifeoma Adaeze Jude)
-    if not Candidate.query.first():
-        demo_candidate = Candidate(
-            id="cand_demo_01",
-            full_name="Ifeoma Adaeze Jude",
-            username="JAMB/2026/170",
-            category="Biological & Medical",
-            exam_type="JAMB UTME",
-            registered_subjects='["english", "mathematics", "physics", "chemistry"]',
-            center="PrepCBT Center 01 (Main Auditorium)",
-            seat_number="Seat 54",
-            status="Active"
-        )
-        demo_candidate2 = Candidate(
-            id="cand_demo_02",
-            full_name="Babatunde Johnson",
-            username="2026/JAMB/94821",
-            category="Science",
-            exam_type="JAMB UTME",
-            registered_subjects='["english", "mathematics", "physics", "chemistry"]',
-            center="Ziglag CBT Center Lagos",
-            seat_number="Seat 12",
-            status="Active"
-        )
-        db.session.add(demo_candidate)
-        db.session.add(demo_candidate2)
-        db.session.commit()
+            demo_candidate2 = Candidate(
+                id="cand_demo_02",
+                full_name="Babatunde Johnson",
+                username="2026/JAMB/94821",
+                category="Science",
+                exam_type="JAMB UTME",
+                registered_subjects='["english", "mathematics", "physics", "chemistry"]',
+                center="Ziglag CBT Center Lagos",
+                seat_number="Seat 12",
+                status="Active"
+            )
+            db.session.add(demo_candidate)
+            db.session.add(demo_candidate2)
+            db.session.commit()
 
     
-    # Seed Default Nigerian Subjects if empty
-    if not Subject.query.first():
-        default_subs = [
-            Subject(id="mathematics", name="Mathematics", code="MTH", icon="📐", category="Core STEM", default_duration=40),
-            Subject(id="english", name="English Language", code="ENG", icon="📖", category="General", default_duration=60),
-            Subject(id="physics", name="Physics", code="PHY", icon="⚡", category="Core STEM", default_duration=40),
-            Subject(id="chemistry", name="Chemistry", code="CHM", icon="🧪", category="Core STEM", default_duration=40),
-            Subject(id="biology", name="Biology", code="BIO", icon="🧬", category="Medical / Science", default_duration=40),
-            Subject(id="further_mathematics", name="Further Mathematics", code="FMTH", icon="🔢", category="Advanced STEM", default_duration=40),
-            Subject(id="economics", name="Economics", code="ECN", icon="📊", category="Social Science", default_duration=40),
-            Subject(id="government", name="Government", code="GOV", icon="🏛️", category="Arts / Humanities", default_duration=40),
-            Subject(id="literature", name="Literature in English", code="LIT", icon="🎭", category="Arts / Humanities", default_duration=40),
-            Subject(id="commerce", name="Commerce", code="COM", icon="💼", category="Commercial", default_duration=40),
-            Subject(id="agricultural_science", name="Agricultural Science", code="AGR", icon="🌾", category="Science", default_duration=40),
-            Subject(id="civic_education", name="Civic Education", code="CIV", icon="🛡️", category="General", default_duration=40),
-            Subject(id="geography", name="Geography", code="GEO", icon="🌍", category="Social Science", default_duration=40)
-        ]
-        db.session.bulk_save_objects(default_subs)
-        db.session.commit()
-
-    # Seed Default Mock Exam
-    if not ScheduledExam.query.first():
-        demo_mock = ScheduledExam(
-            id="mock_2026_national",
-            title="National All-Nigeria JAMB UTME Mega Mock 2026",
-            access_code="ZIGLAG-MOCK-2026",
-            exam_type="jamb",
-            duration_minutes=120,
-            subject_ids='["english", "mathematics", "physics", "chemistry"]',
-            is_active=True
-        )
-        db.session.add(demo_mock)
-        db.session.commit()
-
-    # Seed Default Courses
-    if not Course.query.first():
-        default_courses = [
-            Course(
-                id="jamb-prep",
-                title="JAMB / Post-JAMB Comprehensive Prep",
-                slug="jamb-prep",
-                category="JAMB / Post-JAMB",
-                description="High-yield masterclass on Calculus, Coordinate Geometry, Projectile Motion, Stoichiometry, and Mechanics.",
-                icon="🎯",
-                badge="Bestseller",
-                instructor="Mr. Isaac Olusola",
-                duration_weeks=6,
-                display_order=1
-            ),
-            Course(
-                id="calculus-essentials",
-                title="Calculus Essentials & Advanced Methods",
-                slug="calculus-essentials",
-                category="Senior Secondary WASSCE",
-                description="From limits and first-principles differentiation to definite integrals and kinematic applications.",
-                icon="∫",
-                badge="Advanced",
-                instructor="Mr. Isaac Olusola",
-                duration_weeks=6,
-                display_order=2
-            ),
-            Course(
-                id="physics-mechanics",
-                title="Classical Mechanics & Wave Optics",
-                slug="physics-mechanics",
-                category="Senior Secondary WASSCE",
-                description="Vectors, Newton laws of motion, rotational dynamics, SHM, and geometric optics with exam past papers.",
-                icon="⚡",
-                badge="Core STEM",
-                instructor="Mr. Isaac Olusola",
-                duration_weeks=6,
-                display_order=3
-            )
-        ]
-        db.session.bulk_save_objects(default_courses)
-        db.session.commit()
-
-    # Seed Default Vault Resources
-    if not VaultResource.query.first():
-        default_vault = [
-            VaultResource(
-                id="res-jamb-math-formulas",
-                title="Complete JAMB Mathematics Formula Sheet & Shortcuts",
-                category="JAMB UTME",
-                file_url="#",
-                file_size="2.4 MB",
-                badge="PDF",
-                description="Comprehensive compilation of all formulas in Algebra, Calculus, Matrices, and Trigonometry."
-            ),
-            VaultResource(
-                id="res-waec-physics-mechanics",
-                title="WASSCE Physics Mechanics & Motion Mastery Guide",
-                category="WASSCE / NECO",
-                file_url="#",
-                file_size="3.1 MB",
-                badge="PDF",
-                description="Detailed breakdown of projectile motion, friction, momentum conservation, and solved WAEC past questions."
-            )
-        ]
-        db.session.bulk_save_objects(default_vault)
-        db.session.commit()
-
-    # Seed Representative Community Q&A across Beginner, Intermediate, and Advanced tiers
-    if not CommunityQuestion.query.first():
-        try:
-            # Beginner 1 (Math)
-            q1 = CommunityQuestion(
-                id="cq_seed_01",
-                title="How do I convert a fractional decimal like 13.625 into binary base 2?",
-                subject="Mathematics",
-                difficulty="Beginner",
-                content_latex="Can someone break down the exact procedure for converting decimal fractions into binary base 2? For example:\n$$13.625_{10} = (?)_{2}$$\nI understand how to convert the integer part $13_{10}$, but the fractional part $.625$ always confuses me.",
-                author_name="Chukwudi Eze",
-                author_email="chukwudi.eze@example.com",
-                views=42,
-                upvotes=7,
-                status="Solved"
-            )
-            a1 = CommunityAnswer(
-                id="ans_seed_01",
-                question_id="cq_seed_01",
-                author_name="Mr. Isaac Olusola",
-                author_email="ziglaginstitute@gmail.com",
-                is_educator=True,
-                is_verified=True,
-                upvotes=12,
-                content_latex="Hello Chukwudi! Here is the rigorous first-principles breakdown. We decompose the number into its integer part and fractional part:\n$$13.625_{10} = 13 + 0.625$$\n\n**Step 1: Integer Part ($13$) via repeated division by $2$:**\n- $13 \\div 2 = 6 \\text{ remainder } 1$\n- $6 \\div 2 = 3 \\text{ remainder } 0$\n- $3 \\div 2 = 1 \\text{ remainder } 1$\n- $1 \\div 2 = 0 \\text{ remainder } 1$\nReading remainders from bottom to top: $13_{10} = 1101_2$.\n\n**Step 2: Fractional Part ($0.625$) via repeated multiplication by $2$:**\n- $0.625 \\times 2 = 1.25 \\implies \\text{record integer } \\mathbf{1}$, remainder $= 0.25$\n- $0.25 \\times 2 = 0.50 \\implies \\text{record integer } \\mathbf{0}$, remainder $= 0.50$\n- $0.50 \\times 2 = 1.00 \\implies \\text{record integer } \\mathbf{1}$, remainder $= 0.00$ (Terminates!)\nReading recorded integers from top to bottom: $0.625_{10} = 0.101_2$.\n\n**Step 3: Combine both parts:**\n$$13.625_{10} = 1101.101_2$$"
-            )
-
-            # Beginner 2 (Physics)
-            q2 = CommunityQuestion(
-                id="cq_seed_02",
-                title="A car accelerates uniformly from rest to 25 m/s in 10 seconds. Calculate the total distance covered.",
-                subject="Physics",
-                difficulty="Beginner",
-                content_latex="A vehicle starts from rest ($u = 0$) and accelerates uniformly to a final velocity of $v = 25\\text{ m/s}$ in $t = 10\\text{ s}$. How do we compute the total displacement $s$ using kinematic equations?",
-                author_name="Blessing Okon",
-                author_email="blessing.okon@example.com",
-                views=35,
-                upvotes=5,
-                status="Solved"
-            )
-            a2 = CommunityAnswer(
-                id="ans_seed_02",
-                question_id="cq_seed_02",
-                author_name="Mr. Isaac Olusola",
-                author_email="ziglaginstitute@gmail.com",
-                is_educator=True,
-                is_verified=True,
-                upvotes=9,
-                content_latex="Great foundational kinematics problem!\nWe are given:\n- Initial velocity: $u = 0\\text{ m/s}$\n- Final velocity: $v = 25\\text{ m/s}$\n- Time interval: $t = 10\\text{ s}$\n\n**Method 1: Average velocity formulation**\nSince acceleration is uniform:\n$$s = \\left(\\frac{u + v}{2}\\right) \\times t = \\left(\\frac{0 + 25}{2}\\right) \\times 10 = 12.5 \\times 10 = 125\\text{ metres}$$\n\n**Method 2: Finding acceleration $a$ first**\n$$a = \\frac{v - u}{t} = \\frac{25 - 0}{10} = 2.5\\text{ m/s}^2$$\nUsing $s = ut + \\frac{1}{2}at^2$:\n$$s = (0)(10) + \\frac{1}{2}(2.5)(10)^2 = 0 + 1.25 \\times 100 = 125\\text{ metres}$$"
-            )
-
-            # Intermediate 1 (Math)
-            q3 = CommunityQuestion(
-                id="cq_seed_03",
-                title="Proof of Alternate Segment Theorem in Circle Geometry (WASSCE / IGCSE)",
-                subject="Mathematics",
-                difficulty="Intermediate",
-                content_latex="In circle geometry, prove that the angle between a tangent to a circle and a chord drawn through the point of contact is equal to the angle subtended by the chord in the alternate segment:\n$$\\angle TAB = \\angle ACB$$\nHow do we prove this formally for WAEC / Cambridge exam marks?",
-                author_name="Faruk Danjuma",
-                author_email="faruk.danjuma@example.com",
-                views=68,
-                upvotes=14,
-                status="Solved"
-            )
-            a3 = CommunityAnswer(
-                id="ans_seed_03",
-                question_id="cq_seed_03",
-                author_name="Mr. Isaac Olusola",
-                author_email="ziglaginstitute@gmail.com",
-                is_educator=True,
-                is_verified=True,
-                upvotes=21,
-                content_latex="A classic theorem frequently examined in WASSCE and IGCSE Additional Mathematics!\n\n**Construction:**\nDraw diameter $AD$ through point of contact $A$ to point $D$ on the circumference. Join $D$ to $B$.\n\n**Formal Proof:**\n1. Since $AD$ is a diameter and $AT$ is a tangent at $A$:\n$$\\angle DAT = 90^\\circ \\quad (\\text{radius } \\perp \\text{ tangent})$$\n2. Therefore:\n$$\\angle TAB = 90^\\circ - \\angle DAB \\quad \\text{--- (Equation 1)}$$\n3. Angle in a semicircle is a right angle ($\\triangle ABD$ is right-angled at $B$):\n$$\\angle ABD = 90^\\circ$$\n$$\\implies \\angle ADB + \\angle DAB = 90^\\circ \\implies \\angle ADB = 90^\\circ - \\angle DAB \\quad \\text{--- (Equation 2)}$$\n4. Comparing (1) and (2):\n$$\\angle TAB = \\angle ADB$$\n5. But angles subtended by the same chord $AB$ in the same segment are equal:\n$$\\angle ADB = \\angle ACB$$\n6. Therefore, by transitive equality:\n$$\\angle TAB = \\angle ACB \\quad \\text{Q.E.D.}$$"
-            )
-
-            # Intermediate 2 (Physics)
-            q4 = CommunityQuestion(
-                id="cq_seed_04",
-                title="Derivation of Maximum Horizontal Range in Projectile Motion",
-                subject="Physics",
-                difficulty="Intermediate",
-                content_latex="For a projectile launched at speed $u$ and angle $\\theta$ to the horizontal over level ground, prove that the horizontal range is:\n$$R = \\frac{u^2 \\sin(2\\theta)}{g}$$\nand show that the maximum range occurs at $\\theta = 45^\\circ$.",
-                author_name="Amara Nwachukwu",
-                author_email="amara.n@example.com",
-                views=53,
-                upvotes=11,
-                status="Solved"
-            )
-            a4 = CommunityAnswer(
-                id="ans_seed_04",
-                question_id="cq_seed_04",
-                author_name="Mr. Isaac Olusola",
-                author_email="ziglaginstitute@gmail.com",
-                is_educator=True,
-                is_verified=True,
-                upvotes=16,
-                content_latex="Let's derive this from first principles:\n\n**1. Velocity components:**\n$$u_x = u \\cos\\theta, \\quad u_y = u \\sin\\theta$$\n\n**2. Total Time of Flight ($T$):**\nUsing vertical displacement $y = u_y t - \\frac{1}{2}gt^2 = 0$:\n$$t \\left(u \\sin\\theta - \\frac{1}{2}gt\\right) = 0 \\implies T = \\frac{2u \\sin\\theta}{g}$$\n\n**3. Horizontal Range ($R$):**\nSince horizontal acceleration $a_x = 0$:\n$$R = u_x \\times T = (u \\cos\\theta) \\left(\\frac{2u \\sin\\theta}{g}\\right) = \\frac{u^2 (2\\sin\\theta\\cos\\theta)}{g}$$\nUsing double-angle identity $2\\sin\\theta\\cos\\theta = \\sin(2\\theta)$:\n$$R = \\frac{u^2 \\sin(2\\theta)}{g}$$\n\n**4. Condition for Maximum Range:**\nSince the sine function attains its maximum value of $1$:\n$$\\sin(2\\theta) = 1 \\implies 2\\theta = 90^\\circ \\implies \\theta = 45^\\circ$$\n$$R_{\\max} = \\frac{u^2}{g}$$"
-            )
-
-            # Advanced 1 (Math)
-            q5 = CommunityQuestion(
-                id="cq_seed_05",
-                title="Eigenvalues and Orthonormal Eigenspaces of a 3x3 Symmetric Tridiagonal Matrix",
-                subject="Mathematics",
-                difficulty="Advanced",
-                content_latex="Let $A$ be the symmetric matrix:\n$$A = \\begin{pmatrix} 2 & 1 & 0 \\\\ 1 & 2 & 1 \\\\ 0 & 1 & 2 \\end{pmatrix}$$\nFind all eigenvalues $\\lambda_1, \\lambda_2, \\lambda_3$ and determine an orthonormal basis of eigenvectors for $\\mathbb{R}^3$.",
-                author_name="Kelechi Adeleke",
-                author_email="kelechi.adeleke@example.com",
-                views=89,
-                upvotes=19,
-                status="Solved"
-            )
-            a5 = CommunityAnswer(
-                id="ans_seed_05",
-                question_id="cq_seed_05",
-                author_name="Mr. Isaac Olusola",
-                author_email="ziglaginstitute@gmail.com",
-                is_educator=True,
-                is_verified=True,
-                upvotes=25,
-                content_latex="A wonderful problem demonstrating the Spectral Theorem for symmetric real matrices!\n\n**1. Characteristic Polynomial $\\det(A - \\lambda I) = 0$:**\n$$\\det \\begin{pmatrix} 2 - \\lambda & 1 & 0 \\\\ 1 & 2 - \\lambda & 1 \\\\ 0 & 1 & 2 - \\lambda \\end{pmatrix} = 0$$\nExpanding along the first row:\n$$(2 - \\lambda)[(2 - \\lambda)^2 - 1] - 1[(2 - \\lambda) - 0] = 0$$\n$$(2 - \\lambda) \\left[ (2 - \\lambda)^2 - 2 \\right] = 0$$\nHence the three distinct eigenvalues are:\n$$\\lambda_1 = 2, \\quad \\lambda_2 = 2 + \\sqrt{2}, \\quad \\lambda_3 = 2 - \\sqrt{2}$$\n\n**2. Eigenvectors:**\nFor $\\lambda_1 = 2$:\n$$\\begin{pmatrix} 0 & 1 & 0 \\\\ 1 & 0 & 1 \\\\ 0 & 1 & 0 \\end{pmatrix} \\begin{pmatrix} x \\\\ y \\\\ z \\end{pmatrix} = \\mathbf{0} \\implies y = 0, \\ x + z = 0 \\implies \\vec{v}_1 = \\frac{1}{\\sqrt{2}} \\begin{pmatrix} 1 \\\\ 0 \\\\ -1 \\end{pmatrix}$$\n\nFor $\\lambda_2 = 2 + \\sqrt{2}$:\n$$\\begin{pmatrix} -\\sqrt{2} & 1 & 0 \\\\ 1 & -\\sqrt{2} & 1 \\\\ 0 & 1 & -\\sqrt{2} \\end{pmatrix} \\begin{pmatrix} x \\\\ y \\\\ z \\end{pmatrix} = \\mathbf{0} \\implies y = \\sqrt{2}x, \\ z = x \\implies \\vec{v}_2 = \\frac{1}{2} \\begin{pmatrix} 1 \\\\ \\sqrt{2} \\\\ 1 \\end{pmatrix}$$\n\nFor $\\lambda_3 = 2 - \\sqrt{2}$:\n$$\\vec{v}_3 = \\frac{1}{2} \\begin{pmatrix} 1 \\\\ -\\sqrt{2} \\\\ 1 \\end{pmatrix}$$\nNotice that $\\{\\vec{v}_1, \\vec{v}_2, \\vec{v}_3\\}$ forms an orthonormal basis: $\\vec{v}_i \\cdot \\vec{v}_j = \\delta_{ij}$."
-            )
-
-            # Advanced 2 (Physics)
-            q6 = CommunityQuestion(
-                id="cq_seed_06",
-                title="Infinite Square Well: Solving the Time-Independent Schrödinger Equation",
-                subject="Physics",
-                difficulty="Advanced",
-                content_latex="Consider a particle of mass $m$ confined to a 1D box with potential:\n$$V(x) = \\begin{cases} 0 & \\text{for } 0 \\le x \\le L \\\\ \\infty & \\text{otherwise} \\end{cases}$$\nDerive the normalized stationary wavefunctions $\\psi_n(x)$ and energy levels $E_n$ from the Schrödinger equation.",
-                author_name="Toluwani Alao",
-                author_email="toluwani.alao@example.com",
-                views=74,
-                upvotes=15,
-                status="Solved"
-            )
-            a6 = CommunityAnswer(
-                id="ans_seed_06",
-                question_id="cq_seed_06",
-                author_name="Mr. Isaac Olusola",
-                author_email="ziglaginstitute@gmail.com",
-                is_educator=True,
-                is_verified=True,
-                upvotes=18,
-                content_latex="Let's solve the 1D Time-Independent Schrödinger Equation (TISE):\n$$-\\frac{\\hbar^2}{2m} \\frac{d^2\\psi}{dx^2} = E\\psi \\implies \\frac{d^2\\psi}{dx^2} + k^2\\psi = 0, \\quad \\text{where } k = \\frac{\\sqrt{2mE}}{\\hbar}$$\n\n**1. General Solution inside the well ($0 \\le x \\le L$):**\n$$\\psi(x) = A \\sin(kx) + B \\cos(kx)$$\n\n**2. Boundary Conditions:**\n- At $x = 0$: $\\psi(0) = B = 0$.\n- At $x = L$: $\\psi(L) = A \\sin(kL) = 0$.\nFor non-trivial solutions ($A \\neq 0$):\n$$kL = n\\pi \\implies k_n = \\frac{n\\pi}{L}, \\quad n \\in \\{1, 2, 3, \\dots\\}$$\n\n**3. Energy Eigenvalues:**\n$$E_n = \\frac{\\hbar^2 k_n^2}{2m} = \\frac{n^2 \\pi^2 \\hbar^2}{2mL^2}$$\n\n**4. Normalization condition $\\int_0^L |\\psi(x)|^2 dx = 1$:**\n$$A^2 \\int_0^L \\sin^2\\left(\\frac{n\\pi x}{L}\\right) dx = A^2 \\left(\\frac{L}{2}\\right) = 1 \\implies A = \\sqrt{\\frac{2}{L}}$$\n$$\\psi_n(x) = \\sqrt{\\frac{2}{L}} \\sin\\left(\\frac{n\\pi x}{L}\\right)$$\nThe ground state energy is $E_1 = \\frac{\\pi^2 \\hbar^2}{2mL^2}$."
-            )
-
-            db.session.add_all([q1, q2, q3, q4, q5, q6])
-            db.session.add_all([a1, a2, a3, a4, a5, a6])
+        # Seed Default Nigerian Subjects if empty
+        if not Subject.query.first():
+            default_subs = [
+                Subject(id="mathematics", name="Mathematics", code="MTH", icon="📐", category="Core STEM", default_duration=40),
+                Subject(id="english", name="English Language", code="ENG", icon="📖", category="General", default_duration=60),
+                Subject(id="physics", name="Physics", code="PHY", icon="⚡", category="Core STEM", default_duration=40),
+                Subject(id="chemistry", name="Chemistry", code="CHM", icon="🧪", category="Core STEM", default_duration=40),
+                Subject(id="biology", name="Biology", code="BIO", icon="🧬", category="Medical / Science", default_duration=40),
+                Subject(id="further_mathematics", name="Further Mathematics", code="FMTH", icon="🔢", category="Advanced STEM", default_duration=40),
+                Subject(id="economics", name="Economics", code="ECN", icon="📊", category="Social Science", default_duration=40),
+                Subject(id="government", name="Government", code="GOV", icon="🏛️", category="Arts / Humanities", default_duration=40),
+                Subject(id="literature", name="Literature in English", code="LIT", icon="🎭", category="Arts / Humanities", default_duration=40),
+                Subject(id="commerce", name="Commerce", code="COM", icon="💼", category="Commercial", default_duration=40),
+                Subject(id="agricultural_science", name="Agricultural Science", code="AGR", icon="🌾", category="Science", default_duration=40),
+                Subject(id="civic_education", name="Civic Education", code="CIV", icon="🛡️", category="General", default_duration=40),
+                Subject(id="geography", name="Geography", code="GEO", icon="🌍", category="Social Science", default_duration=40)
+            ]
+            db.session.bulk_save_objects(default_subs)
             db.session.commit()
-            print("[Q&A Seeding] Successfully seeded 6 representative Community questions & verified educator solutions.")
-        except Exception as se:
-            db.session.rollback()
-            print(f"[Q&A Seeding Notice] Could not seed community questions: {se}")
-except Exception as e:
-    logging.warning(f"[Database Startup Notice] Startup database operation notice: {e}")
-finally:
-    try:
-        _app_ctx.pop()
-    except Exception:
-        pass
+
+        # Seed Default Mock Exam
+        if not ScheduledExam.query.first():
+            demo_mock = ScheduledExam(
+                id="mock_2026_national",
+                title="National All-Nigeria JAMB UTME Mega Mock 2026",
+                access_code="ZIGLAG-MOCK-2026",
+                exam_type="jamb",
+                duration_minutes=120,
+                subject_ids='["english", "mathematics", "physics", "chemistry"]',
+                is_active=True
+            )
+            db.session.add(demo_mock)
+            db.session.commit()
+
+        # Seed Default Courses
+        if not Course.query.first():
+            default_courses = [
+                Course(
+                    id="jamb-prep",
+                    title="JAMB / Post-JAMB Comprehensive Prep",
+                    slug="jamb-prep",
+                    category="JAMB / Post-JAMB",
+                    description="High-yield masterclass on Calculus, Coordinate Geometry, Projectile Motion, Stoichiometry, and Mechanics.",
+                    icon="🎯",
+                    badge="Bestseller",
+                    instructor="Mr. Isaac Olusola",
+                    duration_weeks=6,
+                    display_order=1
+                ),
+                Course(
+                    id="calculus-essentials",
+                    title="Calculus Essentials & Advanced Methods",
+                    slug="calculus-essentials",
+                    category="Senior Secondary WASSCE",
+                    description="From limits and first-principles differentiation to definite integrals and kinematic applications.",
+                    icon="∫",
+                    badge="Advanced",
+                    instructor="Mr. Isaac Olusola",
+                    duration_weeks=6,
+                    display_order=2
+                ),
+                Course(
+                    id="physics-mechanics",
+                    title="Classical Mechanics & Wave Optics",
+                    slug="physics-mechanics",
+                    category="Senior Secondary WASSCE",
+                    description="Vectors, Newton laws of motion, rotational dynamics, SHM, and geometric optics with exam past papers.",
+                    icon="⚡",
+                    badge="Core STEM",
+                    instructor="Mr. Isaac Olusola",
+                    duration_weeks=6,
+                    display_order=3
+                )
+            ]
+            db.session.bulk_save_objects(default_courses)
+            db.session.commit()
+
+        # Seed Default Vault Resources
+        if not VaultResource.query.first():
+            default_vault = [
+                VaultResource(
+                    id="res-jamb-math-formulas",
+                    title="Complete JAMB Mathematics Formula Sheet & Shortcuts",
+                    category="JAMB UTME",
+                    file_url="#",
+                    file_size="2.4 MB",
+                    badge="PDF",
+                    description="Comprehensive compilation of all formulas in Algebra, Calculus, Matrices, and Trigonometry."
+                ),
+                VaultResource(
+                    id="res-waec-physics-mechanics",
+                    title="WASSCE Physics Mechanics & Motion Mastery Guide",
+                    category="WASSCE / NECO",
+                    file_url="#",
+                    file_size="3.1 MB",
+                    badge="PDF",
+                    description="Detailed breakdown of projectile motion, friction, momentum conservation, and solved WAEC past questions."
+                )
+            ]
+            db.session.bulk_save_objects(default_vault)
+            db.session.commit()
+
+        # Seed Representative Community Q&A across Beginner, Intermediate, and Advanced tiers
+        if not CommunityQuestion.query.first():
+            try:
+                # Beginner 1 (Math)
+                q1 = CommunityQuestion(
+                    id="cq_seed_01",
+                    title="How do I convert a fractional decimal like 13.625 into binary base 2?",
+                    subject="Mathematics",
+                    difficulty="Beginner",
+                    content_latex="Can someone break down the exact procedure for converting decimal fractions into binary base 2? For example:\n$$13.625_{10} = (?)_{2}$$\nI understand how to convert the integer part $13_{10}$, but the fractional part $.625$ always confuses me.",
+                    author_name="Chukwudi Eze",
+                    author_email="chukwudi.eze@example.com",
+                    views=42,
+                    upvotes=7,
+                    status="Solved"
+                )
+                a1 = CommunityAnswer(
+                    id="ans_seed_01",
+                    question_id="cq_seed_01",
+                    author_name="Mr. Isaac Olusola",
+                    author_email="ziglaginstitute@gmail.com",
+                    is_educator=True,
+                    is_verified=True,
+                    upvotes=12,
+                    content_latex="Hello Chukwudi! Here is the rigorous first-principles breakdown. We decompose the number into its integer part and fractional part:\n$$13.625_{10} = 13 + 0.625$$\n\n**Step 1: Integer Part ($13$) via repeated division by $2$:**\n- $13 \\div 2 = 6 \\text{ remainder } 1$\n- $6 \\div 2 = 3 \\text{ remainder } 0$\n- $3 \\div 2 = 1 \\text{ remainder } 1$\n- $1 \\div 2 = 0 \\text{ remainder } 1$\nReading remainders from bottom to top: $13_{10} = 1101_2$.\n\n**Step 2: Fractional Part ($0.625$) via repeated multiplication by $2$:**\n- $0.625 \\times 2 = 1.25 \\implies \\text{record integer } \\mathbf{1}$, remainder $= 0.25$\n- $0.25 \\times 2 = 0.50 \\implies \\text{record integer } \\mathbf{0}$, remainder $= 0.50$\n- $0.50 \\times 2 = 1.00 \\implies \\text{record integer } \\mathbf{1}$, remainder $= 0.00$ (Terminates!)\nReading recorded integers from top to bottom: $0.625_{10} = 0.101_2$.\n\n**Step 3: Combine both parts:**\n$$13.625_{10} = 1101.101_2$$"
+                )
+
+                # Beginner 2 (Physics)
+                q2 = CommunityQuestion(
+                    id="cq_seed_02",
+                    title="A car accelerates uniformly from rest to 25 m/s in 10 seconds. Calculate the total distance covered.",
+                    subject="Physics",
+                    difficulty="Beginner",
+                    content_latex="A vehicle starts from rest ($u = 0$) and accelerates uniformly to a final velocity of $v = 25\\text{ m/s}$ in $t = 10\\text{ s}$. How do we compute the total displacement $s$ using kinematic equations?",
+                    author_name="Blessing Okon",
+                    author_email="blessing.okon@example.com",
+                    views=35,
+                    upvotes=5,
+                    status="Solved"
+                )
+                a2 = CommunityAnswer(
+                    id="ans_seed_02",
+                    question_id="cq_seed_02",
+                    author_name="Mr. Isaac Olusola",
+                    author_email="ziglaginstitute@gmail.com",
+                    is_educator=True,
+                    is_verified=True,
+                    upvotes=9,
+                    content_latex="Great foundational kinematics problem!\nWe are given:\n- Initial velocity: $u = 0\\text{ m/s}$\n- Final velocity: $v = 25\\text{ m/s}$\n- Time interval: $t = 10\\text{ s}$\n\n**Method 1: Average velocity formulation**\nSince acceleration is uniform:\n$$s = \\left(\\frac{u + v}{2}\\right) \\times t = \\left(\\frac{0 + 25}{2}\\right) \\times 10 = 12.5 \\times 10 = 125\\text{ metres}$$\n\n**Method 2: Finding acceleration $a$ first**\n$$a = \\frac{v - u}{t} = \\frac{25 - 0}{10} = 2.5\\text{ m/s}^2$$\nUsing $s = ut + \\frac{1}{2}at^2$:\n$$s = (0)(10) + \\frac{1}{2}(2.5)(10)^2 = 0 + 1.25 \\times 100 = 125\\text{ metres}$$"
+                )
+
+                # Intermediate 1 (Math)
+                q3 = CommunityQuestion(
+                    id="cq_seed_03",
+                    title="Proof of Alternate Segment Theorem in Circle Geometry (WASSCE / IGCSE)",
+                    subject="Mathematics",
+                    difficulty="Intermediate",
+                    content_latex="In circle geometry, prove that the angle between a tangent to a circle and a chord drawn through the point of contact is equal to the angle subtended by the chord in the alternate segment:\n$$\\angle TAB = \\angle ACB$$\nHow do we prove this formally for WAEC / Cambridge exam marks?",
+                    author_name="Faruk Danjuma",
+                    author_email="faruk.danjuma@example.com",
+                    views=68,
+                    upvotes=14,
+                    status="Solved"
+                )
+                a3 = CommunityAnswer(
+                    id="ans_seed_03",
+                    question_id="cq_seed_03",
+                    author_name="Mr. Isaac Olusola",
+                    author_email="ziglaginstitute@gmail.com",
+                    is_educator=True,
+                    is_verified=True,
+                    upvotes=21,
+                    content_latex="A classic theorem frequently examined in WASSCE and IGCSE Additional Mathematics!\n\n**Construction:**\nDraw diameter $AD$ through point of contact $A$ to point $D$ on the circumference. Join $D$ to $B$.\n\n**Formal Proof:**\n1. Since $AD$ is a diameter and $AT$ is a tangent at $A$:\n$$\\angle DAT = 90^\\circ \\quad (\\text{radius } \\perp \\text{ tangent})$$\n2. Therefore:\n$$\\angle TAB = 90^\\circ - \\angle DAB \\quad \\text{--- (Equation 1)}$$\n3. Angle in a semicircle is a right angle ($\\triangle ABD$ is right-angled at $B$):\n$$\\angle ABD = 90^\\circ$$\n$$\\implies \\angle ADB + \\angle DAB = 90^\\circ \\implies \\angle ADB = 90^\\circ - \\angle DAB \\quad \\text{--- (Equation 2)}$$\n4. Comparing (1) and (2):\n$$\\angle TAB = \\angle ADB$$\n5. But angles subtended by the same chord $AB$ in the same segment are equal:\n$$\\angle ADB = \\angle ACB$$\n6. Therefore, by transitive equality:\n$$\\angle TAB = \\angle ACB \\quad \\text{Q.E.D.}$$"
+                )
+
+                # Intermediate 2 (Physics)
+                q4 = CommunityQuestion(
+                    id="cq_seed_04",
+                    title="Derivation of Maximum Horizontal Range in Projectile Motion",
+                    subject="Physics",
+                    difficulty="Intermediate",
+                    content_latex="For a projectile launched at speed $u$ and angle $\\theta$ to the horizontal over level ground, prove that the horizontal range is:\n$$R = \\frac{u^2 \\sin(2\\theta)}{g}$$\nand show that the maximum range occurs at $\\theta = 45^\\circ$.",
+                    author_name="Amara Nwachukwu",
+                    author_email="amara.n@example.com",
+                    views=53,
+                    upvotes=11,
+                    status="Solved"
+                )
+                a4 = CommunityAnswer(
+                    id="ans_seed_04",
+                    question_id="cq_seed_04",
+                    author_name="Mr. Isaac Olusola",
+                    author_email="ziglaginstitute@gmail.com",
+                    is_educator=True,
+                    is_verified=True,
+                    upvotes=16,
+                    content_latex="Let's derive this from first principles:\n\n**1. Velocity components:**\n$$u_x = u \\cos\\theta, \\quad u_y = u \\sin\\theta$$\n\n**2. Total Time of Flight ($T$):**\nUsing vertical displacement $y = u_y t - \\frac{1}{2}gt^2 = 0$:\n$$t \\left(u \\sin\\theta - \\frac{1}{2}gt\\right) = 0 \\implies T = \\frac{2u \\sin\\theta}{g}$$\n\n**3. Horizontal Range ($R$):**\nSince horizontal acceleration $a_x = 0$:\n$$R = u_x \\times T = (u \\cos\\theta) \\left(\\frac{2u \\sin\\theta}{g}\\right) = \\frac{u^2 (2\\sin\\theta\\cos\\theta)}{g}$$\nUsing double-angle identity $2\\sin\\theta\\cos\\theta = \\sin(2\\theta)$:\n$$R = \\frac{u^2 \\sin(2\\theta)}{g}$$\n\n**4. Condition for Maximum Range:**\nSince the sine function attains its maximum value of $1$:\n$$\\sin(2\\theta) = 1 \\implies 2\\theta = 90^\\circ \\implies \\theta = 45^\\circ$$\n$$R_{\\max} = \\frac{u^2}{g}$$"
+                )
+
+                # Advanced 1 (Math)
+                q5 = CommunityQuestion(
+                    id="cq_seed_05",
+                    title="Eigenvalues and Orthonormal Eigenspaces of a 3x3 Symmetric Tridiagonal Matrix",
+                    subject="Mathematics",
+                    difficulty="Advanced",
+                    content_latex="Let $A$ be the symmetric matrix:\n$$A = \\begin{pmatrix} 2 & 1 & 0 \\\\ 1 & 2 & 1 \\\\ 0 & 1 & 2 \\end{pmatrix}$$\nFind all eigenvalues $\\lambda_1, \\lambda_2, \\lambda_3$ and determine an orthonormal basis of eigenvectors for $\\mathbb{R}^3$.",
+                    author_name="Kelechi Adeleke",
+                    author_email="kelechi.adeleke@example.com",
+                    views=89,
+                    upvotes=19,
+                    status="Solved"
+                )
+                a5 = CommunityAnswer(
+                    id="ans_seed_05",
+                    question_id="cq_seed_05",
+                    author_name="Mr. Isaac Olusola",
+                    author_email="ziglaginstitute@gmail.com",
+                    is_educator=True,
+                    is_verified=True,
+                    upvotes=25,
+                    content_latex="A wonderful problem demonstrating the Spectral Theorem for symmetric real matrices!\n\n**1. Characteristic Polynomial $\\det(A - \\lambda I) = 0$:**\n$$\\det \\begin{pmatrix} 2 - \\lambda & 1 & 0 \\\\ 1 & 2 - \\lambda & 1 \\\\ 0 & 1 & 2 - \\lambda \\end{pmatrix} = 0$$\nExpanding along the first row:\n$$(2 - \\lambda)[(2 - \\lambda)^2 - 1] - 1[(2 - \\lambda) - 0] = 0$$\n$$(2 - \\lambda) \\left[ (2 - \\lambda)^2 - 2 \\right] = 0$$\nHence the three distinct eigenvalues are:\n$$\\lambda_1 = 2, \\quad \\lambda_2 = 2 + \\sqrt{2}, \\quad \\lambda_3 = 2 - \\sqrt{2}$$\n\n**2. Eigenvectors:**\nFor $\\lambda_1 = 2$:\n$$\\begin{pmatrix} 0 & 1 & 0 \\\\ 1 & 0 & 1 \\\\ 0 & 1 & 0 \\end{pmatrix} \\begin{pmatrix} x \\\\ y \\\\ z \\end{pmatrix} = \\mathbf{0} \\implies y = 0, \\ x + z = 0 \\implies \\vec{v}_1 = \\frac{1}{\\sqrt{2}} \\begin{pmatrix} 1 \\\\ 0 \\\\ -1 \\end{pmatrix}$$\n\nFor $\\lambda_2 = 2 + \\sqrt{2}$:\n$$\\begin{pmatrix} -\\sqrt{2} & 1 & 0 \\\\ 1 & -\\sqrt{2} & 1 \\\\ 0 & 1 & -\\sqrt{2} \\end{pmatrix} \\begin{pmatrix} x \\\\ y \\\\ z \\end{pmatrix} = \\mathbf{0} \\implies y = \\sqrt{2}x, \\ z = x \\implies \\vec{v}_2 = \\frac{1}{2} \\begin{pmatrix} 1 \\\\ \\sqrt{2} \\\\ 1 \\end{pmatrix}$$\n\nFor $\\lambda_3 = 2 - \\sqrt{2}$:\n$$\\vec{v}_3 = \\frac{1}{2} \\begin{pmatrix} 1 \\\\ -\\sqrt{2} \\\\ 1 \\end{pmatrix}$$\nNotice that $\\{\\vec{v}_1, \\vec{v}_2, \\vec{v}_3\\}$ forms an orthonormal basis: $\\vec{v}_i \\cdot \\vec{v}_j = \\delta_{ij}$."
+                )
+
+                # Advanced 2 (Physics)
+                q6 = CommunityQuestion(
+                    id="cq_seed_06",
+                    title="Infinite Square Well: Solving the Time-Independent Schrödinger Equation",
+                    subject="Physics",
+                    difficulty="Advanced",
+                    content_latex="Consider a particle of mass $m$ confined to a 1D box with potential:\n$$V(x) = \\begin{cases} 0 & \\text{for } 0 \\le x \\le L \\\\ \\infty & \\text{otherwise} \\end{cases}$$\nDerive the normalized stationary wavefunctions $\\psi_n(x)$ and energy levels $E_n$ from the Schrödinger equation.",
+                    author_name="Toluwani Alao",
+                    author_email="toluwani.alao@example.com",
+                    views=74,
+                    upvotes=15,
+                    status="Solved"
+                )
+                a6 = CommunityAnswer(
+                    id="ans_seed_06",
+                    question_id="cq_seed_06",
+                    author_name="Mr. Isaac Olusola",
+                    author_email="ziglaginstitute@gmail.com",
+                    is_educator=True,
+                    is_verified=True,
+                    upvotes=18,
+                    content_latex="Let's solve the 1D Time-Independent Schrödinger Equation (TISE):\n$$-\\frac{\\hbar^2}{2m} \\frac{d^2\\psi}{dx^2} = E\\psi \\implies \\frac{d^2\\psi}{dx^2} + k^2\\psi = 0, \\quad \\text{where } k = \\frac{\\sqrt{2mE}}{\\hbar}$$\n\n**1. General Solution inside the well ($0 \\le x \\le L$):**\n$$\\psi(x) = A \\sin(kx) + B \\cos(kx)$$\n\n**2. Boundary Conditions:**\n- At $x = 0$: $\\psi(0) = B = 0$.\n- At $x = L$: $\\psi(L) = A \\sin(kL) = 0$.\nFor non-trivial solutions ($A \\neq 0$):\n$$kL = n\\pi \\implies k_n = \\frac{n\\pi}{L}, \\quad n \\in \\{1, 2, 3, \\dots\\}$$\n\n**3. Energy Eigenvalues:**\n$$E_n = \\frac{\\hbar^2 k_n^2}{2m} = \\frac{n^2 \\pi^2 \\hbar^2}{2mL^2}$$\n\n**4. Normalization condition $\\int_0^L |\\psi(x)|^2 dx = 1$:**\n$$A^2 \\int_0^L \\sin^2\\left(\\frac{n\\pi x}{L}\\right) dx = A^2 \\left(\\frac{L}{2}\\right) = 1 \\implies A = \\sqrt{\\frac{2}{L}}$$\n$$\\psi_n(x) = \\sqrt{\\frac{2}{L}} \\sin\\left(\\frac{n\\pi x}{L}\\right)$$\nThe ground state energy is $E_1 = \\frac{\\pi^2 \\hbar^2}{2mL^2}$."
+                )
+
+                db.session.add_all([q1, q2, q3, q4, q5, q6])
+                db.session.add_all([a1, a2, a3, a4, a5, a6])
+                db.session.commit()
+                print("[Q&A Seeding] Successfully seeded 6 representative Community questions & verified educator solutions.")
+            except Exception as se:
+                db.session.rollback()
+                print(f"[Q&A Seeding Notice] Could not seed community questions: {se}")
+    except Exception as e:
+        logging.warning(f"[Database Startup Notice] Startup database operation notice: {e}")
+    finally:
+        try:
+            _app_ctx.pop()
+        except Exception:
+            pass
+
+
+handler = app
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
