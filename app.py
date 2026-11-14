@@ -82,6 +82,19 @@ if not db_url:
 
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# Ensure SQLAlchemy driver prefix matches the installed psycopg driver
+if db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
+    try:
+        import psycopg
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    except ImportError:
+        try:
+            import psycopg2
+            db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+        except ImportError:
+            pass
+
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
