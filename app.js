@@ -158,7 +158,7 @@ const MATH_DATABASE = {
 // CLIENT STATE ENGINE
 // =========================================
 const AppState = {
-  theme: localStorage.getItem("theme") || "dark",
+  theme: localStorage.getItem("theme") || "light",
   bookings: JSON.parse(localStorage.getItem("bookings")) || [],
   completedLessons: JSON.parse(localStorage.getItem("completedLessons")) || {},
   
@@ -210,6 +210,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (themeBtn) {
     themeBtn.addEventListener("click", () => AppState.toggleTheme());
   }
+
+  // Mobile Navigation Drawer Toggle
+  initMobileNavigation();
   
   // Custom micro-interaction: Add float math symbols inside heroes
   initFloatingSymbols();
@@ -217,6 +220,45 @@ document.addEventListener("DOMContentLoaded", () => {
   // Discreet Owner Access triggers (hidden from public visitors)
   initDiscreetAdminAccess();
 });
+
+// Mobile Navigation Toggle Handler
+function initMobileNavigation() {
+  const navbar = document.querySelector(".navbar");
+  const navLinks = document.querySelector(".nav-links");
+  if (!navbar || !navLinks) return;
+
+  // Check if mobile button already exists or create one
+  let toggleBtn = navbar.querySelector(".mobile-nav-toggle");
+  if (!toggleBtn) {
+    toggleBtn = document.createElement("button");
+    toggleBtn.className = "mobile-nav-toggle";
+    toggleBtn.setAttribute("aria-label", "Toggle navigation menu");
+    toggleBtn.innerHTML = "☰";
+    navbar.insertBefore(toggleBtn, navLinks);
+  }
+
+  toggleBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = navLinks.classList.toggle("is-open");
+    toggleBtn.innerHTML = isOpen ? "✕" : "☰";
+  });
+
+  // Close when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!navbar.contains(e.target)) {
+      navLinks.classList.remove("is-open");
+      toggleBtn.innerHTML = "☰";
+    }
+  });
+
+  // Close when a link inside mobile drawer is clicked
+  navLinks.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => {
+      navLinks.classList.remove("is-open");
+      toggleBtn.innerHTML = "☰";
+    });
+  });
+}
 
 // Discreet Owner Access triggers for the portal administrator
 function initDiscreetAdminAccess() {
