@@ -4934,28 +4934,204 @@ select.is-valid {
   display: flex;
 }
 
-/* Responsive adjustments */
-@media (max-width: 968px) {
-  .register-split-layout {
+/* Universal Form Row 2-Column Responsive Layout */
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .form-row-2col {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1rem;
   }
+}
+
+/* Modal styling fallback */
+.profile-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 42, 67, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.profile-modal-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 2rem 1.75rem;
+  max-width: 580px;
+  width: 100%;
+  box-shadow: var(--shadow-xl);
+  animation: slide-up 0.3s ease-out;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .profile-modal-card {
+  background: var(--color-surface);
+  color: #FFFFFF;
+}
+
+/* Responsive adjustments for Student Registration & Small Viewports */
+@media (max-width: 968px) {
   .register-main-wrapper {
-    padding: 1.5rem 1rem 4rem 1rem;
+    padding: 1.5rem 1rem 3.5rem 1rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
-  .register-brand-panel {
-    padding: 2rem 1.25rem;
-    gap: 1.5rem;
-  }
-  .register-brand-panel h1 {
-    font-size: 1.85rem !important;
-    line-height: 1.3 !important;
-    word-break: normal;
+  .register-split-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .register-form-card {
-    padding: 2rem 1.25rem;
+    order: 1; /* Form appears FIRST on mobile */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 1.75rem 1.25rem;
+  }
+  .register-brand-panel {
+    order: 2; /* Onboarding panel appears BELOW the form on mobile */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 1.75rem 1.25rem;
+    gap: 1.25rem;
+  }
+  .register-brand-panel h1 {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
   }
   .strength-checklist {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+  }
+  .app-container {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+  }
+  .navbar {
+    padding: 0.75rem 0.85rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .logo {
+    font-size: 1.05rem;
+    gap: 0.4rem;
+  }
+  .logo-img {
+    height: 30px;
+  }
+  .navbar-actions {
+    gap: 0.35rem;
+  }
+  .navbar-actions .btn-sm {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+  }
+  .theme-toggle-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+  .mobile-nav-toggle {
+    width: 36px;
+    height: 36px;
+    font-size: 1.15rem;
+  }
+  .register-main-wrapper {
+    padding: 1rem 0.75rem 2.5rem 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  .register-split-layout {
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .register-form-card {
+    padding: 1.25rem 0.85rem;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .register-form-header h2 {
+    font-size: 1.45rem !important;
+  }
+  .register-brand-panel {
+    padding: 1.25rem 0.85rem;
+    border-radius: var(--radius-lg);
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .register-brand-panel h1 {
+    font-size: 1.35rem !important;
+    line-height: 1.25 !important;
+  }
+  .register-brand-panel p {
+    font-size: 0.85rem !important;
+  }
+  .register-benefit-cards {
+    gap: 0.65rem;
+  }
+  .register-benefit-item {
+    padding: 0.65rem 0.75rem;
+    gap: 0.65rem;
+    box-sizing: border-box;
+  }
+  .register-benefit-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .register-instructor-endorsement {
+    padding: 0.75rem;
+    gap: 0.65rem;
+    box-sizing: border-box;
+  }
+  .register-instructor-avatar {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+  .prototype-feedback-card {
+    padding: 1rem 0.75rem;
+    box-sizing: border-box;
+  }
+  .profile-modal-card {
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-lg);
+    box-sizing: border-box;
   }
 }
