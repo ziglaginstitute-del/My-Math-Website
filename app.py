@@ -594,6 +594,11 @@ def home():
 def index():
     return _safe_send_html('index.html')
 
+@app.route('/dashboard.html')
+@app.route('/dashboard')
+def dashboard_page():
+    return _safe_send_html('dashboard.html')
+
 @app.route('/courses.html')
 def courses():
     return _safe_send_html('courses.html')

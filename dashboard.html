@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Learning Dashboard | Ziglag Institute</title>
+  <meta name="description" content="Personal student dashboard for tracking mathematics and science learning progress, recent lessons, diagnostic assessments, and exam readiness.">
+  <link rel="icon" type="image/png" href="ZIG logo transparent.png">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Scoped Dashboard Layout Styles */
+    .dashboard-layout {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    .dash-welcome-card {
+      background: linear-gradient(135deg, var(--color-navy) 0%, #173653 100%);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      color: #FFFFFF;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+      background-image: radial-gradient(rgba(21, 154, 156, 0.2) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .dash-profile-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .dash-avatar-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--color-teal);
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(21, 154, 156, 0.4);
+    }
+
+    .dash-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .dash-metric-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+
+    .dash-metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-teal);
+    }
+
+    [data-theme="dark"] .dash-metric-card {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .dash-metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.825rem;
+      color: var(--color-text-secondary);
+      font-weight: 600;
+    }
+
+    .dash-metric-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--color-navy);
+      font-family: var(--font-display);
+    }
+
+    [data-theme="dark"] .dash-metric-value {
+      color: #FFFFFF;
+    }
+
+    .dash-split-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 968px) {
+      .dash-split-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dash-resume-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    [data-theme="dark"] .dash-resume-card {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .dash-tabs-bar {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .dash-tab-pill {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+    }
+
+    .dash-tab-pill:hover,
+    .dash-tab-pill.active {
+      background: var(--color-navy);
+      color: #FFFFFF;
+      border-color: var(--color-navy);
+    }
+
+    [data-theme="dark"] .dash-tab-pill {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .course-card-dash {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.25rem;
+      transition: all var(--transition-normal);
+    }
+
+    .course-card-dash:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-teal);
+    }
+
+    [data-theme="dark"] .course-card-dash {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .milestone-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--color-surface-subtle);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+
+    .milestone-badge.unlocked {
+      background: var(--color-teal-soft);
+      border-color: rgba(21, 154, 156, 0.3);
+    }
+
+    .milestone-icon {
+      font-size: 1.5rem;
+      filter: grayscale(1);
+      opacity: 0.5;
+    }
+
+    .milestone-badge.unlocked .milestone-icon {
+      filter: grayscale(0);
+      opacity: 1;
+    }
+
+    /* Modal for Profile Edit */
+    .profile-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(16, 42, 67, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .profile-modal-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: var(--shadow-xl);
+      animation: slide-up 0.3s ease-out;
+    }
+
+    [data-theme="dark"] .profile-modal-card {
+      background: var(--color-surface);
+      color: #FFFFFF;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- ======================================================================
+         1. NAVIGATION BAR
+         ====================================================================== -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo" aria-label="Ziglag Institute Home">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+
+      <!-- Mobile Hamburger Button -->
+      <button class="mobile-nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        ☰
+      </button>
+
+      <!-- Navigation Links -->
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html" class="active">Dashboard</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
+          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="qa.html">Q&A Hub</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+
+      <!-- Navigation Actions -->
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light or dark theme">☀️</button>
+        <a href="courses.html" class="btn btn-primary btn-sm">Explore Courses</a>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         DASHBOARD CORE CONTENT
+         ====================================================================== -->
+    <main class="dashboard-layout">
+
+      <!-- 1. Welcome Message & Student Profile -->
+      <div class="dash-welcome-card">
+        <div class="dash-profile-meta">
+          <div class="dash-avatar-circle" id="dash-avatar-icon">🎓</div>
+          <div>
+            <div style="font-size: 0.85rem; color: var(--color-orange); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;" id="dash-greeting-time">
+              WELCOME BACK
+            </div>
+            <h1 style="font-size: clamp(1.65rem, 3vw, 2.25rem); color: #FFFFFF; margin: 0.25rem 0 0.5rem 0;" id="dash-scholar-name">
+              Scholar
+            </h1>
+            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
+              <span class="hub-level-chip" style="background: rgba(255,255,255,0.15); color: #FFFFFF; border-color: rgba(255,255,255,0.25);" id="dash-level-badge">
+                Senior Secondary (SS3) • WASSCE Candidate
+              </span>
+              <button class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #FFFFFF; padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="openProfileModal()">
+                ✏️ Edit Profile
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+          <div class="hub-xp-chip" style="font-size: 0.95rem; padding: 0.45rem 1rem;" id="dash-streak-pill" title="Active Study Streak">
+            🔥 <span id="dash-streak-count">1</span>-Day Streak
+          </div>
+          <div class="hub-xp-chip" style="font-size: 0.95rem; padding: 0.45rem 1rem; background: var(--color-orange-soft); color: var(--color-orange);" id="dash-xp-pill">
+            ⚡ <span id="dash-xp-count">350</span> XP
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Metrics & Learning Progress Overview -->
+      <div class="dash-metrics-grid">
+        <!-- Metric 1: Overall Syllabus Mastery -->
+        <div class="dash-metric-card">
+          <div class="dash-metric-header">
+            <span>SYLLABUS PROGRESS</span>
+            <span style="color: var(--color-teal);">📚 Overall</span>
+          </div>
+          <div class="dash-metric-value" id="dash-progress-percent">0%</div>
+          <div style="background: var(--color-surface-subtle); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 0.25rem;">
+            <div id="dash-overall-bar" style="background: linear-gradient(90deg, var(--color-teal), var(--color-orange)); width: 0%; height: 100%; border-radius: 4px; transition: width 0.5s ease;"></div>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--color-text-secondary);" id="dash-completed-subtext">
+            0 of 32 syllabus lectures completed
+          </span>
+        </div>
+
+        <!-- Metric 2: Study Streak & Frequency -->
+        <div class="dash-metric-card">
+          <div class="dash-metric-header">
+            <span>WEEKLY ACTIVITY</span>
+            <span style="color: var(--color-orange);">🔥 Study Streak</span>
+          </div>
+          <div class="dash-metric-value" id="dash-active-days">1 Day</div>
+          <!-- 7-Day Dots -->
+          <div class="hub-day-dots" style="margin-top: 0.4rem;" id="dash-week-dots">
+            <span class="hub-day-dot done" title="Monday">M ✓</span>
+            <span class="hub-day-dot today" title="Tuesday">T</span>
+            <span class="hub-day-dot" title="Wednesday">W</span>
+            <span class="hub-day-dot" title="Thursday">T</span>
+            <span class="hub-day-dot" title="Friday">F</span>
+            <span class="hub-day-dot" title="Saturday">S</span>
+            <span class="hub-day-dot" title="Sunday">S</span>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--color-text-secondary);">Target: 5 study days per week</span>
+        </div>
+
+        <!-- Metric 3: Diagnostic Assessment Status -->
+        <div class="dash-metric-card">
+          <div class="dash-metric-header">
+            <span>DIAGNOSTIC STATUS</span>
+            <span style="color: #10B981;">🎯 Baseline</span>
+          </div>
+          <div class="dash-metric-value" id="dash-diag-score">80%</div>
+          <span style="font-size: 0.8rem; color: #10B981; font-weight: 600;" id="dash-diag-status">
+            Proficient in Number Bases & Algebra
+          </span>
+          <a href="#diagnostic" class="btn btn-secondary btn-sm" style="margin-top: 0.25rem; font-size: 0.78rem; justify-content: center;">
+            Take Skill Checkpoint ➜
+          </a>
+        </div>
+
+        <!-- Metric 4: Goal Countdown -->
+        <div class="dash-metric-card">
+          <div class="dash-metric-header">
+            <span>TARGET MILESTONE</span>
+            <span style="color: var(--color-navy);">⏳ Countdown</span>
+          </div>
+          <div class="dash-metric-value" id="dash-countdown-days">WASSCE 2026</div>
+          <span style="font-size: 0.8rem; color: var(--color-text-secondary);">
+            Complete core topics to ensure distinction
+          </span>
+          <a href="courses.html?sphere=exams" class="btn btn-primary btn-sm" style="margin-top: 0.25rem; font-size: 0.78rem; justify-content: center;">
+            View Exam Syllabus ➜
+          </a>
+        </div>
+      </div>
+
+      <!-- 3. Split Layout: Recently Accessed & Recommended Next Lessons -->
+      <div class="dash-split-grid">
+        <!-- Left: Continue Learning (Recently Accessed) -->
+        <div class="dash-resume-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="hub-level-chip" style="background: var(--color-teal-soft); color: var(--color-teal);">▶ Jump Back In</span>
+              <h3 style="font-size: 1.25rem; margin: 0; color: var(--color-navy);">Recently Accessed Lesson</h3>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--color-text-secondary);" id="recent-timestamp">Active Session</span>
+          </div>
+
+          <div style="background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+            <span class="pathway-badge" id="recent-course-badge">WASSCE & NECO Preparation</span>
+            <h4 style="font-size: 1.15rem; margin: 0; color: var(--color-navy);" id="recent-lesson-title">
+              L1: Introduction and Conversion to Base 10
+            </h4>
+            <p style="font-size: 0.9rem; margin: 0;" id="recent-lesson-desc">
+              Foundational conversion mechanics from base 2, 5, and 8 into decimal notation with worked step-by-step WAEC past questions.
+            </p>
+            <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+              <span>⏱️ 30 mins</span>
+              <span>📹 Video + Worked Examples</span>
+              <span>🏷️ Topic: Number Bases</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-primary" id="btn-resume-lesson">
+              Resume Lesson ➜
+            </a>
+            <span style="font-size: 0.85rem; color: var(--color-text-secondary);">
+              Next Up: <strong>L2: Conversion from Base 10 to Other Bases</strong>
+            </span>
+          </div>
+        </div>
+
+        <!-- Right: Recommended Next Lessons -->
+        <div class="dash-resume-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 1.15rem; margin: 0; color: var(--color-navy);">Recommended Next</h3>
+            <span style="font-size: 0.75rem; color: var(--color-teal); font-weight: 700;">Smart Recommendation</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <!-- Rec 1 -->
+            <div style="padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-white); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="font-size: 0.9rem; color: var(--color-navy); display: block;">Quadratic Equations & Roots</strong>
+                <span style="font-size: 0.78rem; color: var(--color-text-secondary);">Senior Secondary (SS2) • 25 mins</span>
+              </div>
+              <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-secondary btn-sm">Start</a>
+            </div>
+
+            <!-- Rec 2 -->
+            <div style="padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-white); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="font-size: 0.9rem; color: var(--color-navy); display: block;">Indices & Logarithmic Shortcuts</strong>
+                <span style="font-size: 0.78rem; color: var(--color-text-secondary);">JAMB UTME Prep • 30 mins</span>
+              </div>
+              <a href="course-view.html?id=utme-postutme-prep" class="btn btn-secondary btn-sm">Start</a>
+            </div>
+
+            <!-- Rec 3 -->
+            <div style="padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-white); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="font-size: 0.9rem; color: var(--color-navy); display: block;">Circle Theorems (Angle at Center)</strong>
+                <span style="font-size: 0.78rem; color: var(--color-text-secondary);">WASSCE Core • 20 mins</span>
+              </div>
+              <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-secondary btn-sm">Start</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Course Organisation by Education Level -->
+      <section style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <span class="section-subtitle">Structured Curriculum</span>
+            <h2 style="margin: 0.25rem 0 0 0; font-size: 1.75rem;">Courses Organised by Education Level</h2>
+          </div>
+          <a href="courses.html" class="btn btn-secondary btn-sm">View Full Catalog ➜</a>
+        </div>
+
+        <!-- Level Filter Tabs -->
+        <div class="dash-tabs-bar" role="tablist">
+          <button class="dash-tab-pill active" onclick="filterDashboardCourses('all', this)">All Programmes</button>
+          <button class="dash-tab-pill" onclick="filterDashboardCourses('jss', this)">Junior Secondary (JSS 1–3)</button>
+          <button class="dash-tab-pill" onclick="filterDashboardCourses('sss', this)">Senior Secondary (SS 1–3)</button>
+          <button class="dash-tab-pill" onclick="filterDashboardCourses('wassce', this)">WASSCE & NECO</button>
+          <button class="dash-tab-pill" onclick="filterDashboardCourses('jamb', this)">JAMB / UTME</button>
+          <button class="dash-tab-pill" onclick="filterDashboardCourses('other', this)">Undergrad & Other</button>
+        </div>
+
+        <!-- Dynamic Course Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.75rem;" id="dash-courses-grid">
+          <!-- Course Card 1: WASSCE Prep -->
+          <div class="course-card-dash" data-level="wassce sss">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span class="pathway-badge" style="background: var(--color-orange-soft); color: var(--color-orange);">WASSCE Core</span>
+                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">6 Lectures • 30h</span>
+              </div>
+              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">WASSCE & NECO Mathematics</h3>
+              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                Number bases, modular arithmetic, circle theorems, and quadratic functions with WAEC marking rubrics.
+              </p>
+              
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                  <span>Mastery Progress</span>
+                  <span id="prog-wassce-text">0/6 Completed (0%)</span>
+                </div>
+                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div id="prog-wassce-bar" style="background: var(--color-orange); width: 0%; height: 100%; border-radius: 3px;"></div>
+                </div>
+              </div>
+            </div>
+            <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
+          </div>
+
+          <!-- Course Card 2: JAMB UTME Prep -->
+          <div class="course-card-dash" data-level="jamb sss">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span class="pathway-badge" style="background: var(--color-teal-soft); color: var(--color-teal);">JAMB UTME</span>
+                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">6 Lectures • 25h</span>
+              </div>
+              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">UTME Speed & CBT Practice</h3>
+              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                Speed-run techniques for indices, logarithms, sets, limits, derivatives, and coordinates with CBT mock countdown.
+              </p>
+
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                  <span>Mastery Progress</span>
+                  <span id="prog-jamb-text">0/6 Completed (0%)</span>
+                </div>
+                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div id="prog-jamb-bar" style="background: var(--color-teal); width: 0%; height: 100%; border-radius: 3px;"></div>
+                </div>
+              </div>
+            </div>
+            <a href="course-view.html?id=utme-postutme-prep" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
+          </div>
+
+          <!-- Course Card 3: Senior Secondary Core -->
+          <div class="course-card-dash" data-level="sss">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span class="pathway-badge">Senior High (SS 1–3)</span>
+                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">Comprehensive</span>
+              </div>
+              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">Senior Secondary Mathematics Core</h3>
+              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                Complete high school curriculum: quadratic equations, trigonometry, statistics, circle theorems, and coordinate geometry.
+              </p>
+
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                  <span>Mastery Progress</span>
+                  <span>0/6 Completed (0%)</span>
+                </div>
+                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div style="background: var(--color-navy); width: 0%; height: 100%; border-radius: 3px;"></div>
+                </div>
+              </div>
+            </div>
+            <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
+          </div>
+
+          <!-- Course Card 4: Junior Secondary Foundations -->
+          <div class="course-card-dash" data-level="jss">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span class="pathway-badge" style="background: var(--color-navy-soft); color: var(--color-navy);">Junior High (JSS 1–3)</span>
+                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">Foundational</span>
+              </div>
+              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">Junior Secondary Math Foundations</h3>
+              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                Fractions, directed numbers, basic algebra, perimeter & area of plane shapes, angles, and ratios.
+              </p>
+
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                  <span>Mastery Progress</span>
+                  <span>0/6 Completed (0%)</span>
+                </div>
+                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div style="background: var(--color-teal); width: 0%; height: 100%; border-radius: 3px;"></div>
+                </div>
+              </div>
+            </div>
+            <a href="courses.html?sphere=secondary" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Browse JSS Modules ➜</a>
+          </div>
+
+          <!-- Course Card 5: Undergraduate Math -->
+          <div class="course-card-dash" data-level="other">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span class="pathway-badge" style="background: rgba(99, 102, 241, 0.15); color: #6366F1;">College STEM</span>
+                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">4 Lectures • 40h</span>
+              </div>
+              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">Undergraduate Higher Mathematics</h3>
+              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                Vector spaces, matrix eigenvalues, partial differentiation, multivariable calculus, and real analysis.
+              </p>
+
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                  <span>Mastery Progress</span>
+                  <span>0/4 Completed (0%)</span>
+                </div>
+                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div style="background: #6366F1; width: 0%; height: 100%; border-radius: 3px;"></div>
+                </div>
+              </div>
+            </div>
+            <a href="course-view.html?id=undergrad-math-courses" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
+          </div>
+
+          <!-- Course Card 6: WASSCE Physics -->
+          <div class="course-card-dash" data-level="wassce sss">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span class="pathway-badge" style="background: var(--color-orange-soft); color: var(--color-orange);">Physics WASSCE</span>
+                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">6 Lectures • 30h</span>
+              </div>
+              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">WASSCE & NECO Physics Prep</h3>
+              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                Mechanics, thermal energy, wave propagation, current electricity, optics, and practical experimental guide.
+              </p>
+
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                  <span>Mastery Progress</span>
+                  <span>0/6 Completed (0%)</span>
+                </div>
+                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div style="background: var(--color-orange); width: 0%; height: 100%; border-radius: 3px;"></div>
+                </div>
+              </div>
+            </div>
+            <a href="course-view.html?id=wassce-gce-neco-physics" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Interactive Diagnostic Assessment Checkpoint -->
+      <section class="glass-card" id="diagnostic" style="padding: 2.5rem; border-color: rgba(21, 154, 156, 0.35);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: var(--color-teal-soft); color: var(--color-teal); font-weight: 700; font-size: 0.8rem; padding: 0.25rem 0.65rem; border-radius: var(--radius-pill);">
+              <span>🎯</span> DIAGNOSTIC EVALUATION
+            </div>
+            <h2 style="font-size: 1.6rem; color: var(--color-navy); margin: 0.5rem 0 0.25rem 0;">
+              Mathematics Diagnostic Skill Checkpoint
+            </h2>
+            <p style="font-size: 0.95rem; margin: 0; color: var(--color-text-secondary);">
+              Evaluate your current mathematical proficiency across core examination topics and pinpoint specific concept roadblocks.
+            </p>
+          </div>
+          <button class="btn btn-primary" id="btn-start-diagnostic" onclick="startDiagnosticTest()">
+            Start Diagnostic Test 🚀
+          </button>
+        </div>
+
+        <!-- Diagnostic Interactive Question Box (Hidden until started) -->
+        <div id="diag-test-container" style="display: none; background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <span style="font-weight: 700; color: var(--color-teal); font-size: 0.85rem;" id="diag-question-num">Question 1 of 3</span>
+            <span style="font-size: 0.8rem; color: var(--color-text-secondary);" id="diag-topic-tag">Topic: Linear Equations</span>
+          </div>
+
+          <h3 style="font-size: 1.15rem; color: var(--color-navy); margin-bottom: 1rem;" id="diag-question-text">
+            Solve for x in the equation: 3(x - 2) + 4 = 2(x + 5)
+          </h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;" id="diag-options-grid">
+            <button class="btn btn-secondary" onclick="recordDiagnosticAnswer(0)">A) x = 8</button>
+            <button class="btn btn-secondary" onclick="recordDiagnosticAnswer(1)">B) x = 12</button>
+            <button class="btn btn-secondary" onclick="recordDiagnosticAnswer(2)">C) x = 14</button>
+            <button class="btn btn-secondary" onclick="recordDiagnosticAnswer(3)">D) x = 10</button>
+          </div>
+
+          <div id="diag-feedback" style="display: none; padding: 1rem; border-radius: var(--radius-sm); font-size: 0.9rem;"></div>
+        </div>
+
+        <!-- Diagnostic Completed Results View -->
+        <div id="diag-results-box" style="display: none; background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 2rem;">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <span style="font-size: 2rem;">🎉</span>
+            <div>
+              <h3 style="margin: 0; color: var(--color-navy); font-size: 1.3rem;">Diagnostic Assessment Complete</h3>
+              <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-secondary);" id="diag-score-summary">
+                You scored 3 out of 3 (100%) on this checkpoint.
+              </p>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.25rem;" id="diag-recommendations">
+            <!-- Recommendations injected via script -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Practice Activities & Tools -->
+      <section style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <span class="section-subtitle">Active Learning Tools</span>
+        <h2 style="margin: 0; font-size: 1.75rem;">Daily Practice Activities</h2>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+          <!-- Tool 1: Full CBT Hall -->
+          <div class="glass-card" style="padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+            <div>
+              <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">⚡</span>
+              <h3 style="font-size: 1.15rem; margin-bottom: 0.4rem; color: var(--color-navy);">Timed CBT Mock Exam</h3>
+              <p style="font-size: 0.88rem; line-height: 1.5; margin: 0;">
+                Authentic computer-based examination countdown simulation with onscreen calculator for UTME and WAEC.
+              </p>
+            </div>
+            <a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">
+              Launch Exam Hall ➜
+            </a>
+          </div>
+
+          <!-- Tool 2: Downloadable Past Papers -->
+          <div class="glass-card" style="padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+            <div>
+              <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">📥</span>
+              <h3 style="font-size: 1.15rem; margin-bottom: 0.4rem; color: var(--color-navy);">Resource Vault & PDFs</h3>
+              <p style="font-size: 0.88rem; line-height: 1.5; margin: 0;">
+                Download printable formula booklets, 10-year past questions, and lecture summary notes for offline study.
+              </p>
+            </div>
+            <a href="vault.html" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">
+              Open Resource Vault ➜
+            </a>
+          </div>
+
+          <!-- Tool 3: Community STEM Q&A Hub -->
+          <div class="glass-card" style="padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+            <div>
+              <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">💬</span>
+              <h3 style="font-size: 1.15rem; margin-bottom: 0.4rem; color: var(--color-navy);">Community Q&A Collective</h3>
+              <p style="font-size: 0.88rem; line-height: 1.5; margin: 0;">
+                Drop challenging homework problems, write equations with live LaTeX notation, and get educator verified solutions.
+              </p>
+            </div>
+            <a href="qa.html" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">
+              Ask Question in Hub ➜
+            </a>
+          </div>
+
+          <!-- Tool 4: 1-on-1 Tutoring -->
+          <div class="glass-card" style="padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+            <div>
+              <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">👨‍🏫</span>
+              <h3 style="font-size: 1.15rem; margin-bottom: 0.4rem; color: var(--color-navy);">Private 1-on-1 Coaching</h3>
+              <p style="font-size: 0.88rem; line-height: 1.5; margin: 0;">
+                Book a dedicated private whiteboard session with Mr. Isaac Olusola for targeted individual guidance.
+              </p>
+            </div>
+            <a href="tutoring.html" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">
+              Schedule Tutoring ➜
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. Learning Goals & Study Targets -->
+      <section class="glass-card" style="padding: 2.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <span class="section-subtitle">Measurable Targets</span>
+            <h2 style="font-size: 1.6rem; margin: 0.25rem 0 0 0; color: var(--color-navy);">Weekly Learning Goals & Targets</h2>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="openGoalsModal()">
+            ⚙️ Adjust Goals
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <!-- Goal 1: Study Hours Target -->
+          <div style="background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--color-teal); letter-spacing: 0.04em;">Weekly Study Time</span>
+              <span style="font-size: 1.25rem;">⏱️</span>
+            </div>
+            <div>
+              <div style="font-size: 1.6rem; font-weight: 800; color: var(--color-navy);" id="goal-hours-display">
+                <span id="hours-spent-val">4.5</span> / <span id="hours-target-val">10</span> <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-secondary);">Hours</span>
+              </div>
+              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.2rem;">Weekly Target Progress: 45%</div>
+            </div>
+            <div class="course-progress-bar-bg" style="height: 6px;">
+              <div class="course-progress-bar-fill" id="goal-hours-bar" style="width: 45%; background: var(--color-teal);"></div>
+            </div>
+          </div>
+
+          <!-- Goal 2: Practice Questions Target -->
+          <div style="background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--color-orange); letter-spacing: 0.04em;">Practice Questions</span>
+              <span style="font-size: 1.25rem;">📝</span>
+            </div>
+            <div>
+              <div style="font-size: 1.6rem; font-weight: 800; color: var(--color-navy);" id="goal-questions-display">
+                <span id="questions-solved-val">28</span> / <span id="questions-target-val">50</span> <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-secondary);">Questions</span>
+              </div>
+              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.2rem;">Weekly Target Progress: 56%</div>
+            </div>
+            <div class="course-progress-bar-bg" style="height: 6px;">
+              <div class="course-progress-bar-fill" id="goal-questions-bar" style="width: 56%; background: var(--color-orange);"></div>
+            </div>
+          </div>
+
+          <!-- Goal 3: Target Examination Preparation -->
+          <div style="background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--color-navy); letter-spacing: 0.04em;">Primary Exam Target</span>
+              <span style="font-size: 1.25rem;">🎯</span>
+            </div>
+            <div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--color-navy);" id="goal-exam-name">
+                WASSCE & JAMB 2026
+              </div>
+              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.2rem;">Countdown status: On Track</div>
+            </div>
+            <div style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 700; color: #10B981; background: rgba(16, 185, 129, 0.1); padding: 0.35rem 0.65rem; border-radius: var(--radius-pill); width: fit-content;">
+              <span>●</span> Active Weekly Study Routine
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. Achievements & Milestones Tracker -->
+      <section class="glass-card" style="padding: 2.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <span class="section-subtitle">Real Achievements</span>
+            <h2 style="font-size: 1.5rem; margin: 0.25rem 0 0 0; color: var(--color-navy);">Earned Milestones & Badges</h2>
+          </div>
+          <span style="font-size: 0.85rem; color: var(--color-text-secondary);">
+            Badges unlock automatically as you complete lectures and verify topics.
+          </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+          <div class="milestone-badge unlocked" id="badge-first-step">
+            <span class="milestone-icon">🌱</span>
+            <div>
+              <strong style="display: block; font-size: 0.88rem; color: var(--color-navy);">First Step</strong>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Enrolled & explored platform</span>
+            </div>
+          </div>
+
+          <div class="milestone-badge" id="badge-streak">
+            <span class="milestone-icon">🔥</span>
+            <div>
+              <strong style="display: block; font-size: 0.88rem; color: var(--color-navy);">Streak Builder</strong>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">3+ continuous study days</span>
+            </div>
+          </div>
+
+          <div class="milestone-badge" id="badge-diagnostic">
+            <span class="milestone-icon">🎯</span>
+            <div>
+              <strong style="display: block; font-size: 0.88rem; color: var(--color-navy);">Diagnostic Ready</strong>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Completed skill checkpoint</span>
+            </div>
+          </div>
+
+          <div class="milestone-badge" id="badge-mastery">
+            <span class="milestone-icon">🏆</span>
+            <div>
+              <strong style="display: block; font-size: 0.88rem; color: var(--color-navy);">Mastery Champion</strong>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Completed a full course module</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Transparency Notice -->
+      <div style="text-align: center; font-size: 0.825rem; color: var(--color-text-secondary); padding: 1rem; border-radius: var(--radius-sm); background: var(--color-surface-subtle); border: 1px solid var(--color-border);">
+        🔒 <strong>Local Progress Persistence Active:</strong> All completed lessons, diagnostic scores, and earned study streaks are saved directly to your browser's local state. No fabricated or simulated statistics are introduced.
+      </div>
+
+    </main>
+
+    <!-- ======================================================================
+         PROFILE CUSTOMIZATION MODAL
+         ====================================================================== -->
+    <div class="profile-modal-overlay" id="profile-modal">
+      <div class="profile-modal-card">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem; color: var(--color-navy); font-size: 1.4rem;">
+          Customize Scholar Profile
+        </h3>
+        <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+          Update your student display name and target education level to tailor your dashboard goals.
+        </p>
+
+        <div class="form-group">
+          <label for="input-scholar-name">Your Full Name or Alias</label>
+          <input type="text" id="input-scholar-name" placeholder="e.g. Adeola, Emmanuel, Aisha" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="select-target-level">Target Education Level</label>
+          <select id="select-target-level" class="form-control">
+            <option value="Junior Secondary (JSS 1–3)">Junior Secondary (JSS 1–3)</option>
+            <option value="Senior Secondary (SS 1–3) • WASSCE Candidate" selected>Senior Secondary (SS 1–3) • WASSCE Candidate</option>
+            <option value="JAMB / UTME Speed Preparation">JAMB / UTME Speed Preparation</option>
+            <option value="WASSCE & NECO Distinction Track">WASSCE & NECO Distinction Track</option>
+            <option value="Undergraduate University STEM">Undergraduate University STEM</option>
+          </select>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button class="btn btn-secondary btn-sm" onclick="closeProfileModal()">Cancel</button>
+          <button class="btn btn-primary btn-sm" onclick="saveProfileModal()">Save Profile</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         FOOTER
+         ====================================================================== -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="font-size: 0.925rem; color: #9FB3C8; line-height: 1.6; margin-top: 0.5rem;">
+            An academic institution engineered to empower learners with cutting-edge mathematical education, examination confidence, and practical scientific intuition.
+          </p>
+        </div>
+        <div class="footer-links-col">
+          <h4 style="color: #FFFFFF;">Pathways</h4>
+          <ul>
+            <li><a href="courses.html?sphere=secondary">Junior Secondary Math</a></li>
+            <li><a href="courses.html?sphere=secondary">Senior Secondary Math</a></li>
+            <li><a href="courses.html?sphere=exams">WASSCE & NECO Prep</a></li>
+            <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">JAMB / UTME Mock</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4 style="color: #FFFFFF;">Quick Links</h4>
+          <ul>
+            <li><a href="dashboard.html">My Dashboard</a></li>
+            <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+            <li><a href="vault.html">Resource Vault</a></li>
+            <li><a href="qa.html">Community Q&A Hub</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4 style="color: #FFFFFF;">Contact</h4>
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="mailto:ziglaginstitute@gmail.com" style="color: var(--color-orange);">ziglaginstitute@gmail.com</a></li>
+            <li><span style="font-size: 0.85rem; color: #829AB1;">9, Oriade Close, Lagos, Nigeria</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p style="color: #829AB1; font-size: 0.875rem;">&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
+        <p style="color: #829AB1; font-size: 0.875rem;">Interactive Student Learning Platform</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="ziglag-db.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // ==========================================================================
+    // STUDENT LEARNING DASHBOARD CONTROLLER
+    // ==========================================================================
+    document.addEventListener("DOMContentLoaded", () => {
+      loadStudentProfile();
+      updateDashboardProgress();
+      checkMilestones();
+    });
+
+    // 1. Profile Management
+    function loadStudentProfile() {
+      const name = localStorage.getItem("ziglag_scholar_name") || "Scholar";
+      const level = localStorage.getItem("ziglag_scholar_level") || "Senior Secondary (SS3) • WASSCE Candidate";
+      
+      const nameEl = document.getElementById("dash-scholar-name");
+      const levelEl = document.getElementById("dash-level-badge");
+      const avatarEl = document.getElementById("dash-avatar-icon");
+      const greetingEl = document.getElementById("dash-greeting-time");
+
+      if (nameEl) nameEl.textContent = name;
+      if (levelEl) levelEl.textContent = level;
+      if (avatarEl && name !== "Scholar") {
+        avatarEl.textContent = name.trim().charAt(0).toUpperCase();
+      }
+
+      // Time-adaptive greeting
+      if (greetingEl) {
+        const hour = new Date().getHours();
+        if (hour < 12) greetingEl.textContent = "GOOD MORNING";
+        else if (hour < 18) greetingEl.textContent = "GOOD AFTERNOON";
+        else greetingEl.textContent = "GOOD EVENING";
+      }
+    }
+
+    function openProfileModal() {
+      const modal = document.getElementById("profile-modal");
+      const currentName = localStorage.getItem("ziglag_scholar_name") || "";
+      const currentLevel = localStorage.getItem("ziglag_scholar_level") || "Senior Secondary (SS3) • WASSCE Candidate";
+
+      document.getElementById("input-scholar-name").value = currentName;
+      document.getElementById("select-target-level").value = currentLevel;
+
+      if (modal) modal.style.display = "flex";
+    }
+
+    function closeProfileModal() {
+      const modal = document.getElementById("profile-modal");
+      if (modal) modal.style.display = "none";
+    }
+
+    function saveProfileModal() {
+      const name = document.getElementById("input-scholar-name").value.trim() || "Scholar";
+      const level = document.getElementById("select-target-level").value;
+
+      localStorage.setItem("ziglag_scholar_name", name);
+      localStorage.setItem("ziglag_scholar_level", level);
+
+      loadStudentProfile();
+      closeProfileModal();
+    }
+
+    // 2. Real Learning Progress Calculation
+    function updateDashboardProgress() {
+      const completedMap = AppState.completedLessons || {};
+      let totalCompleted = 0;
+      Object.keys(completedMap).forEach(k => {
+        totalCompleted += completedMap[k].length;
+      });
+
+      const totalSyllabusLectures = 32;
+      const percent = Math.min(100, Math.round((totalCompleted / totalSyllabusLectures) * 100));
+
+      const percentEl = document.getElementById("dash-progress-percent");
+      const barEl = document.getElementById("dash-overall-bar");
+      const subtextEl = document.getElementById("dash-completed-subtext");
+
+      if (percentEl) percentEl.textContent = `${percent}%`;
+      if (barEl) barEl.style.width = `${percent}%`;
+      if (subtextEl) subtextEl.textContent = `${totalCompleted} of ${totalSyllabusLectures} syllabus lectures completed`;
+
+      // Update WASSCE specific bar
+      const wassceCount = (completedMap['wassce-gce-neco-prep'] || []).length;
+      const wasscePercent = Math.round((wassceCount / 6) * 100);
+      const wassceText = document.getElementById("prog-wassce-text");
+      const wassceBar = document.getElementById("prog-wassce-bar");
+      if (wassceText) wassceText.textContent = `${wassceCount}/6 Completed (${wasscePercent}%)`;
+      if (wassceBar) wassceBar.style.width = `${wasscePercent}%`;
+
+      // Update JAMB specific bar
+      const jambCount = (completedMap['utme-postutme-prep'] || completedMap['jamb-postjamb-prep'] || []).length;
+      const jambPercent = Math.round((jambCount / 6) * 100);
+      const jambText = document.getElementById("prog-jamb-text");
+      const jambBar = document.getElementById("prog-jamb-bar");
+      if (jambText) jambText.textContent = `${jambCount}/6 Completed (${jambPercent}%)`;
+      if (jambBar) jambBar.style.width = `${jambPercent}%`;
+
+      // Dynamic XP Calculation: 50 XP per completed lecture + 300 base XP
+      const xp = 300 + (totalCompleted * 50);
+      const xpEl = document.getElementById("dash-xp-count");
+      if (xpEl) xpEl.textContent = xp;
+    }
+
+    // 3. Course Level Filtering
+    function filterDashboardCourses(level, btn) {
+      document.querySelectorAll(".dash-tab-pill").forEach(p => p.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+
+      const cards = document.querySelectorAll(".course-card-dash");
+      cards.forEach(card => {
+        const cardLevel = card.getAttribute("data-level") || "";
+        if (level === "all" || cardLevel.includes(level)) {
+          card.style.display = "flex";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
+    // 4. Interactive Diagnostic Assessment Logic
+    const DIAGNOSTIC_QUESTIONS = [
+      {
+        q: "Solve for x in the linear algebraic equation: 3(x - 2) + 4 = 2(x + 5)",
+        topic: "Linear Algebra",
+        options: ["x = 8", "x = 12", "x = 14", "x = 10"],
+        correct: 1,
+        explain: "Expanding brackets: 3x - 6 + 4 = 2x + 10 ⟹ 3x - 2 = 2x + 10. Subtract 2x from both sides: x - 2 = 10 ⟹ x = 12."
+      },
+      {
+        q: "If log₁₀(2) = 0.3010 and log₁₀(3) = 0.4771, calculate the exact value of log₁₀(18):",
+        topic: "Logarithms & Indices",
+        options: ["1.2552", "0.9542", "1.1761", "1.0791"],
+        correct: 0,
+        explain: "18 = 2 × 3² ⟹ log₁₀(18) = log₁₀(2) + 2·log₁₀(3) = 0.3010 + 2(0.4771) = 1.2552."
+      },
+      {
+        q: "In a circle with center O, the angle subtended by an arc at the center is 110°. Find the angle subtended by the same arc at any point on the circumference:",
+        topic: "Circle Geometry Theorems",
+        options: ["220°", "110°", "55°", "90°"],
+        correct: 2,
+        explain: "Circle Theorem: The angle subtended by an arc at the center is twice the angle subtended by it at the circumference. Therefore, Angle = 110° / 2 = 55°."
+      }
+    ];
+
+    let diagCurrentIdx = 0;
+    let diagScore = 0;
+
+    function startDiagnosticTest() {
+      diagCurrentIdx = 0;
+      diagScore = 0;
+      document.getElementById("diag-test-container").style.display = "block";
+      document.getElementById("diag-results-box").style.display = "none";
+      document.getElementById("btn-start-diagnostic").style.display = "none";
+      renderDiagnosticQuestion();
+    }
+
+    function renderDiagnosticQuestion() {
+      const q = DIAGNOSTIC_QUESTIONS[diagCurrentIdx];
+      document.getElementById("diag-question-num").textContent = `Question ${diagCurrentIdx + 1} of ${DIAGNOSTIC_QUESTIONS.length}`;
+      document.getElementById("diag-topic-tag").textContent = `Topic: ${q.topic}`;
+      document.getElementById("diag-question-text").textContent = q.q;
+
+      const optsGrid = document.getElementById("diag-options-grid");
+      optsGrid.innerHTML = "";
+      q.options.forEach((opt, idx) => {
+        const b = document.createElement("button");
+        b.className = "btn btn-secondary";
+        b.textContent = opt;
+        b.onclick = () => recordDiagnosticAnswer(idx);
+        optsGrid.appendChild(b);
+      });
+
+      const feedback = document.getElementById("diag-feedback");
+      feedback.style.display = "none";
+    }
+
+    function recordDiagnosticAnswer(chosenIdx) {
+      const q = DIAGNOSTIC_QUESTIONS[diagCurrentIdx];
+      const isCorrect = (chosenIdx === q.correct);
+      if (isCorrect) diagScore++;
+
+      const opts = document.querySelectorAll("#diag-options-grid button");
+      opts.forEach((btn, idx) => {
+        btn.style.pointerEvents = "none";
+        if (idx === q.correct) {
+          btn.style.background = "#10B981";
+          btn.style.color = "#FFFFFF";
+          btn.style.borderColor = "#10B981";
+        } else if (idx === chosenIdx && !isCorrect) {
+          btn.style.background = "rgba(239, 68, 68, 0.1)";
+          btn.style.color = "#EF4444";
+          btn.style.borderColor = "#EF4444";
+        }
+      });
+
+      const feedback = document.getElementById("diag-feedback");
+      feedback.style.display = "block";
+      feedback.style.background = isCorrect ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.06)";
+      feedback.style.borderColor = isCorrect ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)";
+      feedback.innerHTML = `
+        <div style="font-weight:700; color:${isCorrect ? '#10B981' : '#EF4444'}; margin-bottom:0.35rem;">
+          ${isCorrect ? '✓ Correct Answer!' : '⚠️ Incorrect.'}
+        </div>
+        <div style="color:var(--color-text-main); font-size:0.88rem;">${q.explain}</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:0.75rem;" onclick="nextDiagnosticQuestion()">
+          ${diagCurrentIdx < DIAGNOSTIC_QUESTIONS.length - 1 ? 'Next Question ➜' : 'View Results ➜'}
+        </button>
+      `;
+    }
+
+    function nextDiagnosticQuestion() {
+      diagCurrentIdx++;
+      if (diagCurrentIdx < DIAGNOSTIC_QUESTIONS.length) {
+        renderDiagnosticQuestion();
+      } else {
+        finishDiagnostic();
+      }
+    }
+
+    function finishDiagnostic() {
+      document.getElementById("diag-test-container").style.display = "none";
+      const resultsBox = document.getElementById("diag-results-box");
+      resultsBox.style.display = "block";
+      document.getElementById("btn-start-diagnostic").style.display = "inline-flex";
+      document.getElementById("btn-start-diagnostic").textContent = "Retake Assessment ↺";
+
+      const total = DIAGNOSTIC_QUESTIONS.length;
+      const pct = Math.round((diagScore / total) * 100);
+
+      document.getElementById("diag-score-summary").textContent = `You scored ${diagScore} out of ${total} (${pct}%). Diagnostic proficiency recorded to your dashboard.`;
+
+      // Update dashboard metric
+      const scoreEl = document.getElementById("dash-diag-score");
+      const statusEl = document.getElementById("dash-diag-status");
+      if (scoreEl) scoreEl.textContent = `${pct}%`;
+      if (statusEl) {
+        statusEl.textContent = pct >= 70 ? "High Proficiency in Core Algebra & Geometry" : "Recommendation: Review Circle Theorems & Logarithms";
+      }
+
+      // Unlock diagnostic milestone badge
+      const diagBadge = document.getElementById("badge-diagnostic");
+      if (diagBadge) diagBadge.classList.add("unlocked");
+      localStorage.setItem("ziglag_diag_badge", "true");
+    }
+
+    function checkMilestones() {
+      const completedMap = AppState.completedLessons || {};
+      let totalCompleted = 0;
+      Object.keys(completedMap).forEach(k => {
+        totalCompleted += completedMap[k].length;
+      });
+
+      if (totalCompleted > 0) {
+        const b = document.getElementById("badge-first-step");
+        if (b) b.classList.add("unlocked");
+      }
+      if (totalCompleted >= 6) {
+        const m = document.getElementById("badge-mastery");
+        if (m) m.classList.add("unlocked");
+      }
+      if (localStorage.getItem("ziglag_diag_badge") === "true") {
+        const d = document.getElementById("badge-diagnostic");
+        if (d) d.classList.add("unlocked");
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,17 +1,108 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ziglag Institute | Syllabus & Courses Explorer</title>
-  <meta name="description" content="Explore our complete math curriculum catalog: Secondary maths, AP Calculus prep, IGCSE math, and college level linear algebra.">
+  <title>Courses & Curriculum Pathways | Ziglag Institute</title>
+  <meta name="description" content="Explore our Mathematics and STEM curriculum organised by education level: JSS 1-3, SS 1-3, JAMB/UTME, WASSCE/NECO, and Advanced International Programmes.">
+  <link rel="icon" type="image/png" href="ZIG logo transparent.png">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Scoped Course Explorer Overrides */
+    .courses-catalog-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    .courses-hero-banner {
+      background: linear-gradient(135deg, var(--color-navy) 0%, #173653 100%);
+      border-radius: var(--radius-xl);
+      padding: 3rem 2.5rem;
+      color: #FFFFFF;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      background-image: radial-gradient(rgba(21, 154, 156, 0.25) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .courses-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(21, 154, 156, 0.2);
+      border: 1px solid rgba(21, 154, 156, 0.4);
+      border-radius: var(--radius-pill);
+      padding: 0.35rem 0.9rem;
+      font-size: 0.825rem;
+      font-weight: 700;
+      color: #5EEAD4;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .courses-search-bar {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .courses-search-input {
+      flex: 1;
+      min-width: 260px;
+      padding: 0.9rem 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      background: var(--color-white);
+      color: var(--color-navy);
+      font-size: 0.95rem;
+      font-family: var(--font-body);
+      outline: none;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .courses-search-input:focus {
+      border-color: var(--color-teal);
+      box-shadow: 0 0 0 3px rgba(21, 154, 156, 0.15);
+    }
+
+    [data-theme="dark"] .courses-search-input {
+      background: var(--color-surface);
+      color: #FFFFFF;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .courses-grid-layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .courses-catalog-container {
+        padding: 1.5rem 1rem 4rem 1rem;
+      }
+      .courses-hero-banner {
+        padding: 2rem 1.5rem;
+      }
+      .courses-grid-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
 
   <!-- Background Orbs -->
-  <div class="glow-orb glow-orb-primary" style="top: 10%; right: 10%;"></div>
-  <div class="glow-orb glow-orb-secondary" style="top: 50%; left: 5%;"></div>
+  <div class="glow-orb glow-orb-primary" style="top: 15%; right: 5%;"></div>
+  <div class="glow-orb glow-orb-secondary" style="top: 55%; left: 3%;"></div>
 
   <div class="app-container">
     
@@ -23,184 +114,127 @@
       </a>
       <nav>
         <ul class="nav-links">
-          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
           <li><a href="courses.html" class="active">Courses</a></li>
           <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
           <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
           <li><a href="vault.html">Resource Vault</a></li>
           <li><a href="qa.html">Q&A Hub</a></li>
           <li><a href="about.html">About Us</a></li>
-          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
         </ul>
       </nav>
       <div class="navbar-actions">
         <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
-        <a href="tutoring.html" class="btn btn-secondary btn-sm">Book Session</a>
+        <a href="dashboard.html" class="btn btn-primary btn-sm">Student Dashboard</a>
       </div>
     </header>
 
-    <!-- Header Banner -->
-    <section class="section-wrapper" style="padding-bottom: 0.5rem; animation: fade-in 0.6s ease-out;">
-      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: var(--radius-pill); padding: 0.35rem 0.85rem; font-size: 0.82rem; font-weight: 600; color: var(--primary-color); margin-bottom: 0.75rem;">
-        <span>🇳🇬</span> WASSCE · JAMB UTME · NECO · Mathematics & Physics
-      </div>
-      <span class="section-subtitle" style="display:block; margin-bottom:0.5rem;">Curriculum & CBT Hub</span>
-      <h1 style="font-size: 3rem;">Syllabus Courses & CBT</h1>
-      <p style="margin-top: 0.5rem; max-width: 720px; font-size: 1.05rem; line-height: 1.6;">
-        Explore our Nigerian and international curriculum catalog. Access complete video lectures, downloadable formula vaults, and interactive CBT practice questions with step-by-step solutions for Mathematics and Physics.
-      </p>
-    </section>
+    <main class="courses-catalog-container">
 
-    <!-- Real-Time CBT Mock Announcement Callout -->
-    <section class="section-wrapper" style="padding-top: 0; padding-bottom: 1rem;">
-      <div class="glass-card" style="padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-color: rgba(249, 115, 22, 0.35); background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(249, 115, 22, 0.08));">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(249, 115, 22, 0.15); display: flex; justify-content: center; align-items: center; font-size: 1.75rem; border: 1px solid rgba(249, 115, 22, 0.3);">
+      <!-- Hero Banner -->
+      <section class="courses-hero-banner">
+        <div class="courses-hero-badge">
+          <span>🇳🇬</span> Primary Education Levels: JSS 1–3 · SS 1–3 · JAMB · WASSCE
+        </div>
+        <h1 style="font-size: 2.6rem; color: #FFFFFF; margin: 0 0 0.75rem 0; font-family: var(--font-display);">
+          Syllabus Courses & Curriculum Pathways
+        </h1>
+        <p style="font-size: 1.1rem; color: #CBD5E1; max-width: 800px; line-height: 1.6; margin: 0;">
+          Explore our structured Mathematics and Science courses organised by education level. Every course is equipped with visual video lessons, step-by-step worked examples, interactive practice drills, and topic assessments.
+        </p>
+      </section>
+
+      <!-- Real-Time CBT Announcement Banner -->
+      <section class="glass-card" style="padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem; border-color: rgba(242, 140, 40, 0.4); background: linear-gradient(135deg, rgba(21, 154, 156, 0.08), rgba(242, 140, 40, 0.08));">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius-md); background: rgba(242, 140, 40, 0.15); display: flex; justify-content: center; align-items: center; font-size: 1.8rem; border: 1px solid rgba(242, 140, 40, 0.3); flex-shrink: 0;">
             ⚡
           </div>
           <div>
-            <h3 style="margin: 0; font-size: 1.25rem; color: var(--text-main);">Looking for Real-Time CBT Mock Practice?</h3>
-            <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem; color: var(--text-muted);">
-              Test your speed under authentic JAMB UTME & WASSCE countdown conditions with our Onscreen Calculator and instant score analysis.
+            <h3 style="margin: 0; font-size: 1.2rem; color: var(--color-navy);">Prepare for Authentic Timed Examination Conditions</h3>
+            <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.4;">
+              Practice 40-question drills under authentic JAMB UTME & WASSCE countdown conditions with our Onscreen Calculator and instant score analysis.
             </p>
           </div>
         </div>
-        <a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem; background: linear-gradient(135deg, var(--secondary-color), #ea580c); border:none; box-shadow: 0 4px 15px var(--secondary-glow);">
+        <a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 0.75rem 1.6rem; font-size: 0.925rem; white-space: nowrap;">
           Enter CBT Mock Hall 🚀
         </a>
-      </div>
-    </section>
+      </section>
 
-    <!-- Catalog Layout -->
-    <section class="section-wrapper" style="padding-top: 1rem;">
-      <div class="catalog-layout">
-        
-        <!-- Filter Sidebar -->
-        <aside class="filter-sidebar glass-card">
-          <div class="filter-group">
-            <h3 class="filter-group-title">Mathematics Sphere</h3>
-            <label class="filter-option">
-              <input type="radio" name="sphere-filter" value="all" checked onclick="applyFilters()">
-              <span>All Spheres</span>
-            </label>
-            <label class="filter-option">
-              <input type="radio" name="sphere-filter" value="secondary" onclick="applyFilters()">
-              <span>Secondary School</span>
-            </label>
-            <label class="filter-option">
-              <input type="radio" name="sphere-filter" value="exams" onclick="applyFilters()">
-              <span>Special Exams Prep</span>
-            </label>
-            <label class="filter-option">
-              <input type="radio" name="sphere-filter" value="undergrad" onclick="applyFilters()">
-              <span>Undergraduate Maths</span>
-            </label>
-          </div>
-
-          <div class="filter-group">
-            <h3 class="filter-group-title">Study Duration</h3>
-            <label class="filter-option">
-              <input type="checkbox" id="dur-short" value="short" onchange="applyFilters()">
-              <span>Short (&lt; 12 Hours)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" id="dur-medium" value="medium" onchange="applyFilters()">
-              <span>Medium (12-18 Hours)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" id="dur-long" value="long" onchange="applyFilters()">
-              <span>Long (&gt; 18 Hours)</span>
-            </label>
-          </div>
-
-          <div class="filter-group">
-            <h3 class="filter-group-title">Materials Included</h3>
-            <label class="filter-option">
-              <input type="checkbox" id="has-pdf" value="pdf" onchange="applyFilters()">
-              <span>PDF Worksheets Included</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" id="high-rating" value="rating" onchange="applyFilters()">
-              <span>Top Rated (&gt; 4.8★)</span>
-            </label>
-          </div>
-
-          <div class="filter-group">
-            <h3 class="filter-group-title">Exam Target</h3>
-            <label class="filter-option">
-              <input type="checkbox" id="exam-igcse" value="igcse" onchange="applyFilters()">
-              <span>IGCSE Extended</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" id="exam-gcse" value="gcse" onchange="applyFilters()">
-              <span>GCSE Mathematics</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" id="exam-wassce" value="wassce" onchange="applyFilters()">
-              <span>WASSCE/GCE/NECO Exam</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" id="exam-utme" value="utme" onchange="applyFilters()">
-              <span>UTME/POST UTME Exam</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" id="exam-gce" value="gce" onchange="applyFilters()">
-              <span>GCE A-Levels</span>
-            </label>
-          </div>
-          
-          <button class="btn btn-secondary btn-sm" onclick="resetFilters()" style="margin-top: 0.5rem; justify-content: center; width: 100%;">Reset Filters</button>
-          
-          <!-- Lead Instructor Mini Card -->
-          <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color); text-align: center;">
-            <div style="width: 64px; height: 64px; border-radius: 50%; overflow: hidden; border: 2px solid var(--primary-color); margin: 0 auto 0.75rem auto; box-shadow: 0 0 15px var(--primary-glow); background: #000;">
-              <img src="IMG_1399.JPG" alt="Mr. Isaac Olusola" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
-            </div>
-            <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-main);">Mr. Isaac Olusola</h4>
-            <p style="margin: 0.2rem 0 0.75rem 0; font-size: 0.78rem; color: var(--text-muted);">Lead Curriculum Instructor</p>
-            <a href="tutoring.html" class="btn btn-primary btn-sm" style="font-size: 0.75rem; width: 100%; justify-content: center; text-decoration: none;">Book 1-on-1 Class 🚀</a>
-          </div>
-        </aside>
-
-        <!-- Main Courses Area -->
-        <main class="courses-main">
-          
-          <!-- Search Row -->
-          <div class="search-bar-wrap">
-            <div class="search-input-box">
-              <input type="text" id="course-search-input" placeholder="Search calculus, algebra, trigonometry, matrices..." onkeyup="applyFilters()">
-            </div>
-            <div class="glass-card" style="padding: 0.75rem 1.25rem; display: flex; align-items: center; border-radius: var(--radius-md);">
-              <span style="font-size: 0.9rem; color: var(--text-muted); white-space: nowrap;">
-                Showing <strong id="course-count-display" style="color: var(--primary-color);">6</strong> Courses
-              </span>
-            </div>
-          </div>
-
-          <!-- Courses Grid -->
-          <div class="courses-grid" id="courses-render-grid">
-            <!-- Dynamic course cards injected here -->
-          </div>
-
-        </main>
-
-      </div>
-    </section>
-
-    <!-- Tutoring Quick Callout -->
-    <section class="section-wrapper" style="padding-top: 2rem;">
-      <div class="glass-card" style="display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 3rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border-color: var(--border-highlight);">
+      <!-- Filter Section -->
+      <section class="level-filter-wrapper">
+        <!-- Education Level Filter Bar -->
         <div>
-          <h2>Need personalized syllabus guidance?</h2>
-          <p style="margin-top: 0.5rem; max-width: 700px;">
-            Book a direct, custom matching session to review past exam scripts, prepare for upcoming exams, or get tailored study plans.
+          <span style="display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-teal); margin-bottom: 0.5rem;">
+            Filter by Education Level
+          </span>
+          <div class="level-filter-bar" id="education-level-tabs">
+            <button class="level-pill-btn active" data-level="all" onclick="selectLevelFilter('all')">
+              <span>🎓</span> All Levels
+            </button>
+            <button class="level-pill-btn" data-level="jss" onclick="selectLevelFilter('jss')">
+              <span>📘</span> Junior Secondary (JSS 1–3)
+            </button>
+            <button class="level-pill-btn" data-level="sss" onclick="selectLevelFilter('sss')">
+              <span>📗</span> Senior Secondary (SS 1–3)
+            </button>
+            <button class="level-pill-btn" data-level="jamb" onclick="selectLevelFilter('jamb')">
+              <span>⚡</span> JAMB / UTME
+            </button>
+            <button class="level-pill-btn" data-level="wassce" onclick="selectLevelFilter('wassce')">
+              <span>🏆</span> WASSCE & NECO
+            </button>
+            <button class="level-pill-btn" data-level="other" onclick="selectLevelFilter('other')">
+              <span>🌌</span> Other Approved Programmes
+            </button>
+          </div>
+        </div>
+
+        <!-- Subject & Keyword Search Row -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div class="subject-filter-bar" id="subject-tabs">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-secondary); margin-right: 0.25rem;">Subject:</span>
+            <button class="subject-pill-btn active" data-subject="all" onclick="selectSubjectFilter('all')">All Subjects</button>
+            <button class="subject-pill-btn" data-subject="Mathematics" onclick="selectSubjectFilter('Mathematics')">📐 Mathematics</button>
+            <button class="subject-pill-btn" data-subject="Physics" onclick="selectSubjectFilter('Physics')">⚛️ Physics</button>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; max-width: 480px; min-width: 280px;">
+            <input type="text" id="course-search-input" class="courses-search-input" placeholder="Search by topic, subtopic, or formula..." oninput="handleSearchInput()">
+            <div style="background: var(--color-white); border: 1px solid var(--color-border); padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary); white-space: nowrap; box-shadow: var(--shadow-sm);">
+              Showing <span id="course-count-display" style="color: var(--color-teal); font-weight: 800;">10</span> Courses
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Courses Grid Container -->
+      <section>
+        <div class="courses-grid-layout" id="courses-render-grid">
+          <!-- Dynamically injected from MATH_DATABASE -->
+        </div>
+      </section>
+
+      <!-- 1-on-1 Tutoring Callout -->
+      <section class="glass-card" style="display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2rem; background: linear-gradient(135deg, rgba(16, 42, 69, 0.05), rgba(21, 154, 156, 0.08)); border-color: rgba(21, 154, 156, 0.3); padding: 2.5rem; margin-top: 1rem;">
+        <div>
+          <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-orange); display: block; margin-bottom: 0.4rem;">Personalized Academic Guidance</span>
+          <h2 style="font-size: 1.8rem; margin: 0; color: var(--color-navy);">Need direct 1-on-1 mentorship with Mr. Isaac Olusola?</h2>
+          <p style="margin-top: 0.6rem; max-width: 720px; font-size: 0.95rem; color: var(--color-text-secondary); line-height: 1.5;">
+            Book a tailored 1-on-1 coaching session to work through difficult proof steps, prepare for upcoming WAEC or UTME exams, or receive personalized diagnostic feedback.
           </p>
         </div>
         <div>
-          <a href="tutoring.html" class="btn btn-primary" style="white-space: nowrap;">Meet Our Tutors ➜</a>
+          <a href="tutoring.html" class="btn btn-secondary" style="white-space: nowrap; padding: 0.85rem 1.75rem;">
+            Meet Lead Tutor ➜
+          </a>
         </div>
-      </div>
-    </section>
+      </section>
+
+    </main>
 
     <!-- Footer -->
     <footer class="footer">
@@ -211,18 +245,19 @@
             <span>Ziglag Institute</span>
           </a>
           <p style="margin-top: 0.5rem; font-size: 0.9rem;">
-            An Institution designed to empower learners with cutting-edge mathematical education and resources with application to the real world.
+            Empowering secondary students, examination candidates, and lifelong learners with rigorous mathematical education and practical scientific reasoning.
           </p>
           <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
-            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="YouTube Channel">🎥 YouTube</a>
-            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="LinkedIn Profile">🔗 LinkedIn</a>
-            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: var(--transition-fast); display: flex; align-items: center; gap: 0.25rem;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'" title="GitHub Profile">💻 GitHub</a>
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--color-text-secondary); font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">🎥 YouTube</a>
+            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--color-text-secondary); font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">🔗 LinkedIn</a>
+            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--color-text-secondary); font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">💻 GitHub</a>
           </div>
         </div>
         <div class="footer-links-col">
           <h4>Portal Hub</h4>
           <ul>
-            <li><a href="index.html">Dashboard Home</a></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="dashboard.html">Student Dashboard</a></li>
             <li><a href="courses.html">Syllabus Courses</a></li>
             <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
             <li><a href="tutoring.html">1-on-1 Coaching</a></li>
@@ -231,21 +266,22 @@
           </ul>
         </div>
         <div class="footer-links-col">
-          <h4>Spheres of Study</h4>
+          <h4>Education Levels</h4>
           <ul>
-            <li><a href="courses.html?sphere=secondary">NECO & GCE Prep</a></li>
-            <li><a href="courses.html?sphere=exams">WASSCE & UTME/POST UTME Prep</a></li>
-            <li><a href="courses.html?sphere=exams">GCSE & IGCSE Prep</a></li>
-            <li><a href="courses.html?sphere=undergrad">Undergrad College Math</a></li>
+            <li><a href="courses.html?level=jss">Junior Secondary (JSS 1–3)</a></li>
+            <li><a href="courses.html?level=sss">Senior Secondary (SS 1–3)</a></li>
+            <li><a href="courses.html?level=jamb">JAMB / UTME Speed Mastery</a></li>
+            <li><a href="courses.html?level=wassce">WASSCE & NECO Preparation</a></li>
+            <li><a href="courses.html?level=other">Undergraduate & International</a></li>
           </ul>
         </div>
         <div class="footer-links-col">
           <h4>Organization</h4>
           <ul>
-            <li><a href="about.html#people">Our People</a></li>
+            <li><a href="about.html">About Us</a></li>
             <li><a href="contact.html">Contact Us</a></li>
             <li><a href="tutoring.html">Book 1-on-1 Session</a></li>
-            <li><a href="courses.html">Browse Syllabus</a></li>
+            <li><a href="courses.html">Browse Curriculum</a></li>
             <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
           </ul>
         </div>
@@ -253,231 +289,282 @@
       
       <div class="footer-bottom">
         <p>&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
-        <p>Built as a Premium Web App</p>
+        <p>Built with Academic Rigor & Modern Design</p>
       </div>
     </footer>
 
   </div>
 
-  <!-- Universal Database Layer -->
+  <!-- Scripts -->
   <script src="ziglag-db.js"></script>
   <script src="app.js"></script>
   <script>
-    // Course catalog specific scripting
-    document.addEventListener("DOMContentLoaded", async () => {
-      // Read URL params
-      const params = new URLSearchParams(window.location.search);
-      const sphereParam = params.get("sphere");
+    // State filters
+    let currentLevelFilter = "all";
+    let currentSubjectFilter = "all";
+    let currentSearchTerm = "";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Check URL parameters (e.g. ?level=jss or ?level=wassce or ?subject=Physics)
+      const urlParams = new URLSearchParams(window.location.search);
+      const levelParam = urlParams.get("level");
+      const subjectParam = urlParams.get("subject");
       
-      if (sphereParam) {
-        const radio = document.querySelector(`input[name="sphere-filter"][value="${sphereParam}"]`);
-        if (radio) {
-          radio.checked = true;
-        }
+      if (levelParam) {
+        currentLevelFilter = levelParam;
+        updateLevelTabsUI();
       }
 
-      // Enrich courses from Neon Database
-      try {
-        if (window.ZiglagDB && window.ZiglagDB.courses) {
-          const liveCourses = await window.ZiglagDB.courses.list();
-          if (liveCourses && liveCourses.length > 0 && window.MATH_DATABASE && window.MATH_DATABASE.courses) {
-            liveCourses.forEach(lc => {
-              const existingIdx = window.MATH_DATABASE.courses.findIndex(c => c.id === lc.id || c.id === lc.slug);
-              const courseObj = {
-                id: lc.id || lc.slug,
-                title: lc.title,
-                category: lc.category,
-                sphere: lc.category || lc.sphere || 'exams',
-                subcat: lc.subcategory || lc.subcat || 'General',
-                shortDesc: lc.description || 'Master key principles with Mr. Isaac Olusola.',
-                level: lc.badge || 'Core STEM',
-                duration: `${lc.duration_weeks || 6} Weeks`,
-                materials: 8,
-                rating: 4.9,
-                lectures: 6,
-                imageIcon: lc.icon || '📐',
-                syllabus: (lc.syllabus && lc.syllabus.length > 0) ? lc.syllabus : ['Foundational Concepts', 'Calculated Examples', 'Past Questions Review', 'Mastery Challenge']
-              };
-              if (existingIdx >= 0) {
-                window.MATH_DATABASE.courses[existingIdx] = { ...window.MATH_DATABASE.courses[existingIdx], ...courseObj };
-              } else {
-                window.MATH_DATABASE.courses.push(courseObj);
-              }
-            });
-          }
-        }
-      } catch (err) {
-        console.warn('Notice loading live courses:', err);
+      if (subjectParam) {
+        currentSubjectFilter = subjectParam;
+        updateSubjectTabsUI();
       }
-      
-      renderCourses();
+
+      renderCoursesCatalog();
+
+      // Listen for progress updates
+      window.addEventListener("lessonProgressChanged", () => {
+        renderCoursesCatalog();
+      });
     });
 
-    function renderCourses() {
+    function selectLevelFilter(level) {
+      currentLevelFilter = level;
+      updateLevelTabsUI();
+      renderCoursesCatalog();
+    }
+
+    function selectSubjectFilter(subj) {
+      currentSubjectFilter = subj;
+      updateSubjectTabsUI();
+      renderCoursesCatalog();
+    }
+
+    function handleSearchInput() {
+      const input = document.getElementById("course-search-input");
+      currentSearchTerm = input ? input.value.trim().toLowerCase() : "";
+      renderCoursesCatalog();
+    }
+
+    function updateLevelTabsUI() {
+      const buttons = document.querySelectorAll("#education-level-tabs .level-pill-btn");
+      buttons.forEach(btn => {
+        if (btn.getAttribute("data-level") === currentLevelFilter) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function updateSubjectTabsUI() {
+      const buttons = document.querySelectorAll("#subject-tabs .subject-pill-btn");
+      buttons.forEach(btn => {
+        if (btn.getAttribute("data-subject") === currentSubjectFilter) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function renderCoursesCatalog() {
       const grid = document.getElementById("courses-render-grid");
-      const searchVal = document.getElementById("course-search-input").value.toLowerCase();
-      const sphereVal = document.querySelector('input[name="sphere-filter"]:checked').value;
-      
-      const durShort = document.getElementById("dur-short").checked;
-      const durMedium = document.getElementById("dur-medium").checked;
-      const durLong = document.getElementById("dur-long").checked;
-      
-      const hasPdf = document.getElementById("has-pdf")?.checked || false;
-      const highRating = document.getElementById("high-rating")?.checked || false;
-      
-      const examAp = document.getElementById("exam-ap")?.checked || false;
-      const examIgcse = document.getElementById("exam-igcse")?.checked || false;
-      const examGcse = document.getElementById("exam-gcse")?.checked || false;
-      const examWassce = document.getElementById("exam-wassce")?.checked || false;
-      const examUtme = document.getElementById("exam-utme")?.checked || false;
-      const examGce = document.getElementById("exam-gce")?.checked || false;
-      const hasExamSelection = examAp || examIgcse || examGcse || examWassce || examUtme || examGce;
+      if (!grid) return;
 
-      grid.innerHTML = "";
-      
-      const filtered = MATH_DATABASE.courses.filter(c => {
-        // Search filter
-        if (searchVal && !c.title.toLowerCase().includes(searchVal) && !c.shortDesc.toLowerCase().includes(searchVal)) {
-          return false;
-        }
-        
-        // Sphere filter
-        if (sphereVal !== "all" && c.sphere !== sphereVal) {
-          return false;
-        }
-        
-        // Duration filter
-        const durationHours = parseInt(c.duration);
-        const matchShort = durShort && durationHours < 12;
-        const matchMedium = durMedium && durationHours >= 12 && durationHours <= 18;
-        const matchLong = durLong && durationHours > 18;
-        const hasDurationSelection = durShort || durMedium || durLong;
-        if (hasDurationSelection && !matchShort && !matchMedium && !matchLong) {
-          return false;
-        }
-        
-        // Materials Included filter
-        if (hasPdf && c.materials === 0) {
-          return false;
-        }
-        
-        // High Rating filter
-        if (highRating && c.rating < 4.8) {
-          return false;
-        }
+      const courses = (window.MATH_DATABASE && window.MATH_DATABASE.courses) ? window.MATH_DATABASE.courses : [];
 
-        // Exam Target Selection Filter
-        if (hasExamSelection) {
-          const sub = (c.subcat || '').toUpperCase();
-          const cid = (c.id || '').toLowerCase();
-          const matchAp = examAp && (sub.includes('AP') || cid.includes('ap'));
-          const matchIgcse = examIgcse && (sub.includes('IGCSE') || cid.includes('igcse'));
-          const matchGcse = examGcse && (sub.includes('GCSE') || cid.includes('gcse'));
-          const matchWassce = examWassce && (sub.includes('WASSCE') || cid.includes('wassce'));
-          const matchUtme = examUtme && (sub.includes('JAMB') || sub.includes('UTME') || cid.includes('utme') || cid.includes('jamb'));
-          const matchGce = examGce && (sub.includes('GCE') || cid.includes('gce'));
-
-          if (!matchAp && !matchIgcse && !matchGcse && !matchWassce && !matchUtme && !matchGce) {
+      const filtered = courses.filter(c => {
+        // Level filter
+        if (currentLevelFilter !== "all") {
+          if (c.educationLevel !== currentLevelFilter && c.level?.toLowerCase() !== currentLevelFilter.toLowerCase()) {
             return false;
           }
         }
-        
+
+        // Subject filter
+        if (currentSubjectFilter !== "all") {
+          if (c.subject && !c.subject.toLowerCase().includes(currentSubjectFilter.toLowerCase())) {
+            return false;
+          }
+        }
+
+        // Search term filter
+        if (currentSearchTerm) {
+          const matchTitle = (c.title || "").toLowerCase().includes(currentSearchTerm);
+          const matchDesc = (c.shortDesc || "").toLowerCase().includes(currentSearchTerm);
+          const matchLevel = (c.levelName || c.level || "").toLowerCase().includes(currentSearchTerm);
+          
+          let matchTopic = false;
+          if (c.topics && Array.isArray(c.topics)) {
+            matchTopic = c.topics.some(t => {
+              const titleMatch = (t.title || "").toLowerCase().includes(currentSearchTerm);
+              const subMatch = (t.subtopics || []).some(st => st.toLowerCase().includes(currentSearchTerm));
+              return titleMatch || subMatch;
+            });
+          }
+
+          if (!matchTitle && !matchDesc && !matchLevel && !matchTopic) {
+            return false;
+          }
+        }
+
         return true;
       });
 
-      document.getElementById("course-count-display").innerText = filtered.length;
+      // Update count display
+      const countEl = document.getElementById("course-count-display");
+      if (countEl) countEl.textContent = filtered.length;
 
       if (filtered.length === 0) {
         grid.innerHTML = `
-          <div class="glass-card" style="grid-column: 1/-1; padding: 4rem 2rem; text-align: center;">
-            <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">🔍</span>
-            <h3>No courses match your criteria</h3>
-            <p style="margin-top: 0.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">
-              Try broadening your keyword search or unchecking some filter combinations.
+          <div class="glass-card" style="grid-column: 1 / -1; padding: 4rem 2rem; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+            <h3 style="font-size: 1.4rem; color: var(--color-navy); margin-bottom: 0.5rem;">No Courses Found</h3>
+            <p style="color: var(--color-text-secondary); max-width: 480px; margin: 0 auto 1.5rem auto;">
+              No courses match your selected filter criteria. Try selecting "All Levels" or clearing your search keywords.
             </p>
+            <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Reset All Filters</button>
           </div>
         `;
         return;
       }
 
-      filtered.forEach(c => {
-        // Render completed count using AppState
+      grid.innerHTML = filtered.map(c => {
+        // Completed count from AppState
         const completedCount = AppState.getCompletedCount(c.id);
-        const progressPercent = Math.round((completedCount / c.lectures) * 100);
+        const totalLessons = c.lectures || 6;
+        const progressPercent = Math.min(100, Math.round((completedCount / totalLessons) * 100));
 
-        const card = document.createElement("div");
-        card.className = "sphere-card glass-card course-card";
-        card.style.animation = "slide-up 0.5s ease-out";
-        
-        card.innerHTML = `
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
-              <div class="sphere-icon-box" style="font-size: 1.25rem; width: 44px; height: 44px; background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.2);">
-                ${c.imageIcon}
-              </div>
-              <div style="display:flex; gap:0.4rem; align-items:center;">
-                <span class="hub-xp-chip" style="font-size:0.7rem; padding:0.15rem 0.45rem;">⚡ +${c.lectures * 50} XP</span>
-                <span class="sphere-tag" style="background: rgba(14, 165, 233, 0.15); border-color: var(--border-highlight); color: var(--primary-color);">
-                  ${c.level}
-                </span>
-              </div>
-            </div>
-            
-            <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">${c.title}</h3>
-            <p style="font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.5;">${c.shortDesc}</p>
-            
-            <div style="font-size: 0.8rem; margin-bottom: 1rem;">
-              <strong style="color: var(--text-main);">Syllabus Modules:</strong>
-              <ul style="list-style: none; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
-                ${c.syllabus.slice(0, 3).map(mod => `<li style="color: var(--text-muted); display:flex; align-items:center; gap:0.4rem;"><span style="color:var(--accent-color);">▪</span> ${mod}</li>`).join('')}
-                ${c.syllabus.length > 3 ? `<li style="color: var(--primary-color); font-size: 0.75rem;">+ ${c.syllabus.length - 3} more modules</li>` : ''}
+        // Pillars counters
+        const counts = c.counts || {
+          videoLessons: c.lectures || 6,
+          workedExamples: 18,
+          interactiveExercises: 24,
+          practiceQuestions: 40,
+          topicAssessments: 3
+        };
+
+        // Learning Objectives HTML
+        const objectivesHtml = (c.learningObjectives && c.learningObjectives.length > 0)
+          ? `<div class="learning-objectives-box">
+              <div class="learning-objectives-title">Key Learning Objectives</div>
+              <ul class="learning-objectives-list">
+                ${c.learningObjectives.slice(0, 3).map(obj => `
+                  <li><span style="color: var(--color-teal); font-weight: bold;">✓</span> <span>${obj}</span></li>
+                `).join('')}
               </ul>
-            </div>
+            </div>`
+          : '';
 
-            ${completedCount > 0 ? `
-              <div style="margin-bottom: 1rem;">
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom: 0.25rem;">
-                  <span>Mastery Progress</span>
-                  <span>${completedCount}/${c.lectures} Lectures (${progressPercent}%)</span>
+        // Topics & Subtopics breakdown HTML
+        const topicsHtml = (c.topics && c.topics.length > 0)
+          ? `<div class="course-topics-box">
+              <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-navy);">
+                Curriculum Topics & Subtopics:
+              </span>
+              ${c.topics.slice(0, 3).map((t, idx) => `
+                <div class="course-topic-row">
+                  <div class="course-topic-title">
+                    <span style="color: var(--color-teal);">▪</span> ${t.title}
+                  </div>
+                  <div class="course-subtopics-list">
+                    ${(t.subtopics || []).join(' · ')}
+                  </div>
                 </div>
-                <div style="background:rgba(255,255,255,0.06); height:6px; border-radius:3px; overflow:hidden;">
-                  <div style="background:linear-gradient(90deg, var(--primary-color), var(--secondary-color)); width:${progressPercent}%; height:100%; border-radius:3px;"></div>
+              `).join('')}
+              ${c.topics.length > 3 ? `<div style="font-size: 0.75rem; color: var(--color-teal); font-weight: 600;">+ ${c.topics.length - 3} more structured modules</div>` : ''}
+            </div>`
+          : '';
+
+        return `
+          <div class="course-card-enhanced">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              <!-- Header -->
+              <div class="course-card-header">
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                  <span class="course-level-badge">
+                    <span>${c.imageIcon || '📐'}</span> ${c.levelName || c.level || 'Core Curriculum'}
+                  </span>
+                  <span class="course-subject-badge">${c.subject || 'Mathematics'}</span>
+                </div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-orange); background: rgba(242, 140, 40, 0.1); padding: 0.2rem 0.5rem; border-radius: var(--radius-pill);">
+                  ⭐ ${c.rating || 4.9}
                 </div>
               </div>
-            ` : ''}
-          </div>
 
-          <div>
-            <div class="course-meta">
-              <span>⏰ ${c.duration}</span>
-              <span>⭐ ${c.rating}</span>
-              <span>📚 ${c.materials} Notes</span>
+              <!-- Title & Desc -->
+              <div>
+                <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--color-navy); margin: 0 0 0.5rem 0; line-height: 1.35; font-family: var(--font-display);">
+                  ${c.title}
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--color-text-secondary); line-height: 1.5; margin: 0;">
+                  ${c.shortDesc}
+                </p>
+              </div>
+
+              <!-- 5 Mathematics Learning Pillars -->
+              <div class="course-pillars-grid">
+                <div class="pillar-item" title="Structured video lessons">
+                  <span class="pillar-icon">🎥</span> <span>${counts.videoLessons} Video Lessons</span>
+                </div>
+                <div class="pillar-item" title="Step-by-step worked mathematical examples">
+                  <span class="pillar-icon">✍️</span> <span>${counts.workedExamples} Worked Examples</span>
+                </div>
+                <div class="pillar-item" title="Interactive exercises with instant feedback">
+                  <span class="pillar-icon">⚡</span> <span>${counts.interactiveExercises} Exercises</span>
+                </div>
+                <div class="pillar-item" title="Exam-standard practice questions">
+                  <span class="pillar-icon">📝</span> <span>${counts.practiceQuestions} Practice Qs</span>
+                </div>
+                <div class="pillar-item" title="Diagnostic and topic assessments">
+                  <span class="pillar-icon">🏆</span> <span>${counts.topicAssessments} Assessments</span>
+                </div>
+              </div>
+
+              <!-- Learning Objectives -->
+              ${objectivesHtml}
+
+              <!-- Topics & Subtopics -->
+              ${topicsHtml}
             </div>
-            <a href="course-view.html?id=${c.id}" class="btn btn-primary btn-sm" style="margin-top: 1rem; width: 100%;">Study & Practice CBT ➜</a>
+
+            <!-- Bottom Progress & Action CTA -->
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+              <div class="course-progress-track">
+                <div class="course-progress-labels">
+                  <span>Learning Progress</span>
+                  <span><strong>${completedCount}</strong> of ${totalLessons} Lessons (${progressPercent}%)</span>
+                </div>
+                <div class="course-progress-bar-bg">
+                  <div class="course-progress-bar-fill" style="width: ${progressPercent}%;"></div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <a href="course-view.html?id=${c.id}" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center; padding: 0.75rem 1rem;">
+                  Study & Practice Course ➔
+                </a>
+                <a href="vault.html" class="btn btn-secondary btn-sm" title="Download Lecture Notes PDF" style="padding: 0.75rem 0.9rem;">
+                  📥 Notes
+                </a>
+              </div>
+            </div>
+
           </div>
         `;
-        
-        grid.appendChild(card);
-      });
-    }
-
-    function applyFilters() {
-      renderCourses();
+      }).join('');
     }
 
     function resetFilters() {
-      const allRadio = document.querySelector('input[name="sphere-filter"][value="all"]');
-      if (allRadio) allRadio.checked = true;
-      
-      ['dur-short', 'dur-medium', 'dur-long', 'has-pdf', 'high-rating', 'exam-igcse', 'exam-gcse', 'exam-wassce', 'exam-utme', 'exam-gce'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.checked = false;
-      });
-      
+      currentLevelFilter = "all";
+      currentSubjectFilter = "all";
+      currentSearchTerm = "";
       const searchInput = document.getElementById("course-search-input");
       if (searchInput) searchInput.value = "";
-      
-      renderCourses();
+      updateLevelTabsUI();
+      updateSubjectTabsUI();
+      renderCoursesCatalog();
     }
   </script>
 </body>
