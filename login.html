@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Sign In | Ziglag Institute</title>
+  <meta name="description" content="Student login portal for Ziglag Institute. Sign in to access your dashboard, courses, and exam preparation.">
+  <link rel="icon" type="image/png" href="ZIG logo transparent.png">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .login-container {
+      max-width: 520px;
+      margin: 4rem auto 6rem auto;
+      padding: 0 1.5rem;
+    }
+    .login-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: 3rem 2.5rem;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    [data-theme="dark"] .login-card {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="glow-orb glow-orb-primary" style="top: 15%; right: 10%;"></div>
+  <div class="glow-orb glow-orb-secondary" style="top: 60%; left: 8%;"></div>
+
+  <div class="app-container">
+    
+    <!-- Navbar -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
+          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="qa.html">Q&A Hub</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <a href="register.html" class="btn btn-primary btn-sm">Register</a>
+      </div>
+    </header>
+
+    <main class="login-container">
+      <div class="login-card">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(21, 154, 156, 0.1); border: 2px solid var(--color-teal); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto;">
+          🔐
+        </div>
+        <div>
+          <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-teal); display: block; margin-bottom: 0.4rem;">Authentication Portal</span>
+          <h1 style="font-size: 1.85rem; color: var(--color-navy); margin: 0 0 0.5rem 0; font-family: var(--font-display);">Student Sign In</h1>
+          <p style="font-size: 0.925rem; color: var(--color-text-secondary); line-height: 1.5; margin: 0;">
+            Full backend authentication, persistent session management, and password verification will be connected in <strong>Phase 4.2</strong>.
+          </p>
+        </div>
+
+        <div style="background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.25rem; text-align: left; display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="font-size: 0.825rem; font-weight: 700; color: var(--color-navy);">💡 What you can do right now:</div>
+          <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin: 0; line-height: 1.4;">
+            You can access all course lectures, worked examples, interactive quizzes, and your personal study dashboard with offline browser persistence without logging in!
+          </p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <a href="dashboard.html" class="btn btn-primary" style="justify-content: center; padding: 0.85rem 1.5rem;">
+            Open Student Dashboard ➜
+          </a>
+          <a href="register.html" class="btn btn-secondary" style="justify-content: center; padding: 0.85rem 1.5rem;">
+            New Student? Create Account ➜
+          </a>
+          <a href="courses.html" style="font-size: 0.85rem; color: var(--color-text-secondary); text-decoration: none; margin-top: 0.5rem;" onmouseover="this.style.color='var(--color-teal)'" onmouseout="this.style.color='var(--color-text-secondary)'">
+            ← Browse Course Catalog
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            Empowering students, examination candidates, and lifelong learners with rigorous mathematical education.
+          </p>
+        </div>
+        <div class="footer-links-col">
+          <h4>Portal Hub</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="courses.html">Courses</a></li>
+            <li><a href="register.html">Student Registration</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="ziglag-db.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

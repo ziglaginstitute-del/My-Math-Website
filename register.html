@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Registration | Ziglag Institute</title>
+  <meta name="description" content="Create your Ziglag Institute student account. Access structured mathematics lessons, step-by-step worked examples, and exam preparation.">
+  <link rel="icon" type="image/png" href="ZIG logo transparent.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Ambient Background Orbs -->
+  <div class="glow-orb glow-orb-primary" style="top: 10%; right: 8%;"></div>
+  <div class="glow-orb glow-orb-secondary" style="top: 55%; left: 4%;"></div>
+
+  <div class="app-container">
+    
+    <!-- Navbar -->
+    <header class="navbar" id="app-nav">
+      <a href="index.html" class="logo">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
+          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
+          <li><a href="vault.html">Resource Vault</a></li>
+          <li><a href="qa.html">Q&A Hub</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="navbar-actions">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+      </div>
+    </header>
+
+    <!-- Main Registration Container -->
+    <main class="register-main-wrapper">
+      
+      <div class="register-split-layout">
+        
+        <!-- Left Column: Academic Value Proposition & Branding -->
+        <section class="register-brand-panel">
+          <div>
+            <div class="register-brand-badge">
+              <span>🎓</span> Student Onboarding
+            </div>
+            <h1 style="font-size: 2.3rem; line-height: 1.25; margin: 0.75rem 0 0.5rem 0; font-family: var(--font-display); color: #FFFFFF;">
+              Understand the world.<br>
+              <span style="color: #5EEAD4;">Think mathematically.</span>
+            </h1>
+            <p style="font-size: 0.95rem; line-height: 1.6; color: #CBD5E1; margin: 0;">
+              Join Ziglag Institute to build concrete foundations in Mathematics and Science. Track your personal syllabus mastery, work through structured exam derivations, and reach your target scores.
+            </p>
+          </div>
+
+          <!-- Key Benefit Cards -->
+          <div class="register-benefit-cards">
+            <div class="register-benefit-item">
+              <div class="register-benefit-icon">📐</div>
+              <div>
+                <strong style="font-size: 0.925rem; color: #FFFFFF; display: block;">Visual Conceptual Explanations</strong>
+                <span style="font-size: 0.8rem; color: #94A3B8; line-height: 1.4; display: block; margin-top: 0.2rem;">
+                  Understand the geometric and functional intuition behind abstract formulas instead of relying on memorization.
+                </span>
+              </div>
+            </div>
+
+            <div class="register-benefit-item">
+              <div class="register-benefit-icon">✍️</div>
+              <div>
+                <strong style="font-size: 0.925rem; color: #FFFFFF; display: block;">Step-by-Step Worked Solutions</strong>
+                <span style="font-size: 0.8rem; color: #94A3B8; line-height: 1.4; display: block; margin-top: 0.2rem;">
+                  Master standard WAEC, NECO, and JAMB problem patterns with complete, step-by-step mathematical reasoning.
+                </span>
+              </div>
+            </div>
+
+            <div class="register-benefit-item">
+              <div class="register-benefit-icon">🏆</div>
+              <div>
+                <strong style="font-size: 0.925rem; color: #FFFFFF; display: block;">Diagnostic Knowledge Verification</strong>
+                <span style="font-size: 0.8rem; color: #94A3B8; line-height: 1.4; display: block; margin-top: 0.2rem;">
+                  Pinpoint exact conceptual gaps and monitor your syllabus completion with measurable analytics.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lead Instructor Endorsement -->
+          <div class="register-instructor-endorsement">
+            <div class="register-instructor-avatar">
+              <img src="assets/isaac_olusola_avatar.webp" alt="Mr. Isaac Olusola" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;" onerror="this.src='IMG_1399.JPG'">
+            </div>
+            <div>
+              <strong style="font-size: 0.9rem; color: #FFFFFF; display: block;">Curriculum Led by Mr. Isaac Olusola</strong>
+              <span style="font-size: 0.78rem; color: #5EEAD4;">MSc in Applied Mathematics · Lead Instructor</span>
+            </div>
+          </div>
+
+          <!-- Existing Account Reminder -->
+          <div style="font-size: 0.85rem; color: #94A3B8;">
+            Already have an account? <a href="login.html" style="color: #5EEAD4; text-decoration: underline; font-weight: 700;">Sign in here</a>
+          </div>
+        </section>
+
+        <!-- Right Column: Registration Form Card -->
+        <section class="register-form-card">
+          
+          <div class="register-form-header">
+            <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-teal); display: block; margin-bottom: 0.35rem;">
+              Create Student Account
+            </span>
+            <h2 style="font-size: 1.75rem; color: var(--color-navy); margin: 0; font-family: var(--font-display);">
+              Student Registration
+            </h2>
+            <p style="font-size: 0.88rem; color: var(--color-text-secondary); margin: 0.35rem 0 0 0; line-height: 1.4;">
+              Complete your profile below to configure your learning dashboard and target syllabus.
+            </p>
+          </div>
+
+          <!-- Prototype Feedback Banner (Displayed upon successful validation) -->
+          <div class="prototype-feedback-card" id="prototype-feedback-banner" role="region" aria-live="polite">
+            <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+              <span style="font-size: 1.75rem; line-height: 1;">🚀</span>
+              <div>
+                <h3 style="font-size: 1.15rem; color: var(--color-navy); margin: 0 0 0.35rem 0; font-family: var(--font-display);">
+                  Form Validated Successfully (Phase 4.1 Prototype)
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--color-text-main); margin: 0; line-height: 1.5;">
+                  All frontend inputs, password security requirements, and curriculum selections have passed validation!
+                </p>
+                <div style="margin-top: 0.6rem; padding: 0.75rem; background: var(--color-white); border: 1px solid rgba(21, 154, 156, 0.3); border-radius: var(--radius-sm); font-size: 0.825rem; color: var(--color-text-secondary); line-height: 1.4;">
+                  ℹ️ <strong>System Note:</strong> Backend authentication, account creation, and database integration are scheduled for <strong>Phase 4.2</strong>. Passwords are not saved or transmitted during this prototype phase.
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;">
+              <a href="dashboard.html" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center; min-width: 180px;">
+                Explore Student Dashboard ➜
+              </a>
+              <a href="courses.html" class="btn btn-secondary btn-sm" style="justify-content: center;">
+                Browse Courses
+              </a>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="resetRegistrationForm()">
+                Reset Form
+              </button>
+            </div>
+          </div>
+
+          <!-- Registration Form -->
+          <form id="student-registration-form" novalidate onsubmit="handleRegistrationSubmit(event)">
+            
+            <!-- 1. Full Name -->
+            <div class="form-group">
+              <label for="reg-fullname">
+                Full Name <span class="required-star" aria-hidden="true">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="reg-fullname" 
+                name="fullname" 
+                class="form-control" 
+                placeholder="e.g. Samuel Adebayo" 
+                autocomplete="name" 
+                aria-required="true"
+                aria-describedby="fullname-error"
+                oninput="validateFullName()"
+              >
+              <span class="field-error-msg" id="fullname-error" role="alert">
+                <span>⚠️</span> Please enter your full name (at least 2 characters).
+              </span>
+            </div>
+
+            <!-- 2. Email Address -->
+            <div class="form-group">
+              <label for="reg-email">
+                Email Address <span class="required-star" aria-hidden="true">*</span>
+              </label>
+              <input 
+                type="email" 
+                id="reg-email" 
+                name="email" 
+                class="form-control" 
+                placeholder="e.g. samuel@example.com" 
+                autocomplete="email" 
+                aria-required="true"
+                aria-describedby="email-error"
+                oninput="validateEmail()"
+              >
+              <span class="field-error-msg" id="email-error" role="alert">
+                <span>⚠️</span> Please enter a valid email address (e.g. name@domain.com).
+              </span>
+            </div>
+
+            <!-- 3. Password -->
+            <div class="form-group">
+              <label for="reg-password">
+                Password <span class="required-star" aria-hidden="true">*</span>
+              </label>
+              <div class="password-input-wrapper">
+                <input 
+                  type="password" 
+                  id="reg-password" 
+                  name="password" 
+                  class="form-control" 
+                  placeholder="Create a strong password" 
+                  autocomplete="new-password" 
+                  aria-required="true"
+                  aria-describedby="password-guidance password-error"
+                  oninput="handlePasswordInput()"
+                >
+                <button 
+                  type="button" 
+                  class="password-toggle-btn" 
+                  id="btn-toggle-password" 
+                  aria-label="Show password" 
+                  aria-pressed="false"
+                  onclick="togglePasswordVisibility('reg-password', 'btn-toggle-password')"
+                >
+                  👁️
+                </button>
+              </div>
+
+              <!-- Password Strength Guidance -->
+              <div class="password-strength-box" id="password-guidance">
+                <div class="strength-meter-labels">
+                  <span>Password Strength:</span>
+                  <span id="strength-label" style="font-weight: 700; color: var(--color-text-secondary);">Empty</span>
+                </div>
+                <div class="strength-bar-track">
+                  <div class="strength-bar-fill" id="strength-meter-fill"></div>
+                </div>
+                <ul class="strength-checklist">
+                  <li class="strength-rule-item" id="rule-length">
+                    <span class="rule-icon">○</span> At least 8 characters
+                  </li>
+                  <li class="strength-rule-item" id="rule-upper">
+                    <span class="rule-icon">○</span> At least 1 uppercase letter (A-Z)
+                  </li>
+                  <li class="strength-rule-item" id="rule-number">
+                    <span class="rule-icon">○</span> At least 1 number (0-9)
+                  </li>
+                  <li class="strength-rule-item" id="rule-special">
+                    <span class="rule-icon">○</span> At least 1 symbol or lowercase
+                  </li>
+                </ul>
+              </div>
+
+              <span class="field-error-msg" id="password-error" role="alert">
+                <span>⚠️</span> Password must meet all 4 strength requirements above.
+              </span>
+            </div>
+
+            <!-- 4. Confirm Password -->
+            <div class="form-group">
+              <label for="reg-confirm-password">
+                Confirm Password <span class="required-star" aria-hidden="true">*</span>
+              </label>
+              <div class="password-input-wrapper">
+                <input 
+                  type="password" 
+                  id="reg-confirm-password" 
+                  name="confirm_password" 
+                  class="form-control" 
+                  placeholder="Re-enter your password" 
+                  autocomplete="new-password" 
+                  aria-required="true"
+                  aria-describedby="confirm-match-status confirm-password-error"
+                  oninput="validateConfirmPassword()"
+                >
+                <button 
+                  type="button" 
+                  class="password-toggle-btn" 
+                  id="btn-toggle-confirm" 
+                  aria-label="Show confirm password" 
+                  aria-pressed="false"
+                  onclick="togglePasswordVisibility('reg-confirm-password', 'btn-toggle-confirm')"
+                >
+                  👁️
+                </button>
+              </div>
+
+              <div class="password-match-status" id="confirm-match-status" style="display: none;"></div>
+
+              <span class="field-error-msg" id="confirm-password-error" role="alert">
+                <span>⚠️</span> Passwords do not match.
+              </span>
+            </div>
+
+            <!-- 5. Education Level & 6. Intended Examination (Two Columns on Desktop) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+              
+              <!-- Education Level -->
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="reg-education-level">
+                  Education Level <span class="required-star" aria-hidden="true">*</span>
+                </label>
+                <select 
+                  id="reg-education-level" 
+                  name="education_level" 
+                  class="form-control" 
+                  aria-required="true"
+                  aria-describedby="level-error"
+                  onchange="validateEducationLevel()"
+                >
+                  <option value="" disabled selected>Select level...</option>
+                  <option value="JSS 1">JSS 1</option>
+                  <option value="JSS 2">JSS 2</option>
+                  <option value="JSS 3">JSS 3</option>
+                  <option value="SS1">SS1</option>
+                  <option value="SS2">SS2</option>
+                  <option value="SS3">SS3</option>
+                  <option value="JAMB/UTME">JAMB/UTME</option>
+                  <option value="Other supported programmes">Other supported programmes</option>
+                </select>
+                <span class="field-error-msg" id="level-error" role="alert">
+                  <span>⚠️</span> Please select your current education level.
+                </span>
+              </div>
+
+              <!-- Intended Examination -->
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="reg-intended-exam">
+                  Intended Examination <span class="required-star" aria-hidden="true">*</span>
+                </label>
+                <select 
+                  id="reg-intended-exam" 
+                  name="intended_exam" 
+                  class="form-control" 
+                  aria-required="true"
+                  aria-describedby="exam-error"
+                  onchange="validateIntendedExam()"
+                >
+                  <option value="" disabled selected>Select target exam...</option>
+                  <option value="WASSCE">WASSCE</option>
+                  <option value="NECO">NECO</option>
+                  <option value="JAMB/UTME">JAMB/UTME</option>
+                  <option value="School Examination">School Examination</option>
+                  <option value="Not yet decided">Not yet decided</option>
+                </select>
+                <span class="field-error-msg" id="exam-error" role="alert">
+                  <span>⚠️</span> Please select your target examination.
+                </span>
+              </div>
+
+            </div>
+
+            <!-- 7. Terms and Privacy Acceptance -->
+            <div style="margin-top: 1.25rem;">
+              <div class="form-checkbox-group">
+                <input 
+                  type="checkbox" 
+                  id="reg-terms" 
+                  name="terms" 
+                  aria-required="true"
+                  aria-describedby="terms-error"
+                  onchange="validateTerms()"
+                >
+                <label for="reg-terms">
+                  I agree to the <a href="#terms-modal" onclick="openPolicyModal('terms', event)">Terms of Service</a> and <a href="#privacy-modal" onclick="openPolicyModal('privacy', event)">Privacy Policy</a> <span class="required-star" aria-hidden="true">*</span>
+                </label>
+              </div>
+              <span class="field-error-msg" id="terms-error" role="alert" style="margin-left: 1.85rem;">
+                <span>⚠️</span> You must accept the Terms of Service and Privacy Policy to continue.
+              </span>
+            </div>
+
+            <!-- Submit Button -->
+            <div style="margin-top: 1.75rem;">
+              <button 
+                type="submit" 
+                class="btn btn-primary" 
+                id="btn-submit-registration"
+                style="width: 100%; justify-content: center; padding: 0.95rem 1.5rem; font-size: 1.05rem;"
+              >
+                Create Student Account ➔
+              </button>
+            </div>
+
+            <!-- Bottom Sign In Link -->
+            <div style="text-align: center; margin-top: 1.25rem; font-size: 0.88rem; color: var(--color-text-secondary);">
+              Already have an account? <a href="login.html" style="color: var(--color-teal); font-weight: 700; text-decoration: underline;">Sign In</a>
+            </div>
+
+          </form>
+
+        </section>
+
+      </div>
+
+    </main>
+
+    <!-- Modal for Terms and Privacy Notice -->
+    <div class="profile-modal-overlay" id="policy-modal" style="display: none;" onclick="closePolicyModal(event)">
+      <div class="profile-modal-card" style="max-width: 600px;" onclick="event.stopPropagation()">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 id="policy-modal-title" style="margin: 0; color: var(--color-navy); font-size: 1.35rem;">Terms of Service</h3>
+          <button class="btn btn-secondary btn-sm" onclick="closePolicyModal()" style="border: none; font-size: 1.1rem; padding: 0.2rem 0.5rem;">✕</button>
+        </div>
+        <div id="policy-modal-body" style="font-size: 0.88rem; color: var(--color-text-main); line-height: 1.6; max-height: 400px; overflow-y: auto; padding-right: 0.5rem;">
+          <!-- Populated by script -->
+        </div>
+        <div style="margin-top: 1.5rem; text-align: right;">
+          <button class="btn btn-primary btn-sm" onclick="closePolicyModal()">I Understand</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+            <span>Ziglag Institute</span>
+          </a>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            Empowering students and examination candidates with rigorous mathematical education and practical scientific reasoning.
+          </p>
+          <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <a href="https://youtube.com/@ziglaginstitute?si=pb96DBtz9CQRfpbn" target="_blank" rel="noopener" style="color: var(--color-text-secondary); font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">🎥 YouTube</a>
+            <a href="https://www.linkedin.com/in/isaac-olusola-2a2b2218b" target="_blank" rel="noopener" style="color: var(--color-text-secondary); font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">🔗 LinkedIn</a>
+            <a href="https://github.com/ziglaginstitute-del" target="_blank" rel="noopener" style="color: var(--color-text-secondary); font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">💻 GitHub</a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4>Portal Hub</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="dashboard.html">Student Dashboard</a></li>
+            <li><a href="courses.html">Syllabus Courses</a></li>
+            <li><a href="login.html">Sign In</a></li>
+            <li><a href="tutoring.html">1-on-1 Coaching</a></li>
+            <li><a href="vault.html">Resource Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Education Levels</h4>
+          <ul>
+            <li><a href="courses.html?level=jss">Junior Secondary (JSS 1–3)</a></li>
+            <li><a href="courses.html?level=sss">Senior Secondary (SS 1–3)</a></li>
+            <li><a href="courses.html?level=jamb">JAMB / UTME Speed Mastery</a></li>
+            <li><a href="courses.html?level=wassce">WASSCE & NECO Preparation</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Organization</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="tutoring.html">Book 1-on-1 Session</a></li>
+            <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
+        <p>Built with Academic Rigor & Modern Design</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="ziglag-db.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // ========================================================================
+    // PHASE 4.1: REGISTRATION FRONTEND LOGIC & VALIDATION ENGINE
+    // ========================================================================
+
+    // 1. Password Visibility Toggle
+    function togglePasswordVisibility(inputId, buttonId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(buttonId);
+      if (!input || !btn) return;
+
+      const isPassword = input.type === "password";
+      input.type = isPassword ? "text" : "password";
+      btn.setAttribute("aria-pressed", isPassword ? "true" : "false");
+      btn.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+      btn.textContent = isPassword ? "🙈" : "👁️";
+    }
+
+    // 2. Password Strength Evaluator
+    function evaluatePasswordStrength(pwd) {
+      const criteria = {
+        hasLength: pwd.length >= 8,
+        hasUpper: /[A-Z]/.test(pwd),
+        hasNumber: /[0-9]/.test(pwd),
+        hasSpecialOrLower: /[^A-Z0-9]/.test(pwd) || /[a-z]/.test(pwd)
+      };
+
+      let score = 0;
+      if (criteria.hasLength) score++;
+      if (criteria.hasUpper) score++;
+      if (criteria.hasNumber) score++;
+      if (criteria.hasSpecialOrLower) score++;
+
+      return { criteria, score };
+    }
+
+    function handlePasswordInput() {
+      const pwdInput = document.getElementById("reg-password");
+      const pwd = pwdInput.value;
+      const { criteria, score } = evaluatePasswordStrength(pwd);
+
+      // Update Checklist Items
+      updateRuleState("rule-length", criteria.hasLength);
+      updateRuleState("rule-upper", criteria.hasUpper);
+      updateRuleState("rule-number", criteria.hasNumber);
+      updateRuleState("rule-special", criteria.hasSpecialOrLower);
+
+      // Update Meter Bar & Label
+      const meterFill = document.getElementById("strength-meter-fill");
+      const label = document.getElementById("strength-label");
+
+      if (pwd.length === 0) {
+        meterFill.style.width = "0%";
+        meterFill.style.background = "transparent";
+        label.textContent = "Empty";
+        label.style.color = "var(--color-text-secondary)";
+      } else if (score <= 1) {
+        meterFill.style.width = "25%";
+        meterFill.style.background = "#EF4444"; // Red
+        label.textContent = "Too Weak";
+        label.style.color = "#EF4444";
+      } else if (score === 2) {
+        meterFill.style.width = "50%";
+        meterFill.style.background = "#F59E0B"; // Amber
+        label.textContent = "Fair";
+        label.style.color = "#F59E0B";
+      } else if (score === 3) {
+        meterFill.style.width = "75%";
+        meterFill.style.background = "var(--color-orange)"; // Orange
+        label.textContent = "Good";
+        label.style.color = "var(--color-orange)";
+      } else if (score === 4) {
+        meterFill.style.width = "100%";
+        meterFill.style.background = "#10B981"; // Emerald
+        label.textContent = "Strong ✓";
+        label.style.color = "#10B981";
+      }
+
+      // Revalidate confirm password if it already has value
+      const confirmInput = document.getElementById("reg-confirm-password");
+      if (confirmInput.value.length > 0) {
+        validateConfirmPassword();
+      }
+
+      validatePassword();
+    }
+
+    function updateRuleState(elementId, isValid) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      if (isValid) {
+        el.classList.add("valid");
+        el.querySelector(".rule-icon").textContent = "✓";
+      } else {
+        el.classList.remove("valid");
+        el.querySelector(".rule-icon").textContent = "○";
+      }
+    }
+
+    // 3. Validation Functions for Individual Fields
+    function validateFullName() {
+      const input = document.getElementById("reg-fullname");
+      const error = document.getElementById("fullname-error");
+      const isValid = input.value.trim().length >= 2;
+
+      setFieldState(input, error, isValid);
+      return isValid;
+    }
+
+    function validateEmail() {
+      const input = document.getElementById("reg-email");
+      const error = document.getElementById("email-error");
+      // Standard email regex
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isValid = emailRegex.test(input.value.trim());
+
+      setFieldState(input, error, isValid);
+      return isValid;
+    }
+
+    function validatePassword() {
+      const input = document.getElementById("reg-password");
+      const error = document.getElementById("password-error");
+      const { score } = evaluatePasswordStrength(input.value);
+      const isValid = (score === 4);
+
+      if (input.value.length === 0) {
+        setFieldState(input, error, false);
+        return false;
+      }
+
+      setFieldState(input, error, isValid);
+      return isValid;
+    }
+
+    function validateConfirmPassword() {
+      const pwd = document.getElementById("reg-password").value;
+      const confirmInput = document.getElementById("reg-confirm-password");
+      const error = document.getElementById("confirm-password-error");
+      const matchStatus = document.getElementById("confirm-match-status");
+
+      if (confirmInput.value.length === 0) {
+        setFieldState(confirmInput, error, false);
+        matchStatus.style.display = "none";
+        return false;
+      }
+
+      const isMatch = (pwd === confirmInput.value && pwd.length > 0);
+      setFieldState(confirmInput, error, isMatch);
+
+      if (isMatch) {
+        matchStatus.style.display = "flex";
+        matchStatus.className = "password-match-status match";
+        matchStatus.innerHTML = "<span>✓</span> Passwords match";
+      } else {
+        matchStatus.style.display = "flex";
+        matchStatus.className = "password-match-status mismatch";
+        matchStatus.innerHTML = "<span>✕</span> Passwords do not match";
+      }
+
+      return isMatch;
+    }
+
+    function validateEducationLevel() {
+      const select = document.getElementById("reg-education-level");
+      const error = document.getElementById("level-error");
+      const isValid = Boolean(select.value);
+
+      setFieldState(select, error, isValid);
+      return isValid;
+    }
+
+    function validateIntendedExam() {
+      const select = document.getElementById("reg-intended-exam");
+      const error = document.getElementById("exam-error");
+      const isValid = Boolean(select.value);
+
+      setFieldState(select, error, isValid);
+      return isValid;
+    }
+
+    function validateTerms() {
+      const checkbox = document.getElementById("reg-terms");
+      const error = document.getElementById("terms-error");
+      const isValid = checkbox.checked;
+
+      if (isValid) {
+        error.classList.remove("visible");
+        checkbox.setAttribute("aria-invalid", "false");
+      } else {
+        error.classList.add("visible");
+        checkbox.setAttribute("aria-invalid", "true");
+      }
+      return isValid;
+    }
+
+    function setFieldState(element, errorElement, isValid) {
+      if (isValid) {
+        element.classList.remove("is-invalid");
+        element.classList.add("is-valid");
+        element.setAttribute("aria-invalid", "false");
+        if (errorElement) errorElement.classList.remove("visible");
+      } else {
+        element.classList.add("is-invalid");
+        element.classList.remove("is-valid");
+        element.setAttribute("aria-invalid", "true");
+        if (errorElement) errorElement.classList.add("visible");
+      }
+    }
+
+    // 4. Form Submission Handler
+    function handleRegistrationSubmit(event) {
+      event.preventDefault();
+
+      // Run all validations
+      const isNameValid = validateFullName();
+      const isEmailValid = validateEmail();
+      const isPasswordValid = validatePassword();
+      const isConfirmValid = validateConfirmPassword();
+      const isLevelValid = validateEducationLevel();
+      const isExamValid = validateIntendedExam();
+      const isTermsValid = validateTerms();
+
+      const formIsValid = isNameValid && isEmailValid && isPasswordValid && isConfirmValid && isLevelValid && isExamValid && isTermsValid;
+
+      if (!formIsValid) {
+        // Focus on first invalid input
+        const firstInvalid = document.querySelector(".form-control.is-invalid, input[type='checkbox'][aria-invalid='true']");
+        if (firstInvalid) {
+          firstInvalid.focus();
+        }
+        return;
+      }
+
+      // DO NOT claim account has been created
+      // DO NOT store passwords in localStorage or sessionStorage
+      // Display prototype notification card
+      const banner = document.getElementById("prototype-feedback-banner");
+      banner.classList.add("visible");
+      banner.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      // Save student display preferences ONLY (Name, Level, Exam) - STRICTLY NO PASSWORDS
+      const studentPreferences = {
+        name: document.getElementById("reg-fullname").value.trim(),
+        educationLevel: document.getElementById("reg-education-level").value,
+        intendedExam: document.getElementById("reg-intended-exam").value
+      };
+      localStorage.setItem("studentName", studentPreferences.name);
+      localStorage.setItem("targetEducationLevel", studentPreferences.educationLevel);
+
+      // Disable submit button temporarily to demonstrate completion
+      const submitBtn = document.getElementById("btn-submit-registration");
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = "✓ Form Validated (Phase 4.1 Prototype)";
+    }
+
+    function resetRegistrationForm() {
+      const form = document.getElementById("student-registration-form");
+      form.reset();
+
+      // Reset all validation visual states
+      document.querySelectorAll(".form-control").forEach(el => {
+        el.classList.remove("is-valid", "is-invalid");
+        el.setAttribute("aria-invalid", "false");
+      });
+
+      document.querySelectorAll(".field-error-msg").forEach(el => {
+        el.classList.remove("visible");
+      });
+
+      document.getElementById("confirm-match-status").style.display = "none";
+      document.getElementById("prototype-feedback-banner").classList.remove("visible");
+
+      // Reset strength meter
+      handlePasswordInput();
+
+      const submitBtn = document.getElementById("btn-submit-registration");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = "Create Student Account ➔";
+    }
+
+    // 5. Terms & Privacy Modal Logic
+    function openPolicyModal(type, event) {
+      if (event) event.preventDefault();
+      const modal = document.getElementById("policy-modal");
+      const title = document.getElementById("policy-modal-title");
+      const body = document.getElementById("policy-modal-body");
+
+      if (type === "terms") {
+        title.textContent = "Terms of Service";
+        body.innerHTML = `
+          <h4>1. Acceptance of Terms</h4>
+          <p>By registering or using Ziglag Institute's educational platform, you agree to comply with academic honesty and our platform rules.</p>
+          <h4>2. Educational Materials & Intellectual Property</h4>
+          <p>All video masterclasses, formula sheets, worked derivation notes, and curriculum materials are intellectual property of Ziglag Institute led by Mr. Isaac Olusola. Materials may be downloaded for personal academic study only.</p>
+          <h4>3. Student Conduct</h4>
+          <p>Users must engage respectfully in all Q&A hubs, practice drills, and tutoring sessions.</p>
+        `;
+      } else {
+        title.textContent = "Privacy Policy";
+        body.innerHTML = `
+          <h4>1. Information Collection</h4>
+          <p>We collect your full name, email address, education level, and examination targets solely to personalize your study syllabus and learning dashboard.</p>
+          <h4>2. Data Security & Integrity</h4>
+          <p>Ziglag Institute does not sell, rent, or distribute personal information to third parties. In Phase 4.1, all learning progress is stored locally on your device.</p>
+          <h4>3. Communication</h4>
+          <p>Your email is used strictly for essential academic updates, 1-on-1 tutoring coordination, and password recovery.</p>
+        `;
+      }
+
+      modal.style.display = "flex";
+    }
+
+    function closePolicyModal(event) {
+      if (event && event.target !== event.currentTarget) return;
+      document.getElementById("policy-modal").style.display = "none";
+    }
+
+    // Auto-demo handler for visual verification and testing
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("demo") === "validated") {
+        document.getElementById("reg-fullname").value = "Samuel Adebayo";
+        document.getElementById("reg-email").value = "samuel@example.com";
+        document.getElementById("reg-password").value = "Ziglag2026!Math";
+        document.getElementById("reg-confirm-password").value = "Ziglag2026!Math";
+        document.getElementById("reg-education-level").value = "SS2";
+        document.getElementById("reg-intended-exam").value = "WASSCE";
+        document.getElementById("reg-terms").checked = true;
+        handlePasswordInput();
+        validateConfirmPassword();
+        handleRegistrationSubmit(new Event("submit"));
+      }
+    });
+  </script>
+</body>
+</html>

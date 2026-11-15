@@ -599,6 +599,16 @@ def index():
 def dashboard_page():
     return _safe_send_html('dashboard.html')
 
+@app.route('/register.html')
+@app.route('/register')
+def register_page():
+    return _safe_send_html('register.html')
+
+@app.route('/login.html')
+@app.route('/login')
+def login_page():
+    return _safe_send_html('login.html')
+
 @app.route('/courses.html')
 def courses():
     return _safe_send_html('courses.html')
