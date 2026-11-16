@@ -1382,6 +1382,68 @@ def get_db_status():
         return jsonify({'success': False, 'connected': False, 'error': str(e)}), 500
 
 
+@app.route('/api/email-status', methods=['GET'])
+def get_email_status():
+    """
+    Diagnostic probe for Render environment variables and outbound SMTP connectivity.
+    Reports whether SMTP/Resend is configured and tests socket/auth connectivity.
+    """
+    import socket
+    import smtplib
+    resend_key = bool((os.getenv('RESEND_API_KEY') or '').strip())
+    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    try:
+        smtp_port = int(os.getenv('SMTP_PORT', 587))
+    except (ValueError, TypeError):
+        smtp_port = 587
+
+    smtp_user = (
+        os.getenv('SMTP_USERNAME')
+        or os.getenv('MAIL_USERNAME')
+        or os.getenv('MAIL_DEFAULT_SENDER')
+        or ''
+    ).strip()
+    smtp_pass = (
+        os.getenv('SMTP_PASSWORD')
+        or os.getenv('MAIL_PASSWORD')
+        or ''
+    ).replace(' ', '').strip()
+
+    socket_test = {}
+    try:
+        sock = socket.create_connection((smtp_server, smtp_port), timeout=5)
+        sock.close()
+        socket_test = {'connected': True, 'message': f'Successfully connected to {smtp_server}:{smtp_port}'}
+    except Exception as sock_err:
+        socket_test = {'connected': False, 'error': str(sock_err)}
+
+    auth_test = {}
+    if socket_test.get('connected') and smtp_user and smtp_pass:
+        try:
+            if smtp_port == 465:
+                with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=5) as s:
+                    s.login(smtp_user, smtp_pass)
+                    auth_test = {'authenticated': True}
+            else:
+                with smtplib.SMTP(smtp_server, smtp_port, timeout=5) as s:
+                    s.starttls()
+                    s.login(smtp_user, smtp_pass)
+                    auth_test = {'authenticated': True}
+        except Exception as auth_err:
+            auth_test = {'authenticated': False, 'error': str(auth_err)}
+
+    return jsonify({
+        'success': True,
+        'resend_configured': resend_key,
+        'smtp_server': smtp_server,
+        'smtp_port': smtp_port,
+        'smtp_user_configured': bool(smtp_user),
+        'smtp_pass_configured': bool(smtp_pass),
+        'socket_connection_test': socket_test,
+        'smtp_auth_test': auth_test
+    })
+
+
 # ============================================================================
 # PREPCBT ADMIN SUITE APIS (Subjects, Candidate Reset/Delete, Bulk, Question Export)
 # ============================================================================
