@@ -3,10 +3,16 @@ import json
 import uuid
 import logging
 import urllib.request
-from flask import Flask, send_from_directory, request, jsonify, redirect
+import secrets
+import hashlib
+import re
+from functools import wraps
+from datetime import datetime, timezone, timedelta
+from flask import Flask, send_from_directory, request, jsonify, redirect, session
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID
 from dotenv import load_dotenv
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -36,12 +42,21 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-secret-key-12345')
 
+# Secure Session Cookie Configuration (Render-Centric)
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = bool(os.getenv('RENDER') or os.getenv('FLASK_ENV') == 'production')
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=14)
+
+if os.getenv('RENDER') and app.config['SECRET_KEY'] == 'default-dev-secret-key-12345':
+    logging.warning("[SECURITY NOTICE] Running on Render with fallback dev SECRET_KEY. Please pin a strong SECRET_KEY in Render environment variables.")
+
 # CORS handler for cross-origin access (e.g. file:///, localhost dev, or external origins)
 @app.after_request
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, X-CSRF-Token'
     return response
 
 @app.route('/api/<path:dummy>', methods=['OPTIONS'])
@@ -168,6 +183,61 @@ class Candidate(db.Model):
             'seat_number': self.seat_number or 'Seat 01',
             'status': self.status or 'Active',
             'created_at': self.created_at.isoformat() if self.created_at else ''
+        }
+
+
+class Student(db.Model):
+    __tablename__ = 'students'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text('gen_random_uuid()'), default=uuid.uuid4)
+    full_name = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    education_level = db.Column(db.String(50), nullable=False)
+    intended_exam = db.Column(db.String(50), nullable=False)
+    phone = db.Column(db.String(30), nullable=True)
+    avatar_url = db.Column(db.String(500), nullable=True)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    session_version = db.Column(db.Integer, default=1, nullable=False)
+    last_login = db.Column(db.DateTime(timezone=True), nullable=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+
+    tokens = db.relationship('PasswordResetToken', backref='student', cascade='all, delete-orphan', lazy=True)
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'full_name': self.full_name,
+            'email': self.email,
+            'education_level': self.education_level,
+            'intended_exam': self.intended_exam,
+            'phone': self.phone or '',
+            'avatar_url': self.avatar_url or '',
+            'is_active': self.is_active,
+            'session_version': self.session_version,
+            'last_login': self.last_login.isoformat() if self.last_login else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class PasswordResetToken(db.Model):
+    __tablename__ = 'password_reset_tokens'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text('gen_random_uuid()'), default=uuid.uuid4)
+    student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('students.id', ondelete='CASCADE'), nullable=False)
+    token_hash = db.Column(db.String(64), unique=True, nullable=False)
+    expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    used_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'student_id': str(self.student_id),
+            'token_hash': self.token_hash,
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None,
+            'used_at': self.used_at.isoformat() if self.used_at else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
 
@@ -597,6 +667,19 @@ def index():
 @app.route('/dashboard.html')
 @app.route('/dashboard')
 def dashboard_page():
+    student_id = session.get('student_id')
+    if not student_id:
+        return redirect('/login.html?next=/dashboard.html')
+    try:
+        student = Student.query.filter_by(id=uuid.UUID(str(student_id))).first()
+    except Exception:
+        student = None
+    if not student or not student.is_active:
+        session.clear()
+        return redirect('/login.html?next=/dashboard.html')
+    if session.get('session_version') is not None and student.session_version != session.get('session_version'):
+        session.clear()
+        return redirect('/login.html?next=/dashboard.html')
     return _safe_send_html('dashboard.html')
 
 @app.route('/register.html')
@@ -613,6 +696,11 @@ def login_page():
 @app.route('/forgot-password')
 def forgot_password_page():
     return _safe_send_html('forgot-password.html')
+
+@app.route('/reset-password.html')
+@app.route('/reset-password')
+def reset_password_page():
+    return _safe_send_html('reset-password.html')
 
 @app.route('/courses.html')
 def courses():
@@ -666,6 +754,380 @@ def admin_page():
 @app.route('/admin')
 def admin_alias():
     return _safe_send_html('admin.html')
+
+# ============================================================================
+# STUDENT AUTHENTICATION SYSTEM (Phase 5.3: Register, Login, Session, Security)
+# ============================================================================
+
+def validate_password_strength(password):
+    """Enforces the 4-point password strength policy matching the registration UI."""
+    if not password or len(password) < 8:
+        return False, "Password must be at least 8 characters long."
+    if not re.search(r'[A-Z]', password):
+        return False, "Password must contain at least 1 uppercase letter (A-Z)."
+    if not re.search(r'[a-z]', password):
+        return False, "Password must contain at least 1 lowercase letter (a-z)."
+    if not re.search(r'[0-9]', password):
+        return False, "Password must contain at least 1 number (0-9)."
+    if not re.search(r'[^A-Za-z0-9]', password):
+        return False, "Password must contain at least 1 special character."
+    return True, ""
+
+def validate_email_format(email):
+    """Validates standard email address syntax."""
+    if not email or len(email) > 150:
+        return False
+    return bool(re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email))
+
+def student_login_required(f):
+    """
+    Decorator protecting student-only routes.
+    Validates session existence, checks student live status against Neon PostgreSQL,
+    and invalidates sessions when session_version changes.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        student_id = session.get('student_id')
+        session_ver = session.get('session_version')
+        if not student_id:
+            if request.is_json or request.path.startswith('/api/'):
+                return jsonify({'success': False, 'message': 'Authentication required. Please sign in.', 'code': 'UNAUTHORIZED'}), 401
+            return redirect(f'/login.html?next={request.path}')
+        
+        try:
+            student = Student.query.filter_by(id=uuid.UUID(str(student_id))).first()
+        except Exception as e:
+            logging.error(f"[Auth Error] Failed to resolve student session: {e}")
+            student = None
+
+        if not student:
+            session.clear()
+            if request.is_json or request.path.startswith('/api/'):
+                return jsonify({'success': False, 'message': 'Account not found or session expired.', 'code': 'UNAUTHORIZED'}), 401
+            return redirect('/login.html')
+
+        if not student.is_active:
+            session.clear()
+            if request.is_json or request.path.startswith('/api/'):
+                return jsonify({'success': False, 'message': 'Your account has been deactivated. Please contact administration.', 'code': 'FORBIDDEN'}), 403
+            return redirect('/login.html?error=deactivated')
+
+        if session_ver is not None and student.session_version != session_ver:
+            session.clear()
+            if request.is_json or request.path.startswith('/api/'):
+                return jsonify({'success': False, 'message': 'Your session has been invalidated. Please sign in again.', 'code': 'UNAUTHORIZED'}), 401
+            return redirect('/login.html?error=session_invalidated')
+
+        return f(student, *args, **kwargs)
+    return decorated_function
+
+
+@app.route('/api/auth/csrf-token', methods=['GET'])
+def get_auth_csrf_token():
+    """Generates or returns a session-anchored CSRF token."""
+    if 'csrf_token' not in session:
+        session['csrf_token'] = secrets.token_hex(32)
+    return jsonify({'success': True, 'csrf_token': session['csrf_token']})
+
+
+@app.route('/api/auth/register', methods=['POST'])
+def auth_register():
+    """
+    Student Registration Endpoint.
+    Normalizes email, validates required fields, enforces password policy,
+    hashes password using Werkzeug scrypt, and inserts record into public.students.
+    """
+    data = request.get_json(silent=True) or {}
+    
+    fullname = (data.get('fullname') or data.get('full_name') or '').strip()
+    raw_email = (data.get('email') or '').strip()
+    norm_email = raw_email.lower()
+    password = data.get('password') or ''
+    confirm_password = data.get('confirm_password') or data.get('confirmPassword') or ''
+    education_level = (data.get('education_level') or '').strip()
+    intended_exam = (data.get('intended_exam') or '').strip()
+    terms = data.get('terms')
+    phone = (data.get('phone') or '').strip() or None
+
+    # Server-side validation
+    if not fullname or len(fullname) < 2:
+        return jsonify({'success': False, 'message': 'Please provide your full name (at least 2 characters).', 'field': 'fullname'}), 400
+
+    if not norm_email or not validate_email_format(norm_email):
+        return jsonify({'success': False, 'message': 'Please provide a valid email address.', 'field': 'email'}), 400
+
+    valid_levels = {'JSS 1', 'JSS 2', 'JSS 3', 'SS1', 'SS2', 'SS3', 'JAMB/UTME', 'Other supported programmes'}
+    if education_level not in valid_levels:
+        return jsonify({'success': False, 'message': 'Please select a valid education level.', 'field': 'education_level'}), 400
+
+    valid_exams = {'WASSCE', 'NECO', 'JAMB/UTME', 'School Examination', 'Not yet decided'}
+    if intended_exam not in valid_exams:
+        return jsonify({'success': False, 'message': 'Please select a valid target examination.', 'field': 'intended_exam'}), 400
+
+    if not terms:
+        return jsonify({'success': False, 'message': 'You must accept the Terms of Service and Privacy Policy.', 'field': 'terms'}), 400
+
+    if password != confirm_password:
+        return jsonify({'success': False, 'message': 'Passwords do not match.', 'field': 'confirm_password'}), 400
+
+    is_strong, pwd_err = validate_password_strength(password)
+    if not is_strong:
+        return jsonify({'success': False, 'message': pwd_err, 'field': 'password'}), 400
+
+    # Duplicate email check
+    try:
+        existing = Student.query.filter_by(email=norm_email).first()
+        if existing:
+            return jsonify({
+                'success': False,
+                'message': 'An account with this email address already exists. Please sign in or use password recovery.',
+                'field': 'email'
+            }), 409
+
+        p_hash = generate_password_hash(password, method='scrypt')
+        now = datetime.now(timezone.utc)
+        new_student = Student(
+            id=uuid.uuid4(),
+            full_name=fullname,
+            email=norm_email,
+            password_hash=p_hash,
+            education_level=education_level,
+            intended_exam=intended_exam,
+            phone=phone,
+            is_active=True,
+            session_version=1,
+            created_at=now,
+            updated_at=now
+        )
+        db.session.add(new_student)
+        db.session.commit()
+
+        logging.info(f"[Auth Audit] Student account successfully created for {norm_email}")
+        return jsonify({
+            'success': True,
+            'message': 'Account created successfully! Please sign in with your credentials.',
+            'redirect': '/login.html'
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Auth Error] Registration failure for {norm_email}: {e}")
+        return jsonify({'success': False, 'message': 'An unexpected database error occurred. Please try again later.'}), 500
+
+
+@app.route('/api/auth/login', methods=['POST'])
+def auth_login():
+    """
+    Student Login Endpoint.
+    Validates credentials against public.students, protects against session fixation,
+    checks account active status, issues signed session cookie, and updates last_login.
+    """
+    data = request.get_json(silent=True) or {}
+    raw_email = (data.get('email') or '').strip()
+    norm_email = raw_email.lower()
+    password = data.get('password') or ''
+    remember_me = bool(data.get('remember_me') or data.get('rememberMe'))
+
+    if not norm_email or not password:
+        return jsonify({'success': False, 'message': 'Please provide both email address and password.'}), 400
+
+    try:
+        student = Student.query.filter_by(email=norm_email).first()
+        
+        # Constant-time comparison & generic rejection to prevent user enumeration
+        if not student or not check_password_hash(student.password_hash, password):
+            return jsonify({'success': False, 'message': 'Invalid email address or password.'}), 401
+
+        if not student.is_active:
+            return jsonify({'success': False, 'message': 'Your account has been deactivated. Please contact administration.'}), 403
+
+        # Protect against session fixation
+        session.clear()
+
+        # Minimal secure session payload
+        session['student_id'] = str(student.id)
+        session['session_version'] = student.session_version
+        session['csrf_token'] = secrets.token_hex(32)
+        session.permanent = remember_me
+
+        # Update last_login audit timestamp
+        student.last_login = datetime.now(timezone.utc)
+        db.session.commit()
+
+        logging.info(f"[Auth Audit] Student login successful for {norm_email} (ID: {student.id})")
+        return jsonify({
+            'success': True,
+            'message': f'Welcome back, {student.full_name.split()[0]}!',
+            'student': student.to_dict(),
+            'csrf_token': session['csrf_token'],
+            'redirect': '/dashboard.html'
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Auth Error] Login failure for {norm_email}: {e}")
+        return jsonify({'success': False, 'message': 'An unexpected authentication error occurred.'}), 500
+
+
+@app.route('/api/auth/logout', methods=['POST'])
+def auth_logout():
+    """
+    Student Logout Endpoint.
+    Clears the Flask server-side session and invalidates the session cookie.
+    """
+    session.clear()
+    return jsonify({
+        'success': True,
+        'message': 'Signed out successfully.',
+        'redirect': '/login.html'
+    }), 200
+
+
+@app.route('/api/auth/me', methods=['GET'])
+@student_login_required
+def auth_me(student):
+    """
+    Current Authenticated Student Profile.
+    Returns the live student profile for the session owner.
+    """
+    return jsonify({
+        'success': True,
+        'student': student.to_dict(),
+        'csrf_token': session.get('csrf_token')
+    }), 200
+
+
+@app.route('/api/auth/forgot-password', methods=['POST'])
+def auth_forgot_password():
+    """
+    Password Recovery Endpoint.
+    Accepts student email, generates a 256-bit cryptographically secure reset token,
+    hashes the token with SHA-256 for storage, enforces a 60-minute single-use TTL,
+    and returns a generic message to prevent user enumeration.
+    """
+    data = request.get_json(silent=True) or {}
+    raw_email = (data.get('email') or '').strip()
+    norm_email = raw_email.lower()
+
+    generic_response = {
+        'success': True,
+        'message': 'If an account with that email address exists, password reset instructions have been sent.'
+    }
+
+    if not norm_email or not validate_email_format(norm_email):
+        return jsonify({'success': False, 'message': 'Please enter a valid email address.'}), 400
+
+    try:
+        student = Student.query.filter_by(email=norm_email, is_active=True).first()
+        now = datetime.now(timezone.utc)
+
+        if student:
+            # Invalidate any existing unused reset tokens for this student
+            PasswordResetToken.query.filter_by(student_id=student.id, used_at=None).update({'used_at': now})
+
+            raw_token = secrets.token_urlsafe(32) # 256 bits of entropy
+            token_hash = hashlib.sha256(raw_token.encode('utf-8')).hexdigest()
+            expires_at = now + timedelta(hours=1)
+
+            reset_record = PasswordResetToken(
+                id=uuid.uuid4(),
+                student_id=student.id,
+                token_hash=token_hash,
+                expires_at=expires_at,
+                created_at=now
+            )
+            db.session.add(reset_record)
+            db.session.commit()
+
+            # Attempt SMTP delivery
+            base_url = request.host_url.rstrip('/')
+            reset_link = f"{base_url}/reset-password.html?token={raw_token}"
+            subject = "🔐 Reset Your Ziglag Institute Password"
+            body_text = f"""Dear {student.full_name},
+
+We received a request to reset the password for your Ziglag Institute student account.
+
+Click the link below (or paste it into your browser) to choose a new password:
+{reset_link}
+
+This link is valid for 60 minutes and can only be used once.
+
+If you did not request a password reset, please ignore this email. Your account remains completely secure.
+
+Warm regards,
+Mr. Isaac Olusola & The Ziglag Institute Team
+https://my-math-website.onrender.com
+"""
+            send_system_email(student.email, subject, body_text, reply_to="ziglaginstitute@gmail.com")
+            logging.info(f"[Auth Audit] Password reset token issued for {norm_email}")
+        else:
+            # Perform dummy scrypt hash to equalize response timing against enumeration
+            generate_password_hash("dummy_timing_padding", method='scrypt')
+
+        return jsonify(generic_response), 200
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Auth Error] Forgot password failure for {norm_email}: {e}")
+        return jsonify(generic_response), 200
+
+
+@app.route('/api/auth/reset-password', methods=['POST'])
+def auth_reset_password():
+    """
+    Password Reset Confirmation Endpoint.
+    Validates token hash, checks single-use and expiration status,
+    updates password_hash using Werkzeug scrypt, increments session_version,
+    and invalidates any prior active student sessions.
+    """
+    data = request.get_json(silent=True) or {}
+    raw_token = (data.get('token') or '').strip()
+    password = data.get('password') or ''
+    confirm_password = data.get('confirm_password') or data.get('confirmPassword') or ''
+
+    if not raw_token:
+        return jsonify({'success': False, 'message': 'Password reset token is required.'}), 400
+
+    if password != confirm_password:
+        return jsonify({'success': False, 'message': 'Passwords do not match.', 'field': 'confirm_password'}), 400
+
+    is_strong, pwd_err = validate_password_strength(password)
+    if not is_strong:
+        return jsonify({'success': False, 'message': pwd_err, 'field': 'password'}), 400
+
+    try:
+        token_hash = hashlib.sha256(raw_token.encode('utf-8')).hexdigest()
+        now = datetime.now(timezone.utc)
+
+        token_record = PasswordResetToken.query.filter_by(token_hash=token_hash).first()
+
+        if not token_record or token_record.used_at is not None or token_record.expires_at < now:
+            return jsonify({
+                'success': False,
+                'message': 'This password reset link is invalid or has expired. Please request a new link.'
+            }), 400
+
+        student = db.session.get(Student, token_record.student_id)
+        if not student or not student.is_active:
+            return jsonify({'success': False, 'message': 'Student account not found or deactivated.'}), 400
+
+        # Update password hash, increment session_version (invalidating active sessions), mark token used
+        student.password_hash = generate_password_hash(password, method='scrypt')
+        student.session_version += 1
+        student.updated_at = now
+        token_record.used_at = now
+        db.session.commit()
+
+        # Clear any current session
+        session.clear()
+
+        logging.info(f"[Auth Audit] Password successfully reset for student ID {student.id}")
+        return jsonify({
+            'success': True,
+            'message': 'Your password has been successfully reset. Please sign in with your new password.',
+            'redirect': '/login.html'
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Auth Error] Reset password execution error: {e}")
+        return jsonify({'success': False, 'message': 'An unexpected error occurred during password reset.'}), 500
 
 # ============================================================================
 # 3. DATABASE REST API ENDPOINTS (Zero Vendor Lock-In)

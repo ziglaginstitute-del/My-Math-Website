@@ -287,6 +287,7 @@
       <div class="navbar-actions">
         <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light or dark theme">☀️</button>
         <a href="courses.html" class="btn btn-primary btn-sm">Explore Courses</a>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-dashboard-logout" onclick="handleDashboardLogout()" style="font-size: 0.825rem; padding: 0.35rem 0.75rem;">Sign Out</button>
       </div>
     </header>
 
@@ -982,29 +983,57 @@
       checkMilestones();
     });
 
-    // 1. Profile Management
-    function loadStudentProfile() {
-      const name = localStorage.getItem("ziglag_scholar_name") || "Scholar";
-      const level = localStorage.getItem("ziglag_scholar_level") || "Senior Secondary (SS3) • WASSCE Candidate";
-      
-      const nameEl = document.getElementById("dash-scholar-name");
-      const levelEl = document.getElementById("dash-level-badge");
-      const avatarEl = document.getElementById("dash-avatar-icon");
+    // 1. Profile Management & Authentication Verification
+    async function loadStudentProfile() {
       const greetingEl = document.getElementById("dash-greeting-time");
-
-      if (nameEl) nameEl.textContent = name;
-      if (levelEl) levelEl.textContent = level;
-      if (avatarEl && name !== "Scholar") {
-        avatarEl.textContent = name.trim().charAt(0).toUpperCase();
-      }
-
-      // Time-adaptive greeting
       if (greetingEl) {
         const hour = new Date().getHours();
         if (hour < 12) greetingEl.textContent = "GOOD MORNING";
         else if (hour < 18) greetingEl.textContent = "GOOD AFTERNOON";
         else greetingEl.textContent = "GOOD EVENING";
       }
+
+      try {
+        const response = await fetch('/api/auth/me');
+        if (!response.ok) {
+          // Unauthenticated or invalid session -> redirect to login
+          window.location.href = '/login.html?next=/dashboard.html';
+          return;
+        }
+
+        const data = await response.json();
+        if (data.success && data.student) {
+          const student = data.student;
+          const nameEl = document.getElementById("dash-scholar-name");
+          const levelEl = document.getElementById("dash-level-badge");
+          const avatarEl = document.getElementById("dash-avatar-icon");
+
+          if (nameEl) nameEl.textContent = student.full_name;
+          if (levelEl) levelEl.textContent = `${student.education_level} • ${student.intended_exam} Candidate`;
+          if (avatarEl && student.full_name) {
+            avatarEl.textContent = student.full_name.trim().charAt(0).toUpperCase();
+          }
+
+          // Pre-populate profile modal
+          const inputName = document.getElementById("input-scholar-name");
+          const selectLevel = document.getElementById("select-target-level");
+          if (inputName) inputName.value = student.full_name;
+          if (selectLevel) selectLevel.value = `${student.education_level} • ${student.intended_exam} Candidate`;
+        } else {
+          window.location.href = '/login.html?next=/dashboard.html';
+        }
+      } catch (err) {
+        console.warn("Could not verify session with server:", err);
+      }
+    }
+
+    async function handleDashboardLogout() {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } catch (e) {
+        console.error("Logout error:", e);
+      }
+      window.location.href = '/login.html';
     }
 
     function openProfileModal() {

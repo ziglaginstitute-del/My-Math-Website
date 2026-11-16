@@ -132,30 +132,30 @@
             </p>
           </div>
 
-          <!-- Prototype Feedback Banner (Displayed upon successful validation) -->
+          <!-- Registration Feedback Banner -->
           <div class="prototype-feedback-card" id="prototype-feedback-banner" role="region" aria-live="polite">
             <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
-              <span style="font-size: 1.6rem; line-height: 1;">ℹ️</span>
+              <span style="font-size: 1.6rem; line-height: 1;" id="reg-banner-icon">🎉</span>
               <div style="flex: 1;">
-                <h3 style="font-size: 1.15rem; color: var(--color-navy); margin: 0 0 0.35rem 0; font-family: var(--font-display);">
-                  Form Validated (Prototype State)
+                <h3 style="font-size: 1.15rem; color: var(--color-navy); margin: 0 0 0.35rem 0; font-family: var(--font-display);" id="reg-banner-title">
+                  Account Created Successfully!
                 </h3>
-                <p style="font-size: 0.9rem; color: var(--color-text-main); margin: 0; line-height: 1.5; font-weight: 500;">
-                  Your registration form has passed validation. Account creation will become available when the authentication system is connected.
+                <p style="font-size: 0.9rem; color: var(--color-text-main); margin: 0; line-height: 1.5; font-weight: 500;" id="reg-banner-desc">
+                  Your student account has been registered. Please sign in to access your dashboard.
                 </p>
-                <div style="margin-top: 0.6rem; padding: 0.65rem 0.85rem; background: var(--color-white); border: 1px solid rgba(21, 154, 156, 0.3); border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--color-text-secondary); line-height: 1.4;">
-                  🔒 <strong>System Notice:</strong> Frontend validation only. No account has been created, no user has been authenticated, and no credentials were transmitted or saved.
+                <div style="margin-top: 0.6rem; padding: 0.65rem 0.85rem; background: var(--color-white); border: 1px solid rgba(21, 154, 156, 0.3); border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--color-text-secondary); line-height: 1.4;" id="reg-banner-subnotice">
+                  🔒 <strong>Next Step:</strong> Click the button below to sign in with your email and password.
                 </div>
               </div>
             </div>
 
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;">
-              <button type="button" class="btn btn-secondary btn-sm" onclick="resetRegistrationForm()" style="justify-content: center; flex: 1 1 auto; min-width: 120px;">
-                Reset Form
-              </button>
-              <a href="courses.html" class="btn btn-secondary btn-sm" style="justify-content: center; flex: 1 1 auto; min-width: 120px;">
-                Browse Courses
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;" id="reg-banner-actions">
+              <a href="login.html" class="btn btn-primary btn-sm" id="reg-banner-login-btn" style="justify-content: center; flex: 1 1 auto; min-width: 140px;">
+                Proceed to Sign In ➔
               </a>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="resetRegistrationForm()" style="justify-content: center; flex: 1 1 auto; min-width: 120px;">
+                Register Another Account
+              </button>
             </div>
           </div>
 
@@ -687,10 +687,10 @@
     }
 
     // 4. Form Submission Handler
-    function handleRegistrationSubmit(event) {
+    async function handleRegistrationSubmit(event) {
       event.preventDefault();
 
-      // Run all validations
+      // Run all client-side validations
       const isNameValid = validateFullName();
       const isEmailValid = validateEmail();
       const isPasswordValid = validatePassword();
@@ -702,26 +702,89 @@
       const formIsValid = isNameValid && isEmailValid && isPasswordValid && isConfirmValid && isLevelValid && isExamValid && isTermsValid;
 
       if (!formIsValid) {
-        // Focus on first invalid input
         const firstInvalid = document.querySelector(".form-control.is-invalid, input[type='checkbox'][aria-invalid='true']");
-        if (firstInvalid) {
-          firstInvalid.focus();
-        }
+        if (firstInvalid) firstInvalid.focus();
         return;
       }
 
-      // DO NOT claim account has been created
-      // DO NOT store passwords in localStorage or sessionStorage
-      // Display prototype notification card
-      const banner = document.getElementById("prototype-feedback-banner");
-      banner.classList.add("visible");
-      banner.scrollIntoView({ behavior: "smooth", block: "center" });
-
-      // PHASE 4.1: ZERO BACKEND AUTHENTICATION OR ACCOUNT CREATION
-      // Do not store passwords or create fake accounts
       const submitBtn = document.getElementById("btn-submit-registration");
       submitBtn.disabled = true;
-      submitBtn.innerHTML = "✓ Validation Passed";
+      submitBtn.innerHTML = `<span style="display:inline-block; animation: spin 1s linear infinite; margin-right: 0.5rem;">⏳</span> Creating Account...`;
+
+      const payload = {
+        fullname: document.getElementById("reg-fullname").value.trim(),
+        email: document.getElementById("reg-email").value.trim().toLowerCase(),
+        password: document.getElementById("reg-password").value,
+        confirm_password: document.getElementById("reg-confirm-password").value,
+        education_level: document.getElementById("reg-education-level").value,
+        intended_exam: document.getElementById("reg-intended-exam").value,
+        terms: document.getElementById("reg-terms").checked
+      };
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.status === 201 && result.success) {
+          // Display success state in banner
+          const banner = document.getElementById("prototype-feedback-banner");
+          document.getElementById("reg-banner-icon").textContent = "🎉";
+          document.getElementById("reg-banner-title").textContent = "Account Created Successfully!";
+          document.getElementById("reg-banner-desc").textContent = result.message || "Your student account has been registered. Please sign in to access your learning dashboard.";
+          document.getElementById("reg-banner-subnotice").innerHTML = `🔒 <strong>Next Step:</strong> Click the button below to sign in with your email and password.`;
+          banner.classList.add("visible");
+          banner.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = "✓ Account Registered";
+        } else if (response.status === 409) {
+          // Duplicate email
+          const emailInput = document.getElementById("reg-email");
+          const emailError = document.getElementById("email-error");
+          setFieldState(emailInput, emailError, false);
+          emailError.innerHTML = `<span>⚠️</span> An account with this email address already exists. <a href="login.html" style="color: #ef4444; font-weight: 700; text-decoration: underline;">Sign In</a> or <a href="forgot-password.html" style="color: #ef4444; font-weight: 700; text-decoration: underline;">Reset Password</a>`;
+          emailError.classList.add("visible");
+          emailInput.focus();
+
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "Create Student Account ➔";
+        } else {
+          // Other validation or server error
+          if (result.field) {
+            const fieldMap = {
+              'fullname': ['reg-fullname', 'fullname-error'],
+              'email': ['reg-email', 'email-error'],
+              'password': ['reg-password', 'password-error'],
+              'confirm_password': ['reg-confirm-password', 'confirm-password-error'],
+              'education_level': ['reg-education-level', 'level-error'],
+              'intended_exam': ['reg-intended-exam', 'exam-error']
+            };
+            const mapping = fieldMap[result.field];
+            if (mapping) {
+              const inputEl = document.getElementById(mapping[0]);
+              const errorEl = document.getElementById(mapping[1]);
+              setFieldState(inputEl, errorEl, false);
+              errorEl.textContent = `⚠️ ${result.message}`;
+              errorEl.classList.add("visible");
+              inputEl.focus();
+            }
+          } else {
+            alert(result.message || "An error occurred during registration. Please try again.");
+          }
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "Create Student Account ➔";
+        }
+      } catch (err) {
+        console.error("Registration network error:", err);
+        alert("Network error. Please check your connection and try again.");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "Create Student Account ➔";
+      }
     }
 
     function resetRegistrationForm() {
