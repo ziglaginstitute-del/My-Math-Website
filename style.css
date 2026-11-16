@@ -4918,6 +4918,32 @@ select.is-valid {
   color: var(--color-orange);
 }
 
+
+/* Login Options Row (Remember Me & Forgot Password) */
+.login-options-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.forgot-password-link {
+  font-size: 0.85rem;
+  color: var(--color-teal);
+  text-decoration: underline;
+  font-weight: 600;
+  transition: color var(--transition-fast);
+}
+
+.forgot-password-link:hover {
+  color: var(--color-orange);
+}
+
 /* Prototype Feedback Card / Modal */
 .prototype-feedback-card {
   display: none;
