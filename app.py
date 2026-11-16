@@ -609,6 +609,11 @@ def register_page():
 def login_page():
     return _safe_send_html('login.html')
 
+@app.route('/forgot-password.html')
+@app.route('/forgot-password')
+def forgot_password_page():
+    return _safe_send_html('forgot-password.html')
+
 @app.route('/courses.html')
 def courses():
     return _safe_send_html('courses.html')
