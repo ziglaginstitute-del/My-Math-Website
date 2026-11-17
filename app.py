@@ -42,6 +42,10 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-secret-key-12345')
 
+# Apply Werkzeug ProxyFix middleware for Render reverse proxy (trusting 1 proxy hop)
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
 # Secure Session Cookie Configuration (Render-Centric)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = bool(os.getenv('RENDER') or os.getenv('FLASK_ENV') == 'production')
@@ -845,14 +849,14 @@ _RATE_LIMIT_LOCK = threading.Lock()
 
 def get_client_ip():
     """
-    Safely extract the real client IP address from proxy headers (Render/Cloudflare)
-    or fallback to remote_addr.
+    Safely extract the real client IP address.
+    With Werkzeug ProxyFix(x_for=1) active, request.remote_addr is securely
+    populated from the trusted reverse proxy (Render) hop.
+    Falls back to CF-Connecting-IP if Cloudflare CDN is active.
     """
-    xff = request.headers.get('X-Forwarded-For')
-    if xff:
-        client_ip = xff.split(',')[0].strip()
-        if client_ip:
-            return client_ip
+    cf_ip = request.headers.get('CF-Connecting-IP')
+    if cf_ip:
+        return cf_ip.strip()
     return request.remote_addr or '127.0.0.1'
 
 def check_auth_rate_limit(endpoint, ip_address, identifier=None, max_attempts=5, window_seconds=900, lockout_seconds=300):
