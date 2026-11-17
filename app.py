@@ -921,7 +921,7 @@ def check_auth_rate_limit(endpoint, ip_address, identifier=None, max_attempts=5,
     return True, 0, ""
 
 def record_auth_failure(endpoint, ip_address, identifier=None, lockout_seconds=300):
-    """Increment failed attempt counters in persistent DB and in-memory cache."""
+    """Increment failed attempt counters in persistent DB and in-memory cache with atomic PostgreSQL upserts."""
     now = datetime.now(timezone.utc)
     ident_hash = hashlib.sha256(identifier.lower().strip().encode('utf-8')).hexdigest() if identifier else None
     keys = [f"ip:{ip_address}:{endpoint}"]
@@ -929,27 +929,38 @@ def record_auth_failure(endpoint, ip_address, identifier=None, lockout_seconds=3
         keys.append(f"acct:{ident_hash}:{endpoint}")
 
     try:
-        from sqlalchemy import inspect
+        from sqlalchemy import inspect, text
         engine = db.engine
         inspector = inspect(engine)
         if 'auth_rate_limits' in inspector.get_table_names():
             for key in keys:
-                rec = AuthRateLimit.query.filter_by(rate_key=key).first()
-                if rec:
-                    rec.attempt_count += 1
-                    rec.last_attempt_at = now
-                else:
-                    rec = AuthRateLimit(
-                        id=uuid.uuid4(),
-                        rate_key=key,
-                        endpoint=endpoint,
-                        ip_address=ip_address,
-                        identifier_hash=ident_hash,
-                        attempt_count=1,
-                        first_attempt_at=now,
-                        last_attempt_at=now
+                db.session.execute(text("""
+                    INSERT INTO public.auth_rate_limits (
+                        id, rate_key, endpoint, ip_address, identifier_hash, attempt_count, first_attempt_at, last_attempt_at
+                    ) VALUES (
+                        :id, :rate_key, :endpoint, :ip_address, :identifier_hash, 1, :now, :now
                     )
-                    db.session.add(rec)
+                    ON CONFLICT (rate_key) DO UPDATE SET
+                        attempt_count = auth_rate_limits.attempt_count + 1,
+                        last_attempt_at = EXCLUDED.last_attempt_at;
+                """), {
+                    'id': str(uuid.uuid4()),
+                    'rate_key': key,
+                    'endpoint': endpoint,
+                    'ip_address': ip_address,
+                    'identifier_hash': ident_hash,
+                    'now': now
+                })
+            # Opportunistic retention pruning: delete records older than 24 hours that are not actively locked
+            retention_cutoff = now - timedelta(hours=24)
+            db.session.execute(text("""
+                DELETE FROM public.auth_rate_limits
+                WHERE last_attempt_at < :cutoff
+                  AND (locked_until IS NULL OR locked_until < :now);
+            """), {
+                'cutoff': retention_cutoff,
+                'now': now
+            })
             db.session.commit()
     except Exception:
         db.session.rollback()
