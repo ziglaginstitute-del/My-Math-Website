@@ -241,6 +241,19 @@ class PasswordResetToken(db.Model):
         }
 
 
+class AuthRateLimit(db.Model):
+    __tablename__ = 'auth_rate_limits'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text('gen_random_uuid()'), default=uuid.uuid4)
+    rate_key = db.Column(db.String(128), unique=True, nullable=False)
+    endpoint = db.Column(db.String(50), nullable=False)
+    ip_address = db.Column(db.String(45), nullable=False)
+    identifier_hash = db.Column(db.String(64), nullable=True)
+    attempt_count = db.Column(db.Integer, default=1, nullable=False)
+    first_attempt_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    last_attempt_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    locked_until = db.Column(db.DateTime(timezone=True), nullable=True)
+
+
 class Subject(db.Model):
     __tablename__ = 'subjects'
     id = db.Column(db.String(100), primary_key=True)
@@ -822,6 +835,151 @@ def student_login_required(f):
     return decorated_function
 
 
+# ============================================================================
+# AUTHENTICATION RATE LIMITING & BRUTE-FORCE DEFENSE
+# ============================================================================
+import threading
+
+_IN_MEMORY_RATE_LIMITS = {}
+_RATE_LIMIT_LOCK = threading.Lock()
+
+def get_client_ip():
+    """
+    Safely extract the real client IP address from proxy headers (Render/Cloudflare)
+    or fallback to remote_addr.
+    """
+    xff = request.headers.get('X-Forwarded-For')
+    if xff:
+        client_ip = xff.split(',')[0].strip()
+        if client_ip:
+            return client_ip
+    return request.remote_addr or '127.0.0.1'
+
+def check_auth_rate_limit(endpoint, ip_address, identifier=None, max_attempts=5, window_seconds=900, lockout_seconds=300):
+    """
+    Dual-layer rate limit checker:
+    1. Checks if locked_until > now in persistent storage (or in-memory fallback).
+    2. Checks if attempt_count >= max_attempts within window_seconds.
+    Returns: (is_allowed: bool, retry_after_seconds: int, error_message: str)
+    """
+    now = datetime.now(timezone.utc)
+    ident_hash = hashlib.sha256(identifier.lower().strip().encode('utf-8')).hexdigest() if identifier else None
+
+    # Track both IP key (protects against brute-force) and Account key (throttles specific user)
+    ip_key = f"ip:{ip_address}:{endpoint}"
+    keys_to_check = [(ip_key, max_attempts, lockout_seconds)]
+    if ident_hash:
+        acct_key = f"acct:{ident_hash}:{endpoint}"
+        keys_to_check.append((acct_key, max_attempts, lockout_seconds))
+
+    # Try persistent DB check first
+    try:
+        from sqlalchemy import inspect
+        engine = db.engine
+        inspector = inspect(engine)
+        if 'auth_rate_limits' in inspector.get_table_names():
+            for key, limit, lockout in keys_to_check:
+                record = AuthRateLimit.query.filter_by(rate_key=key).first()
+                if record:
+                    if record.locked_until and record.locked_until > now:
+                        retry_after = int((record.locked_until - now).total_seconds())
+                        return False, max(retry_after, 1), f"Too many attempts. Please try again in {max(1, (retry_after + 59) // 60)} minute(s)."
+                    window_start = now - timedelta(seconds=window_seconds)
+                    if record.first_attempt_at < window_start:
+                        record.attempt_count = 0
+                        record.first_attempt_at = now
+                        record.locked_until = None
+                        db.session.commit()
+                    elif record.attempt_count >= limit:
+                        record.locked_until = now + timedelta(seconds=lockout)
+                        db.session.commit()
+                        return False, lockout, f"Too many attempts. Please try again in {max(1, (lockout + 59) // 60)} minute(s)."
+            return True, 0, ""
+    except Exception:
+        pass
+
+    # In-memory sliding window fallback
+    with _RATE_LIMIT_LOCK:
+        for key, limit, lockout in keys_to_check:
+            entry = _IN_MEMORY_RATE_LIMITS.get(key)
+            if entry:
+                locked_until = entry.get('locked_until')
+                if locked_until and locked_until > now:
+                    retry_after = int((locked_until - now).total_seconds())
+                    return False, max(retry_after, 1), f"Too many attempts. Please try again in {max(1, (retry_after + 59) // 60)} minute(s)."
+                first_attempt = entry.get('first_attempt_at', now)
+                if first_attempt < now - timedelta(seconds=window_seconds):
+                    _IN_MEMORY_RATE_LIMITS[key] = {'count': 0, 'first_attempt_at': now, 'locked_until': None}
+                elif entry.get('count', 0) >= limit:
+                    locked = now + timedelta(seconds=lockout)
+                    entry['locked_until'] = locked
+                    return False, lockout, f"Too many attempts. Please try again in {max(1, (lockout + 59) // 60)} minute(s)."
+    return True, 0, ""
+
+def record_auth_failure(endpoint, ip_address, identifier=None, lockout_seconds=300):
+    """Increment failed attempt counters in persistent DB and in-memory cache."""
+    now = datetime.now(timezone.utc)
+    ident_hash = hashlib.sha256(identifier.lower().strip().encode('utf-8')).hexdigest() if identifier else None
+    keys = [f"ip:{ip_address}:{endpoint}"]
+    if ident_hash:
+        keys.append(f"acct:{ident_hash}:{endpoint}")
+
+    try:
+        from sqlalchemy import inspect
+        engine = db.engine
+        inspector = inspect(engine)
+        if 'auth_rate_limits' in inspector.get_table_names():
+            for key in keys:
+                rec = AuthRateLimit.query.filter_by(rate_key=key).first()
+                if rec:
+                    rec.attempt_count += 1
+                    rec.last_attempt_at = now
+                else:
+                    rec = AuthRateLimit(
+                        id=uuid.uuid4(),
+                        rate_key=key,
+                        endpoint=endpoint,
+                        ip_address=ip_address,
+                        identifier_hash=ident_hash,
+                        attempt_count=1,
+                        first_attempt_at=now,
+                        last_attempt_at=now
+                    )
+                    db.session.add(rec)
+            db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    with _RATE_LIMIT_LOCK:
+        for key in keys:
+            if key not in _IN_MEMORY_RATE_LIMITS:
+                _IN_MEMORY_RATE_LIMITS[key] = {'count': 1, 'first_attempt_at': now, 'locked_until': None}
+            else:
+                _IN_MEMORY_RATE_LIMITS[key]['count'] = _IN_MEMORY_RATE_LIMITS[key].get('count', 0) + 1
+
+def clear_auth_limits(endpoint, ip_address, identifier=None):
+    """Reset failed counters upon successful authentication."""
+    ident_hash = hashlib.sha256(identifier.lower().strip().encode('utf-8')).hexdigest() if identifier else None
+    keys = [f"ip:{ip_address}:{endpoint}"]
+    if ident_hash:
+        keys.append(f"acct:{ident_hash}:{endpoint}")
+
+    try:
+        from sqlalchemy import inspect
+        engine = db.engine
+        inspector = inspect(engine)
+        if 'auth_rate_limits' in inspector.get_table_names():
+            for key in keys:
+                AuthRateLimit.query.filter_by(rate_key=key).delete()
+            db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    with _RATE_LIMIT_LOCK:
+        for key in keys:
+            _IN_MEMORY_RATE_LIMITS.pop(key, None)
+
+
 @app.route('/api/auth/csrf-token', methods=['GET'])
 def get_auth_csrf_token():
     """Generates or returns a session-anchored CSRF token."""
@@ -920,12 +1078,30 @@ def auth_login():
     Student Login Endpoint.
     Validates credentials against public.students, protects against session fixation,
     checks account active status, issues signed session cookie, and updates last_login.
+    Applies proxy-aware IP and account rate limiting with progressive lockout.
     """
     data = request.get_json(silent=True) or {}
     raw_email = (data.get('email') or '').strip()
     norm_email = raw_email.lower()
     password = data.get('password') or ''
     remember_me = bool(data.get('remember_me') or data.get('rememberMe'))
+
+    client_ip = get_client_ip()
+
+    # Rate Limit Check: max 5 failed attempts per 15 min, 5-minute lockout
+    allowed, retry_sec, limit_msg = check_auth_rate_limit(
+        'login', client_ip, identifier=norm_email if norm_email else None,
+        max_attempts=5, window_seconds=900, lockout_seconds=300
+    )
+    if not allowed:
+        resp = jsonify({
+            'success': False,
+            'error': 'TOO_MANY_REQUESTS',
+            'message': limit_msg,
+            'retry_after': retry_sec
+        })
+        resp.headers['Retry-After'] = str(retry_sec)
+        return resp, 429
 
     if not norm_email or not password:
         return jsonify({'success': False, 'message': 'Please provide both email address and password.'}), 400
@@ -935,10 +1111,14 @@ def auth_login():
         
         # Constant-time comparison & generic rejection to prevent user enumeration
         if not student or not check_password_hash(student.password_hash, password):
+            record_auth_failure('login', client_ip, identifier=norm_email, lockout_seconds=300)
             return jsonify({'success': False, 'message': 'Invalid email address or password.'}), 401
 
         if not student.is_active:
             return jsonify({'success': False, 'message': 'Your account has been deactivated. Please contact administration.'}), 403
+
+        # Clear failed login attempts upon success
+        clear_auth_limits('login', client_ip, identifier=norm_email)
 
         # Protect against session fixation
         session.clear()
@@ -1001,11 +1181,28 @@ def auth_forgot_password():
     Password Recovery Endpoint.
     Accepts student email, generates a 256-bit cryptographically secure reset token,
     hashes the token with SHA-256 for storage, enforces a 60-minute single-use TTL,
-    and returns a generic message to prevent user enumeration.
+    applies proxy-aware rate limiting (5 req / 15 min), and returns a generic message to prevent user enumeration.
     """
     data = request.get_json(silent=True) or {}
     raw_email = (data.get('email') or '').strip()
     norm_email = raw_email.lower()
+
+    client_ip = get_client_ip()
+
+    # Rate limiting: max 5 requests per 15 minutes per IP/account
+    allowed, retry_sec, limit_msg = check_auth_rate_limit(
+        'forgot_password', client_ip, identifier=norm_email if norm_email else None,
+        max_attempts=5, window_seconds=900, lockout_seconds=900
+    )
+    if not allowed:
+        resp = jsonify({
+            'success': False,
+            'error': 'TOO_MANY_REQUESTS',
+            'message': limit_msg,
+            'retry_after': retry_sec
+        })
+        resp.headers['Retry-After'] = str(retry_sec)
+        return resp, 429
 
     generic_response = {
         'success': True,
@@ -1014,6 +1211,9 @@ def auth_forgot_password():
 
     if not norm_email or not validate_email_format(norm_email):
         return jsonify({'success': False, 'message': 'Please enter a valid email address.'}), 400
+
+    # Record rate limit attempt
+    record_auth_failure('forgot_password', client_ip, identifier=norm_email, lockout_seconds=900)
 
     try:
         student = Student.query.filter_by(email=norm_email, is_active=True).first()
@@ -1075,12 +1275,30 @@ def auth_reset_password():
     Password Reset Confirmation Endpoint.
     Validates token hash, checks single-use and expiration status,
     updates password_hash using Werkzeug scrypt, increments session_version,
-    and invalidates any prior active student sessions.
+    applies proxy-aware rate limiting, and invalidates any prior active student sessions.
     """
     data = request.get_json(silent=True) or {}
     raw_token = (data.get('token') or '').strip()
     password = data.get('password') or ''
     confirm_password = data.get('confirm_password') or data.get('confirmPassword') or ''
+
+    client_ip = get_client_ip()
+    token_ident = raw_token[:10] if raw_token else 'no_token'
+
+    # Rate limiting: max 5 requests per 15 minutes per IP/token
+    allowed, retry_sec, limit_msg = check_auth_rate_limit(
+        'reset_password', client_ip, identifier=token_ident,
+        max_attempts=5, window_seconds=900, lockout_seconds=900
+    )
+    if not allowed:
+        resp = jsonify({
+            'success': False,
+            'error': 'TOO_MANY_REQUESTS',
+            'message': limit_msg,
+            'retry_after': retry_sec
+        })
+        resp.headers['Retry-After'] = str(retry_sec)
+        return resp, 429
 
     if not raw_token:
         return jsonify({'success': False, 'message': 'Password reset token is required.'}), 400
@@ -1099,6 +1317,7 @@ def auth_reset_password():
         token_record = PasswordResetToken.query.filter_by(token_hash=token_hash).first()
 
         if not token_record or token_record.used_at is not None or token_record.expires_at < now:
+            record_auth_failure('reset_password', client_ip, identifier=token_ident, lockout_seconds=900)
             return jsonify({
                 'success': False,
                 'message': 'This password reset link is invalid or has expired. Please request a new link.'
@@ -1107,6 +1326,9 @@ def auth_reset_password():
         student = db.session.get(Student, token_record.student_id)
         if not student or not student.is_active:
             return jsonify({'success': False, 'message': 'Student account not found or deactivated.'}), 400
+
+        # Clear rate limit counters for this token/IP
+        clear_auth_limits('reset_password', client_ip, identifier=token_ident)
 
         # Update password hash, increment session_version (invalidating active sessions), mark token used
         student.password_hash = generate_password_hash(password, method='scrypt')
@@ -1381,67 +1603,6 @@ def get_db_status():
     except Exception as e:
         return jsonify({'success': False, 'connected': False, 'error': str(e)}), 500
 
-
-@app.route('/api/email-status', methods=['GET'])
-def get_email_status():
-    """
-    Diagnostic probe for Render environment variables and outbound SMTP connectivity.
-    Reports whether SMTP/Resend is configured and tests socket/auth connectivity.
-    """
-    import socket
-    import smtplib
-    resend_key = bool((os.getenv('RESEND_API_KEY') or '').strip())
-    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-    try:
-        smtp_port = int(os.getenv('SMTP_PORT', 587))
-    except (ValueError, TypeError):
-        smtp_port = 587
-
-    smtp_user = (
-        os.getenv('SMTP_USERNAME')
-        or os.getenv('MAIL_USERNAME')
-        or os.getenv('MAIL_DEFAULT_SENDER')
-        or ''
-    ).strip()
-    smtp_pass = (
-        os.getenv('SMTP_PASSWORD')
-        or os.getenv('MAIL_PASSWORD')
-        or ''
-    ).replace(' ', '').strip()
-
-    socket_test = {}
-    try:
-        sock = socket.create_connection((smtp_server, smtp_port), timeout=5)
-        sock.close()
-        socket_test = {'connected': True, 'message': f'Successfully connected to {smtp_server}:{smtp_port}'}
-    except Exception as sock_err:
-        socket_test = {'connected': False, 'error': str(sock_err)}
-
-    auth_test = {}
-    if socket_test.get('connected') and smtp_user and smtp_pass:
-        try:
-            if smtp_port == 465:
-                with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=5) as s:
-                    s.login(smtp_user, smtp_pass)
-                    auth_test = {'authenticated': True}
-            else:
-                with smtplib.SMTP(smtp_server, smtp_port, timeout=5) as s:
-                    s.starttls()
-                    s.login(smtp_user, smtp_pass)
-                    auth_test = {'authenticated': True}
-        except Exception as auth_err:
-            auth_test = {'authenticated': False, 'error': str(auth_err)}
-
-    return jsonify({
-        'success': True,
-        'resend_configured': resend_key,
-        'smtp_server': smtp_server,
-        'smtp_port': smtp_port,
-        'smtp_user_configured': bool(smtp_user),
-        'smtp_pass_configured': bool(smtp_pass),
-        'socket_connection_test': socket_test,
-        'smtp_auth_test': auth_test
-    })
 
 
 # ============================================================================
@@ -2266,35 +2427,51 @@ def submit_contact():
 def send_system_email(to_email, subject, body_text, reply_to=None):
     """
     Robust universal email sender:
-    1. Supports Resend API (HTTPS port 443) if RESEND_API_KEY is present
-       (bypasses cloud host free-tier SMTP port blocks completely).
-    2. Fallback to Gmail / Standard SMTP with support for both:
-       - SMTP_USERNAME / SMTP_PASSWORD
-       - MAIL_USERNAME / MAIL_PASSWORD
-       - Port 587 (STARTTLS) and Port 465 (SSL)
+    1. Primary: Resend HTTPS API (port 443) when RESEND_API_KEY is present.
+       - Validates response JSON and confirms message ID.
+       - Reads sender address from EMAIL_FROM (with fallbacks to RESEND_FROM, MAIL_DEFAULT_SENDER).
+       - Never hardcodes credentials or exposes internal error details to students.
+       - Safe error logging without leaking secrets.
+       - Handles Resend testing domain (onboarding@resend.dev) restrictions vs verified custom domain.
+    2. Fallback: SMTP over TLS/SSL when SMTP_USERNAME and SMTP_PASSWORD / MAIL_PASSWORD are present.
     """
     if not to_email:
         return False
 
+    norm_to_email = to_email.strip().lower()
     resend_key = (os.getenv('RESEND_API_KEY') or '').strip()
+
     if resend_key:
         try:
             import json
             import urllib.request
-            sender = (
-                os.getenv('MAIL_DEFAULT_SENDER')
+            import urllib.error
+
+            # Resolve sender address from environment
+            configured_sender = (
+                os.getenv('EMAIL_FROM')
+                or os.getenv('RESEND_FROM')
+                or os.getenv('MAIL_DEFAULT_SENDER')
                 or os.getenv('SMTP_USERNAME')
                 or os.getenv('MAIL_USERNAME')
                 or 'onboarding@resend.dev'
             ).strip()
-            if '@gmail.com' in sender and not os.getenv('RESEND_CUSTOM_DOMAIN'):
+
+            # Format From header cleanly:
+            # Preserves full "Name <email@domain>" if provided
+            # Falls back to onboarding@resend.dev if using unverified gmail without custom domain
+            if '<' in configured_sender and '>' in configured_sender:
+                from_header = configured_sender
+            elif '@gmail.com' in configured_sender and not os.getenv('RESEND_CUSTOM_DOMAIN'):
+                from_header = "Ziglag Institute <onboarding@resend.dev>"
+            elif configured_sender == 'onboarding@resend.dev':
                 from_header = "Ziglag Institute <onboarding@resend.dev>"
             else:
-                from_header = f"Ziglag Institute <{sender}>"
+                from_header = f"Ziglag Institute <{configured_sender}>"
 
             payload = {
                 "from": from_header,
-                "to": [to_email],
+                "to": [norm_to_email],
                 "subject": subject,
                 "text": body_text
             }
@@ -2307,18 +2484,34 @@ def send_system_email(to_email, subject, body_text, reply_to=None):
                 headers={
                     "Authorization": f"Bearer {resend_key}",
                     "Content-Type": "application/json",
-                    "User-Agent": "ZiglagMathPortal/1.0"
+                    "User-Agent": "ZiglagMathPortal-Auth/1.0"
                 },
                 method="POST"
             )
-            with urllib.request.urlopen(req, timeout=12) as resp:
-                if resp.status in (200, 201):
-                    print(f"[Email Resend API] Sent email to {to_email}")
-                    return True
-        except Exception as re_err:
-            print(f"[Email Resend Warning] Failed via Resend API: {re_err}")
 
-    # Standard SMTP
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                resp_bytes = resp.read()
+                resp_data = json.loads(resp_bytes.decode('utf-8'))
+                message_id = resp_data.get('id')
+                if resp.status in (200, 201) and message_id:
+                    logging.info(f"[Email Resend API] Successfully dispatched email to {norm_to_email} (Resend Message ID: {message_id})")
+                    return True
+                else:
+                    logging.warning(f"[Email Resend API] Unexpected Resend response status {resp.status}: {resp_data}")
+        except urllib.error.HTTPError as http_err:
+            try:
+                err_body = http_err.read().decode('utf-8', errors='replace')
+                err_json = json.loads(err_body)
+                err_name = err_json.get('name') or 'HTTPError'
+                err_msg = err_json.get('message') or err_body
+            except Exception:
+                err_name = 'HTTPError'
+                err_msg = str(http_err)
+            logging.error(f"[Email Resend API Error] Status {http_err.code} ({err_name}): {err_msg}")
+        except Exception as re_err:
+            logging.error(f"[Email Resend API Exception] Failed to send email to {norm_to_email}: {type(re_err).__name__}")
+
+    # Standard SMTP Fallback
     smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
     try:
         smtp_port = int(os.getenv('SMTP_PORT', 587))
@@ -2338,7 +2531,7 @@ def send_system_email(to_email, subject, body_text, reply_to=None):
     ).replace(' ', '').strip()
 
     if not smtp_user or not smtp_pass:
-        print(f"[Email Notice] Credentials not configured for sending to {to_email} (Checked SMTP_USERNAME/SMTP_PASSWORD and MAIL_USERNAME/MAIL_PASSWORD)")
+        logging.info(f"[Email Notice] SMTP credentials not configured for {norm_to_email} and Resend key not active.")
         return False
 
     try:
@@ -2348,25 +2541,25 @@ def send_system_email(to_email, subject, body_text, reply_to=None):
         msg = EmailMessage()
         msg['Subject'] = subject
         msg['From'] = smtp_user
-        msg['To'] = to_email
+        msg['To'] = norm_to_email
         if reply_to:
             msg['Reply-To'] = reply_to
         msg.set_content(body_text)
 
         if smtp_port == 465:
-            with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=12) as server:
+            with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=10) as server:
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
         else:
-            with smtplib.SMTP(smtp_server, smtp_port, timeout=12) as server:
+            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
                 server.starttls()
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
 
-        print(f"[Email SMTP] Sent email to {to_email}")
+        logging.info(f"[Email SMTP] Sent email to {norm_to_email}")
         return True
     except Exception as err:
-        print(f"[Email SMTP Warning] Transmission notice to {to_email}: {err}")
+        logging.warning(f"[Email SMTP Notice] Transmission notice to {norm_to_email}: {type(err).__name__}")
         return False
 
 def send_contact_inquiry_emails(submission):
