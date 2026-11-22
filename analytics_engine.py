@@ -13,7 +13,7 @@ Provides:
 import re
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
-from sqlalchemy import text
+from sqlalchemy import text, bindparam
 
 
 # Topic-to-keyword taxonomy for deterministic semantic alignment
@@ -536,11 +536,13 @@ def get_student_recommendations(db_session, student_id, intended_exam=None, limi
               AND l.id NOT IN :seen_lids
             ORDER BY slp.last_accessed_at ASC, slp.view_count ASC
             LIMIT 1;
-        """)
-        seen_tuple = tuple(seen_lecture_ids) if seen_lecture_ids else ('none',)
+        """).bindparams(
+            bindparam("seen_lids", expanding=True)
+        )
+        seen_list = list(seen_lecture_ids) if seen_lecture_ids else ["__none__"]
         rev_row = db_session.execute(rev_query, {
             'student_id': str(student_id),
-            'seen_lids': seen_tuple
+            'seen_lids': seen_list
         }).fetchone()
 
         if rev_row:
