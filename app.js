@@ -481,6 +481,686 @@ const MATH_DATABASE = {
 };
 
 // =========================================
+// ============================================================================
+// CENTRAL AUTHENTICATED API CLIENT & CSRF MANAGEMENT (PHASE 6.3.2 STAGE 6.1)
+// ============================================================================
+(function (global) {
+  class ZiglagApiClient {
+    constructor() {
+      this._csrfToken = null;
+      this._csrfPromise = null;
+      this._inFlightLocks = new Set();
+      this.baseUrl = ''; // relative path for same-origin
+    }
+
+    /**
+     * Set or cache a known CSRF token (e.g. from /api/auth/me or /api/auth/login)
+     */
+    setCsrfToken(token) {
+      if (typeof token === 'string' && token.trim()) {
+        this._csrfToken = token.trim();
+      }
+    }
+
+    /**
+     * Retrieve the currently cached CSRF token, if any
+     */
+    getCachedCsrfToken() {
+      return this._csrfToken;
+    }
+
+    /**
+     * Clear in-memory authenticated client state
+     */
+    clearAuthState() {
+      this._csrfToken = null;
+      this._csrfPromise = null;
+    }
+
+    /**
+     * Check if a specific lock key is currently in-flight
+     */
+    isLocked(lockKey) {
+      return this._inFlightLocks.has(lockKey);
+    }
+
+    /**
+     * Helper to run an async operation with duplicate submission protection
+     */
+    async withLock(lockKey, asyncFn) {
+      if (!lockKey) return await asyncFn();
+      if (this._inFlightLocks.has(lockKey)) {
+        const err = new Error(`Action "${lockKey}" is already in progress.`);
+        err.code = 'REQUEST_IN_PROGRESS';
+        err.lockKey = lockKey;
+        throw err;
+      }
+      this._inFlightLocks.add(lockKey);
+      try {
+        return await asyncFn();
+      } finally {
+        this._inFlightLocks.delete(lockKey);
+      }
+    }
+
+    /**
+     * Retrieve or refresh CSRF token from server
+     * Token sources:
+     * 1. GET /api/auth/csrf-token (open endpoint)
+     * 2. GET /api/auth/me (authenticated session)
+     */
+    async fetchCsrfToken(forceRefresh = false) {
+      if (!forceRefresh && this._csrfToken) {
+        return this._csrfToken;
+      }
+
+      // If a fetch is already in flight, reuse its promise
+      if (this._csrfPromise) {
+        return await this._csrfPromise;
+      }
+
+      this._csrfPromise = (async () => {
+        try {
+          // Attempt 1: Fetch from /api/auth/csrf-token
+          const res = await fetch(`${this.baseUrl}/api/auth/csrf-token`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && data.csrf_token) {
+              this._csrfToken = data.csrf_token;
+              return this._csrfToken;
+            }
+          }
+
+          // Fallback Attempt 2: /api/auth/me
+          const meRes = await fetch(`${this.baseUrl}/api/auth/me`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+          });
+          if (meRes.ok) {
+            const meData = await meRes.json();
+            if (meData && meData.csrf_token) {
+              this._csrfToken = meData.csrf_token;
+              return this._csrfToken;
+            }
+          }
+        } catch (_) {
+          // Non-blocking network failure
+        } finally {
+          this._csrfPromise = null;
+        }
+        return this._csrfToken;
+      })();
+
+      return await this._csrfPromise;
+    }
+
+    /**
+     * Handle HTTP 401 Unauthorized responses
+     */
+    handleUnauthorized() {
+      this.clearAuthState();
+      if (typeof window !== 'undefined' && window.location) {
+        const currentPath = window.location.pathname || '';
+        // Avoid redirect loops when already on login page
+        if (!currentPath.includes('/login.html') && !currentPath.includes('/login')) {
+          const next = encodeURIComponent(currentPath + (window.location.search || ''));
+          window.location.href = `/login.html?next=${next}`;
+        }
+      }
+    }
+
+    /**
+     * Core reusable request method
+     *
+     * @param {string} endpoint - API path (e.g. '/api/student/dashboard-summary')
+     * @param {string} [method='GET'] - HTTP method ('GET', 'POST', 'PUT', 'DELETE', etc.)
+     * @param {object|string|null} [payload=null] - Request body
+     * @param {object} [options={}] - Additional options (lockKey, button, headers, _isRetry)
+     * @returns {Promise<any>} Parsed response data
+     */
+    async request(endpoint, method = 'GET', payload = null, options = {}) {
+      const normalizedMethod = (method || 'GET').toUpperCase();
+      const lockKey = options.lockKey;
+      const guardButton = options.button || options.guardButton;
+
+      // Duplicate request prevention via lockKey
+      if (lockKey) {
+        if (this._inFlightLocks.has(lockKey)) {
+          const err = new Error(`Request with lockKey "${lockKey}" is already in progress.`);
+          err.code = 'REQUEST_IN_PROGRESS';
+          err.lockKey = lockKey;
+          throw err;
+        }
+        this._inFlightLocks.add(lockKey);
+      }
+
+      // Duplicate request prevention via button disablement
+      if (guardButton) {
+        if (guardButton.disabled) {
+          const err = new Error('Action button is currently disabled.');
+          err.code = 'BUTTON_DISABLED';
+          throw err;
+        }
+        guardButton.disabled = true;
+      }
+
+      try {
+        return await this._executeRequest(endpoint, normalizedMethod, payload, options);
+      } finally {
+        if (lockKey) {
+          this._inFlightLocks.delete(lockKey);
+        }
+        if (guardButton) {
+          guardButton.disabled = false;
+        }
+      }
+    }
+
+    async _executeRequest(endpoint, method, payload, options) {
+      const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+      const headers = Object.assign({}, options.headers || {});
+
+      // For mutating requests, attach CSRF token and Content-Type
+      if (isMutating) {
+        let token = this._csrfToken;
+        if (!token) {
+          token = await this.fetchCsrfToken();
+        }
+        if (token) {
+          headers['X-CSRF-Token'] = token;
+        }
+
+        if (payload !== null && payload !== undefined && !(typeof FormData !== 'undefined' && payload instanceof FormData)) {
+          if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+          }
+        }
+      }
+
+      const fetchOpts = {
+        method: method,
+        headers: headers
+      };
+
+      if (payload !== null && payload !== undefined && method !== 'GET' && method !== 'HEAD') {
+        if (typeof payload === 'string' || (typeof FormData !== 'undefined' && payload instanceof FormData)) {
+          fetchOpts.body = payload;
+        } else {
+          fetchOpts.body = JSON.stringify(payload);
+        }
+      }
+
+      const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint}`;
+
+      let response;
+      try {
+        response = await fetch(url, fetchOpts);
+      } catch (networkErr) {
+        const err = new Error(`Network failure during ${method} ${endpoint}: ${networkErr.message}`);
+        err.isNetworkError = true;
+        err.originalError = networkErr;
+        throw err;
+      }
+
+      // 1. Handle HTTP 401 Authentication Expiry
+      if (response.status === 401) {
+        this.handleUnauthorized();
+        const errData = await this._parseResponseData(response);
+        const err = new Error(errData && errData.message ? errData.message : 'Authentication required. Please sign in.');
+        err.status = 401;
+        err.code = (errData && errData.code) || 'UNAUTHORIZED';
+        err.data = errData;
+        throw err;
+      }
+
+      // 2. Handle HTTP 400 with CSRF_FAILED (Single Retry Logic)
+      if (response.status === 400 && isMutating && !options._isRetry) {
+        const clonedRes = response.clone();
+        const errData = await this._parseResponseData(clonedRes);
+        if (errData && errData.code === 'CSRF_FAILED') {
+          // Force refresh CSRF token once
+          const newToken = await this.fetchCsrfToken(true);
+          if (newToken) {
+            // Retry original request exactly once
+            const retryOptions = Object.assign({}, options, { _isRetry: true });
+            return await this._executeRequest(endpoint, method, payload, retryOptions);
+          }
+        }
+      }
+
+      // 3. Handle Other Error Responses
+      if (!response.ok) {
+        const errData = await this._parseResponseData(response);
+        const msg = (errData && typeof errData === 'object' && errData.message)
+          ? errData.message
+          : (typeof errData === 'string' && errData)
+            ? errData
+            : `API request failed with HTTP ${response.status}`;
+        const err = new Error(msg);
+        err.status = response.status;
+        err.code = (errData && typeof errData === 'object' && errData.code) || null;
+        err.data = errData;
+        throw err;
+      }
+
+      // 4. Handle Success Response
+      return await this._parseResponseData(response);
+    }
+
+    async _parseResponseData(response) {
+      const contentType = (response.headers && response.headers.get && response.headers.get('content-type')) || '';
+      if (contentType.includes('application/json')) {
+        try {
+          return await response.json();
+        } catch (_) {
+          return null;
+        }
+      }
+      try {
+        const text = await response.text();
+        try {
+          return JSON.parse(text);
+        } catch (_) {
+          return text;
+        }
+      } catch (_) {
+        return null;
+      }
+    }
+
+    // Convenience shorthands
+    get(endpoint, options = {}) {
+      return this.request(endpoint, 'GET', null, options);
+    }
+
+    post(endpoint, payload = null, options = {}) {
+      return this.request(endpoint, 'POST', payload, options);
+    }
+
+    put(endpoint, payload = null, options = {}) {
+      return this.request(endpoint, 'PUT', payload, options);
+    }
+
+    delete(endpoint, payload = null, options = {}) {
+      return this.request(endpoint, 'DELETE', payload, options);
+    }
+  }
+
+  const apiInstance = new ZiglagApiClient();
+  global.ZiglagAPI = apiInstance;
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
+
+// ============================================================================
+// PHASE 6.4.3: REAL-TIME STUDY TIME TRACKER CLIENT
+// ============================================================================
+(function (global) {
+  // Pure JS SHA-256 for deterministic payload hashing across all runtime contexts
+  function _computeSha256(ascii) {
+    function rightRotate(value, amount) {
+      return (value >>> amount) | (value << (32 - amount));
+    }
+    const mathPow = Math.pow;
+    const maxWord = mathPow(2, 32);
+    let i, j;
+    let result = '';
+    const words = [];
+    const asciiBitLength = ascii.length * 8;
+    const hash = _computeSha256.h = _computeSha256.h || [];
+    const k = _computeSha256.k = _computeSha256.k || [];
+    let primeCounter = k.length;
+    const isComposite = {};
+    for (let candidate = 2; primeCounter < 64; candidate++) {
+      if (!isComposite[candidate]) {
+        for (i = 0; i < 313; i += candidate) {
+          isComposite[i] = candidate;
+        }
+        hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+        k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+      }
+    }
+    ascii += '\x80';
+    while ((ascii.length % 64) - 56) ascii += '\x00';
+    for (i = 0; i < ascii.length; i++) {
+      j = ascii.charCodeAt(i);
+      if (j >> 8) return '';
+      words[i >> 2] |= j << ((3 - i) % 4) * 8;
+    }
+    words[words.length] = (asciiBitLength / maxWord) | 0;
+    words[words.length] = asciiBitLength;
+    for (j = 0; j < words.length;) {
+      const w = words.slice(j, j += 16);
+      const oldHash = hash.slice(0, 8);
+      for (i = 0; i < 64; i++) {
+        const w15 = w[i - 15], w2 = w[i - 2];
+        const a = hash[0], e = hash[4];
+        const temp1 = hash[7]
+          + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+          + ((e & hash[5]) ^ ((~e) & hash[6]))
+          + k[i]
+          + (w[i] = (i < 16) ? w[i] : (
+              w[i - 16]
+              + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
+              + w[i - 7]
+              + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+            ) | 0
+          );
+        const temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+          + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+        hash[7] = hash[6];
+        hash[6] = hash[5];
+        hash[5] = hash[4];
+        hash[4] = (hash[3] + temp1) | 0;
+        hash[3] = hash[2];
+        hash[2] = hash[1];
+        hash[1] = hash[0];
+        hash[0] = (temp1 + temp2) | 0;
+      }
+      for (i = 0; i < 8; i++) {
+        hash[i] = (hash[i] + oldHash[i]) | 0;
+      }
+    }
+    for (i = 0; i < 8; i++) {
+      for (j = 3; j + 1; j--) {
+        const b = (hash[i] >> (j * 8)) & 255;
+        result += ((b < 16) ? '0' : '') + b.toString(16);
+      }
+    }
+    return result;
+  }
+
+  async function sha256Hex(str) {
+    if (typeof crypto !== 'undefined' && crypto.subtle && typeof TextEncoder !== 'undefined') {
+      try {
+        const msgUint8 = new TextEncoder().encode(str);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (_) {}
+    }
+    return _computeSha256(str);
+  }
+
+  class StudySessionTracker {
+    constructor() {
+      this.sessionToken = null;
+      this.sessionId = null;
+      this.courseId = null;
+      this.lectureId = null;
+      this.seq = 1;
+      this.pendingPayloadHash = null;
+      this.totalSeconds = 0;
+      this.isDisplaced = false;
+      this.isClosed = false;
+      this.heartbeatTimer = null;
+      this.intervalMs = 25000; // 25 seconds
+      this.lastActivityTime = Date.now();
+      this.idleThresholdMs = 30000; // 30 seconds
+      this.isVideoPlaying = false;
+      this.isSending = false;
+
+      // Event callbacks
+      this.onCredited = null;
+      this.onDisplaced = null;
+      this.onStatusChange = null;
+
+      this._bindUserActivity();
+      this._bindVisibility();
+      this._bindUnload();
+    }
+
+    _bindUserActivity() {
+      if (typeof window === 'undefined') return;
+      const recordActive = () => {
+        this.lastActivityTime = Date.now();
+      };
+      const events = ['mousemove', 'keydown', 'scroll', 'click', 'touchstart', 'pointerdown'];
+      let throttled = false;
+      events.forEach(ev => {
+        window.addEventListener(ev, () => {
+          if (!throttled) {
+            recordActive();
+            throttled = true;
+            setTimeout(() => { throttled = false; }, 1000);
+          }
+        }, { passive: true });
+      });
+    }
+
+    _bindVisibility() {
+      if (typeof document === 'undefined') return;
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          this.lastActivityTime = Date.now();
+        }
+      });
+    }
+
+    _bindUnload() {
+      if (typeof window === 'undefined') return;
+      const handleExit = () => {
+        this.closeSync('PAGE_UNLOAD');
+      };
+      window.addEventListener('pagehide', handleExit);
+      window.addEventListener('beforeunload', handleExit);
+    }
+
+    setVideoPlaying(isPlaying) {
+      this.isVideoPlaying = Boolean(isPlaying);
+      if (this.isVideoPlaying) {
+        this.lastActivityTime = Date.now();
+      }
+    }
+
+    isUserActive() {
+      if (typeof document !== 'undefined' && document.hidden) {
+        return false;
+      }
+      if (this.isVideoPlaying) {
+        return true;
+      }
+      return (Date.now() - this.lastActivityTime) < this.idleThresholdMs;
+    }
+
+    async start(courseId, lectureId) {
+      if (!courseId || !lectureId) return null;
+
+      // If already running for this exact lecture and not closed, reuse session
+      if (this.sessionToken && this.courseId === courseId && this.lectureId === lectureId && !this.isClosed) {
+        return { success: true, session_token: this.sessionToken, resumed: true };
+      }
+
+      // Close previous session if running
+      if (this.sessionToken && !this.isClosed) {
+        await this.close('SWITCH_LECTURE');
+      }
+
+      this._clearTimer();
+      this.sessionToken = null;
+      this.sessionId = null;
+      this.courseId = courseId;
+      this.lectureId = lectureId;
+      this.seq = 1;
+      this.pendingPayloadHash = null;
+      this.totalSeconds = 0;
+      this.isDisplaced = false;
+      this.isClosed = false;
+      this.lastActivityTime = Date.now();
+
+      const api = global.ZiglagAPI;
+      if (!api || typeof api.post !== 'function') {
+        return null;
+      }
+
+      try {
+        const res = await api.post('/api/student/study-session/start', {
+          course_id: courseId,
+          lecture_id: lectureId
+        });
+
+        if (res && res.success && res.session_token) {
+          this.sessionToken = res.session_token;
+          this.sessionId = res.session_id;
+          this.isClosed = false;
+
+          // Schedule periodic heartbeats
+          this._scheduleNextHeartbeat();
+          return res;
+        }
+      } catch (err) {
+        console.warn('[StudyTracker] Failed to start study session:', err.message || err);
+      }
+      return null;
+    }
+
+    _scheduleNextHeartbeat() {
+      this._clearTimer();
+      if (this.isClosed) return;
+
+      this.heartbeatTimer = setTimeout(async () => {
+        if (!this.isClosed && this.sessionToken) {
+          await this.sendHeartbeat('heartbeat');
+          this._scheduleNextHeartbeat();
+        }
+      }, this.intervalMs);
+    }
+
+    _clearTimer() {
+      if (this.heartbeatTimer) {
+        clearTimeout(this.heartbeatTimer);
+        this.heartbeatTimer = null;
+      }
+    }
+
+    async sendHeartbeat(eventType = 'heartbeat') {
+      if (!this.sessionToken || this.isClosed || this.isSending) return null;
+
+      const api = global.ZiglagAPI;
+      if (!api) return null;
+
+      const activeState = (eventType === 'takeover') ? true : this.isUserActive();
+      const currentSeq = this.seq;
+
+      // Idempotent duplicate retry support: if we already computed a hash for this seq (due to retry), reuse it
+      if (!this.pendingPayloadHash) {
+        const rawPayload = `${this.sessionToken}:${currentSeq}:${activeState}:${eventType}`;
+        this.pendingPayloadHash = await sha256Hex(rawPayload);
+      }
+      const hash = this.pendingPayloadHash;
+
+      this.isSending = true;
+      try {
+        const res = await api.post('/api/student/study-session/heartbeat', {
+          session_token: this.sessionToken,
+          course_id: this.courseId,
+          lecture_id: this.lectureId,
+          seq: currentSeq,
+          payload_hash: hash,
+          is_active: activeState,
+          event_type: eventType
+        });
+
+        if (res && res.success) {
+          // Success: increment sequence number and clear pending hash
+          this.seq = currentSeq + 1;
+          this.pendingPayloadHash = null;
+
+          if (typeof res.session_total_seconds === 'number') {
+            this.totalSeconds = res.session_total_seconds;
+          }
+
+          if (res.status === 'displaced') {
+            this.isDisplaced = true;
+            if (typeof this.onDisplaced === 'function') {
+              this.onDisplaced(res.message || 'Another study session is active in a different tab.');
+            }
+          } else if (res.status === 'lease_acquired' || res.status === 'active') {
+            this.isDisplaced = false;
+            if (typeof this.onCredited === 'function') {
+              this.onCredited({
+                status: res.status,
+                creditedSeconds: res.credited_seconds || 0,
+                totalSeconds: this.totalSeconds
+              });
+            }
+          } else if (res.status === 'idle') {
+            if (typeof this.onStatusChange === 'function') {
+              this.onStatusChange({ status: 'idle', totalSeconds: this.totalSeconds });
+            }
+          }
+          return res;
+        } else if (res && res.status === 'closed') {
+          this.isClosed = true;
+          this._clearTimer();
+        }
+      } catch (err) {
+        // Network failure: do NOT increment this.seq. Retain this.pendingPayloadHash for duplicate retry.
+        console.warn('[StudyTracker] Heartbeat transmission network notice:', err.message || err);
+      } finally {
+        this.isSending = false;
+      }
+      return null;
+    }
+
+    async requestTakeover() {
+      if (!this.sessionToken || this.isClosed) return null;
+      // Clear pending retry hash so new takeover hash is computed
+      this.pendingPayloadHash = null;
+      return await this.sendHeartbeat('takeover');
+    }
+
+    async close(reason = 'USER_NAVIGATION') {
+      this._clearTimer();
+      const token = this.sessionToken;
+      this.isClosed = true;
+      this.sessionToken = null;
+
+      if (!token) return;
+
+      const api = global.ZiglagAPI;
+      if (api && typeof api.post === 'function') {
+        try {
+          await api.post('/api/student/study-session/close', {
+            session_token: token,
+            close_reason: reason
+          });
+        } catch (err) {
+          console.warn('[StudyTracker] Close session notice:', err.message || err);
+        }
+      }
+    }
+
+    closeSync(reason = 'PAGE_UNLOAD') {
+      this._clearTimer();
+      const token = this.sessionToken;
+      this.isClosed = true;
+      this.sessionToken = null;
+
+      if (!token || typeof navigator === 'undefined') return;
+
+      try {
+        const payload = JSON.stringify({ session_token: token, close_reason: reason });
+        if (typeof fetch === 'function') {
+          // Modern browsers allow keepalive: true in beforeunload/pagehide
+          fetch('/api/student/study-session/close', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
+            keepalive: true
+          }).catch(() => {});
+        } else if (navigator.sendBeacon) {
+          const blob = new Blob([payload], { type: 'application/json' });
+          navigator.sendBeacon('/api/student/study-session/close', blob);
+        }
+      } catch (_) {}
+    }
+  }
+
+  global.ZiglagStudyTracker = new StudySessionTracker();
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
+
 // CLIENT STATE ENGINE (LOCAL PERSISTENCE)
 // =========================================
 const AppState = {

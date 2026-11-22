@@ -204,6 +204,9 @@
             <span id="complete-toggle-label">Mark as Complete</span>
           </button>
 
+          <!-- Real-Time Lesson Progress Feedback Pill -->
+          <span id="lesson-progress-feedback" style="display:none; font-size: 0.8rem; font-weight: 600; padding: 0.35rem 0.75rem; border-radius: var(--radius-pill); align-items:center;"></span>
+
           <!-- Prev & Next Lesson Buttons -->
           <button class="lesson-nav-btn" id="btn-prev-lesson" onclick="goToPreviousLesson()" title="Previous lesson (Shortcut: Left Arrow ←)">
             ◀ Previous
@@ -213,6 +216,20 @@
           </button>
         </div>
       </section>
+
+      <!-- Displaced Study Session Multi-Tab Alert Banner -->
+      <div id="study-displaced-banner" style="display:none; background: #FFFBEB; border: 1px solid #FCD34D; border-radius: var(--radius-md); padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; align-items: center; justify-content: space-between; gap: 1rem; color: #92400E; box-shadow: var(--shadow-sm);">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <span style="font-size:1.35rem; line-height:1;">⚠️</span>
+          <div>
+            <strong style="display:block; font-size:0.9rem; color:#78350F;">Studying in Another Tab or Window</strong>
+            <span id="study-displaced-message" style="font-size:0.82rem; color:#92400E;">Another study session owns the clock. Only one active session earns verified study credit.</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-takeover-study" onclick="handleStudyTakeover()" style="background: var(--color-orange); border-color: var(--color-orange); white-space: nowrap; font-weight:700; padding:0.45rem 1rem;">
+          Continue Studying Here ➜
+        </button>
+      </div>
 
       <!-- Main Study Theater Grid -->
       <div class="study-grid-layout">
@@ -347,6 +364,10 @@
               <span>Completed Lessons</span>
               <span id="study-progress-text"><strong>0</strong> of 6 Lessons (0%)</span>
             </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--color-teal); font-weight: 600; margin-bottom: 0.4rem;">
+              <span>Active Study Session</span>
+              <span id="study-session-time">⏱️ 0m tracked</span>
+            </div>
             <div class="course-progress-bar-bg" style="height: 8px;">
               <div id="study-progress-bar" class="course-progress-bar-fill" style="width: 0%;"></div>
             </div>
@@ -446,10 +467,55 @@
   <script src="ziglag-db.js"></script>
   <script src="app.js"></script>
   <script>
+    // ============================================================================
+    // STUDENT COURSE PLAYER & REAL-TIME PROGRESS CONTROLLER (Phase 6.3.2 Stage 6 Step 5)
+    // Synchronized with Neon PostgreSQL via window.ZiglagAPI & Central Flask Endpoints
+    // ============================================================================
+
     // Global Study Room State
     let activeCourse = null;
     let activeLectureIndex = 0;
     let currentTab = "notes";
+    let courseLectures = [];
+    let backendLecturesLoaded = false;
+    let serverProgressMap = {}; // lecture_id -> { is_completed, last_position_seconds, total_duration_seconds, view_count, xp_awarded }
+    let currentOpenedLectureId = null;
+    let isTogglingCompletion = false;
+    let currentStudentTotalXP = 0;
+
+    // Helper: Escape HTML to prevent XSS
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return str || '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Helper: Parse duration string into non-negative integer seconds
+    function parseDurationToSeconds(durationVal) {
+      if (typeof durationVal === 'number') {
+        return Math.max(0, Math.floor(durationVal));
+      }
+      if (!durationVal || typeof durationVal !== 'string') return 0;
+      const trimmed = durationVal.trim();
+      if (trimmed.includes(':')) {
+        const parts = trimmed.split(':').map(p => parseInt(p, 10) || 0);
+        if (parts.length === 2) {
+          return (parts[0] * 60) + parts[1];
+        } else if (parts.length === 3) {
+          return (parts[0] * 3600) + (parts[1] * 60) + parts[2];
+        }
+      }
+      const match = trimmed.match(/^(\d+)\s*(?:mins?|minutes?)/i);
+      if (match) {
+        return parseInt(match[1], 10) * 60;
+      }
+      const parsed = parseInt(trimmed, 10);
+      return isNaN(parsed) ? 0 : Math.max(0, parsed);
+    }
 
     // Comprehensive Course Lectures Data with YouTube Videos & Rich Content
     const DETAILED_COURSE_DATA = {
@@ -684,15 +750,16 @@
 
     // Fallback template for any other course
     function generateFallbackLectures(course) {
-      const syll = course.syllabus || ["Foundational Principles", "Worked Examples Breakdown", "Speedrun Drills", "Past Questions Review", "Exam Strategies", "Mastery Capstone"];
+      const syll = (course && course.syllabus) || ["Foundational Principles", "Worked Examples Breakdown", "Speedrun Drills", "Past Questions Review", "Exam Strategies", "Mastery Capstone"];
       return syll.map((mod, idx) => ({
         title: `L${idx + 1}: ${mod}`,
         length: "15:00",
-        topic: course.levelName || course.level || "Core STEM",
-        videoUrl: (idx === 0 && course.id === 'extras-general-videos') ? "https://youtu.be/83q5G1J01Mo" : (idx === 1 && course.id === 'extras-general-videos') ? "https://youtu.be/cIO6qMEvgZU" : null,
+        duration: "15:00",
+        topic: (course && (course.levelName || course.level)) || "Core STEM",
+        videoUrl: (idx === 0 && course && course.id === 'extras-general-videos') ? "https://youtu.be/83q5G1J01Mo" : (idx === 1 && course && course.id === 'extras-general-videos') ? "https://youtu.be/cIO6qMEvgZU" : null,
         notes: `
           <h3>${mod} — Academic Overview</h3>
-          <p>This module provides rigorous preparation for <strong>${course.title}</strong>, curated by Mr. Isaac Olusola. Master key theorems, visual intuition, and standard mathematical notations.</p>
+          <p>This module provides rigorous preparation for <strong>${course ? course.title : 'Selected Course'}</strong>, curated by Mr. Isaac Olusola. Master key theorems, visual intuition, and standard mathematical notations.</p>
           <div class="notes-callout-definition">
             <strong>Key Learning Objective:</strong>
             <p>Develop structured derivation logic and build procedural fluency for examination and real-world application.</p>
@@ -700,7 +767,7 @@
         `,
         examples: [
           {
-            examTag: `${course.levelName || 'Standard'} Past Paper Drill`,
+            examTag: `${(course && (course.levelName || course.level)) || 'Standard'} Past Paper Drill`,
             problem: `Mastery Example for ${mod}: Solve the standard curriculum derivation step by step.`,
             steps: [
               { label: "Step 1: Formulate the equation", math: "\\text{Set up initial conditions and known parameters.}", explanation: "Identify all boundary values and given data." },
@@ -724,30 +791,30 @@
       }));
     }
 
+    // Returns currently active playlist of lectures
+    function getActiveLectures() {
+      if (courseLectures && courseLectures.length > 0) {
+        return courseLectures;
+      }
+      if (activeCourse && DETAILED_COURSE_DATA[activeCourse.id] && DETAILED_COURSE_DATA[activeCourse.id].lectures) {
+        return DETAILED_COURSE_DATA[activeCourse.id].lectures;
+      }
+      return generateFallbackLectures(activeCourse);
+    }
+
     // Initialize Study Room
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       const params = new URLSearchParams(window.location.search);
       const courseId = params.get("id") || "wassce-gce-neco-prep";
       
       const courses = (window.MATH_DATABASE && window.MATH_DATABASE.courses) ? window.MATH_DATABASE.courses : [];
-      activeCourse = courses.find(c => c.id === courseId) || courses[0];
+      activeCourse = courses.find(c => c.id === courseId) || courses[0] || { id: courseId, title: "Course Study Room" };
 
       // Breadcrumb & Title
-      document.getElementById("breadcrumb-level-label").textContent = activeCourse.levelName || activeCourse.level || "Secondary";
-      document.getElementById("breadcrumb-course-title").textContent = activeCourse.title;
-
-      // Ensure lectures exist for activeCourse
-      if (!DETAILED_COURSE_DATA[activeCourse.id]) {
-        DETAILED_COURSE_DATA[activeCourse.id] = {
-          lectures: generateFallbackLectures(activeCourse)
-        };
-      }
-
-      // Check lecture index from URL if present
-      const lecIndexParam = parseInt(params.get("lec"));
-      if (!isNaN(lecIndexParam) && lecIndexParam >= 0 && lecIndexParam < DETAILED_COURSE_DATA[activeCourse.id].lectures.length) {
-        activeLectureIndex = lecIndexParam;
-      }
+      const breadcrumbLevel = document.getElementById("breadcrumb-level-label");
+      const breadcrumbTitle = document.getElementById("breadcrumb-course-title");
+      if (breadcrumbLevel) breadcrumbLevel.textContent = activeCourse.levelName || activeCourse.level || "Secondary";
+      if (breadcrumbTitle) breadcrumbTitle.textContent = activeCourse.title;
 
       // Keyboard navigation shortcuts
       window.addEventListener("keydown", (e) => {
@@ -759,10 +826,6 @@
         }
       });
 
-      renderSidebarPlaylist();
-      loadLecture(activeLectureIndex);
-      updateMasteryProgressUI();
-
       // Load scratchpad from localStorage
       const savedNotes = localStorage.getItem(`scratchpad_${activeCourse.id}`);
       const scratchEl = document.getElementById("math-notes");
@@ -772,43 +835,134 @@
           localStorage.setItem(`scratchpad_${activeCourse.id}`, scratchEl.value);
         });
       }
+
+      // Initialize Course Data from Backend
+      await initCourseData(params);
     });
 
-    function getActiveLectures() {
-      return (DETAILED_COURSE_DATA[activeCourse.id] && DETAILED_COURSE_DATA[activeCourse.id].lectures)
-        ? DETAILED_COURSE_DATA[activeCourse.id].lectures
-        : generateFallbackLectures(activeCourse);
+    // Fetch genuine database lectures & student summary from authenticated backend
+    async function initCourseData(params) {
+      const queryParams = params || (window.location ? new URLSearchParams(window.location.search) : null);
+      const courseId = (queryParams && queryParams.get("id")) || (activeCourse && activeCourse.id) || "wassce-gce-neco-prep";
+      if (!activeCourse) {
+        const courses = (window.MATH_DATABASE && window.MATH_DATABASE.courses) ? window.MATH_DATABASE.courses : [];
+        activeCourse = courses.find(c => c.id === courseId) || courses[0] || { id: courseId, title: "Course Study Room" };
+      }
+
+      const detailedList = (activeCourse && DETAILED_COURSE_DATA[activeCourse.id] && DETAILED_COURSE_DATA[activeCourse.id].lectures) || [];
+      const fallbackList = generateFallbackLectures(activeCourse);
+
+      // 1. Fetch real lectures from GET /api/lectures?course_id=...
+      let backendLectures = [];
+      if (window.ZiglagAPI && typeof window.ZiglagAPI.get === 'function') {
+        try {
+          const res = await window.ZiglagAPI.get(`/api/lectures?course_id=${encodeURIComponent(activeCourse.id)}`);
+          if (Array.isArray(res) && res.length > 0) {
+            backendLectures = res;
+          }
+        } catch (err) {
+          console.warn("[Course Player] Could not fetch backend lectures:", err);
+        }
+      }
+
+      // 2. Fetch student dashboard summary to synchronize total XP and recent completions
+      if (window.ZiglagAPI && typeof window.ZiglagAPI.get === 'function') {
+        try {
+          const summary = await window.ZiglagAPI.get('/api/student/dashboard-summary');
+          if (summary && summary.stats && typeof summary.stats.total_xp === 'number') {
+            currentStudentTotalXP = summary.stats.total_xp;
+            const xpEl = document.getElementById("study-xp-chip");
+            if (xpEl) xpEl.textContent = `⚡ ${currentStudentTotalXP} XP`;
+          }
+          if (summary && Array.isArray(summary.recent_lessons)) {
+            summary.recent_lessons.forEach(rl => {
+              if (rl.course_id === activeCourse.id && rl.lecture_id) {
+                serverProgressMap[rl.lecture_id] = {
+                  is_completed: Boolean(rl.is_completed),
+                  last_position_seconds: rl.last_position_seconds || 0,
+                  total_duration_seconds: rl.total_duration_seconds || 0,
+                  view_count: rl.view_count || 0
+                };
+              }
+            });
+          }
+        } catch (err) {
+          console.warn("[Course Player] Dashboard summary fetch notice:", err);
+        }
+      }
+
+      // 3. Merge backend database lecture records with rich local content
+      if (backendLectures.length > 0) {
+        courseLectures = backendLectures.map((dbLec, idx) => {
+          const detailed = detailedList.find(d => d.title === dbLec.title) || detailedList[idx] || fallbackList[idx] || {};
+          return {
+            id: dbLec.id,
+            course_id: dbLec.course_id || activeCourse.id,
+            title: dbLec.title || detailed.title,
+            topic: dbLec.topic || dbLec.topic_category || detailed.topic || "Core Mathematics",
+            length: dbLec.duration || dbLec.length || detailed.length || "15:00",
+            duration: dbLec.duration || detailed.length || "15:00",
+            videoUrl: dbLec.video_url || dbLec.videoUrl || detailed.videoUrl,
+            order_index: dbLec.order_index,
+            notes: detailed.notes || `<p>Review lecture material for ${escapeHtml(dbLec.title)}.</p>`,
+            examples: detailed.examples || [],
+            quiz: detailed.quiz || null
+          };
+        });
+        backendLecturesLoaded = true;
+      } else {
+        courseLectures = detailedList.length > 0 ? detailedList : fallbackList;
+      }
+
+      // 4. Resolve starting lecture from URL parameter (?lec=... or ?lecture_id=...)
+      const lecParam = params ? (params.get("lec") || params.get("lecture_id")) : null;
+      if (lecParam) {
+        const matchIdx = courseLectures.findIndex(l => l.id === lecParam);
+        if (matchIdx !== -1) {
+          activeLectureIndex = matchIdx;
+        } else {
+          const parsedIdx = parseInt(lecParam, 10);
+          if (!isNaN(parsedIdx) && parsedIdx >= 0 && parsedIdx < courseLectures.length) {
+            activeLectureIndex = parsedIdx;
+          }
+        }
+      }
+
+      // 5. Initial Render
+      renderSidebarPlaylist();
+      loadLecture(activeLectureIndex);
+      updateMasteryProgressUI();
     }
 
+    // Load and display a selected lecture
     function loadLecture(index) {
       const lectures = getActiveLectures();
       if (index < 0 || index >= lectures.length) return;
       activeLectureIndex = index;
-
       const lecture = lectures[index];
 
-      // Record to AppState recentLessons
-      AppState.recordRecentLesson(activeCourse.id, activeLectureIndex, lecture.title);
+      // Clear previous feedback banner
+      clearProgressFeedback();
 
       // Top bar info
-      document.getElementById("lesson-main-title").textContent = lecture.title;
-      document.getElementById("lesson-topic-pill").textContent = "🏷️ Topic: " + (lecture.topic || "Core Mathematics");
+      const titleEl = document.getElementById("lesson-main-title");
+      if (titleEl) titleEl.textContent = lecture.title;
+      const topicEl = document.getElementById("lesson-topic-pill");
+      if (topicEl) topicEl.textContent = "🏷️ Topic: " + (lecture.topic || "Core Mathematics");
 
-      // Progress strip
-      const totalLectures = lectures.length;
-      const completedCount = AppState.getCompletedCount(activeCourse.id);
-      const progressPercent = Math.min(100, Math.round((completedCount / totalLectures) * 100));
-      document.getElementById("lesson-progress-badge").textContent = `Lesson ${index + 1} of ${totalLectures} · ${progressPercent}% Completed`;
+      // Progress counter strip
+      updateProgressBadge();
 
-      // Update Prev / Next Buttons
+      // Navigation Buttons
       const prevBtn = document.getElementById("btn-prev-lesson");
       const nextBtn = document.getElementById("btn-next-lesson");
-      prevBtn.disabled = (index === 0);
-      
-      if (index === totalLectures - 1) {
-        nextBtn.innerHTML = "Finish Course 🏆";
-      } else {
-        nextBtn.innerHTML = "Next Lesson ▶";
+      if (prevBtn) prevBtn.disabled = (index === 0);
+      if (nextBtn) {
+        if (index === lectures.length - 1) {
+          nextBtn.innerHTML = "Finish Course 🏆";
+        } else {
+          nextBtn.innerHTML = "Next Lesson ▶";
+        }
       }
 
       // Completion toggle state
@@ -820,10 +974,117 @@
       // Render Active Tab Content
       renderTabContent(lecture);
 
-      // Update sidebar active highlights
+      // Update sidebar playlist active highlights
       updateSidebarActiveItem();
+
+      // Genuinely record lecture opening if lecture has valid database ID
+      if (lecture.id && lecture.course_id && currentOpenedLectureId !== lecture.id) {
+        recordLectureOpening(lecture);
+      }
+
+      // Phase 6.4.3: Real-Time Study Tracking
+      if (lecture.id && lecture.course_id) {
+        initLessonStudyTracking(lecture);
+      }
     }
 
+    // Record genuine lecture opening via POST /api/student/progress/open-lecture
+    async function recordLectureOpening(lecture) {
+      if (!lecture || !lecture.id || typeof lecture.id !== 'string' || !lecture.id.trim()) {
+        return;
+      }
+      if (!lecture.course_id || typeof lecture.course_id !== 'string') {
+        return;
+      }
+
+      currentOpenedLectureId = lecture.id;
+
+      if (!window.ZiglagAPI || typeof window.ZiglagAPI.post !== 'function') {
+        return;
+      }
+
+      try {
+        const res = await window.ZiglagAPI.post('/api/student/progress/open-lecture', {
+          course_id: lecture.course_id,
+          lecture_id: lecture.id
+        });
+
+        if (res && res.success && res.progress) {
+          serverProgressMap[lecture.id] = {
+            is_completed: Boolean(res.progress.is_completed),
+            last_position_seconds: res.progress.last_position_seconds || 0,
+            total_duration_seconds: res.progress.total_duration_seconds || 0,
+            view_count: res.progress.view_count || 1,
+            xp_awarded: res.progress.xp_awarded || 0
+          };
+
+          // If student is still on this lecture, update button and sidebar
+          const currentLec = getActiveLectures()[activeLectureIndex];
+          if (currentLec && currentLec.id === lecture.id) {
+            updateCompleteButtonState();
+          }
+          renderSidebarPlaylist();
+          updateMasteryProgressUI();
+        }
+      } catch (err) {
+        console.warn("[Course Player] open-lecture notice:", err);
+      }
+    }
+
+    // Phase 6.4.3: Initialize Real-Time Study Tracking
+    function initLessonStudyTracking(lecture) {
+      if (!window.ZiglagStudyTracker || !lecture || !lecture.id || !lecture.course_id) return;
+
+      const tracker = window.ZiglagStudyTracker;
+      const banner = document.getElementById("study-displaced-banner");
+      const bannerMsg = document.getElementById("study-displaced-message");
+      const timeDisplay = document.getElementById("study-session-time");
+
+      tracker.onDisplaced = (msg) => {
+        if (banner) {
+          if (bannerMsg && msg) bannerMsg.textContent = msg;
+          banner.style.display = "flex";
+        }
+      };
+
+      tracker.onCredited = (data) => {
+        if (banner) banner.style.display = "none";
+        if (timeDisplay && typeof data.totalSeconds === 'number') {
+          const totalSec = data.totalSeconds;
+          const h = Math.floor(totalSec / 3600);
+          const m = Math.floor((totalSec % 3600) / 60);
+          timeDisplay.textContent = h > 0 ? `⏱️ ${h}h ${m}m tracked` : `⏱️ ${m}m tracked`;
+        }
+      };
+
+      tracker.onStatusChange = (data) => {
+        if (banner && data.status !== 'displaced') {
+          banner.style.display = "none";
+        }
+      };
+
+      tracker.start(lecture.course_id, lecture.id);
+    }
+
+    async function handleStudyTakeover() {
+      const btn = document.getElementById("btn-takeover-study");
+      const banner = document.getElementById("study-displaced-banner");
+      if (btn) btn.disabled = true;
+      try {
+        if (window.ZiglagStudyTracker) {
+          const res = await window.ZiglagStudyTracker.requestTakeover();
+          if (res && res.success && res.status !== 'displaced') {
+            if (banner) banner.style.display = "none";
+          }
+        }
+      } catch (err) {
+        console.warn("[Course Player] Study takeover notice:", err);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // Video Player Setup
     function setupVideoPlayer(lecture) {
       const iframePlayer = document.getElementById("iframe-video-player");
       const actualPlayer = document.getElementById("actual-video-player");
@@ -831,13 +1092,29 @@
       const notice = document.getElementById("external-video-notice");
       const noticeLink = document.getElementById("external-video-link");
 
+      if (!iframePlayer || !actualPlayer || !blackboard) return;
+
+      // Attach video playback tracking once
+      if (!actualPlayer._studyListenersAttached) {
+        actualPlayer.addEventListener('play', () => {
+          if (window.ZiglagStudyTracker) window.ZiglagStudyTracker.setVideoPlaying(true);
+        });
+        actualPlayer.addEventListener('pause', () => {
+          if (window.ZiglagStudyTracker) window.ZiglagStudyTracker.setVideoPlaying(false);
+        });
+        actualPlayer.addEventListener('ended', () => {
+          if (window.ZiglagStudyTracker) window.ZiglagStudyTracker.setVideoPlaying(false);
+        });
+        actualPlayer._studyListenersAttached = true;
+      }
+
       // Reset
       iframePlayer.style.display = "none";
       iframePlayer.src = "";
       actualPlayer.style.display = "none";
-      actualPlayer.pause();
+      try { actualPlayer.pause(); } catch (e) {}
       blackboard.style.display = "none";
-      notice.style.display = "none";
+      if (notice) notice.style.display = "none";
 
       if (lecture.videoUrl) {
         let embedUrl = lecture.videoUrl;
@@ -852,79 +1129,87 @@
         iframePlayer.src = embedUrl;
         iframePlayer.style.display = "block";
 
-        noticeLink.href = lecture.videoUrl;
-        notice.style.display = "block";
+        if (noticeLink && notice) {
+          noticeLink.href = lecture.videoUrl;
+          notice.style.display = "block";
+        }
       } else {
-        // Fallback blackboard visualization
         blackboard.style.display = "flex";
-        document.getElementById("video-blackboard-title").textContent = lecture.title;
+        const bbTitle = document.getElementById("video-blackboard-title");
+        if (bbTitle) bbTitle.textContent = lecture.title;
       }
     }
 
+    // Render Tab Content (Notes, Examples, Quiz)
     function renderTabContent(lecture) {
       // 1. Lesson Notes
       const notesEl = document.getElementById("tab-content-notes");
-      notesEl.innerHTML = lecture.notes || `<p>Review lecture material for ${lecture.title}.</p>`;
+      if (notesEl) {
+        notesEl.innerHTML = lecture.notes || `<p>Review lecture material for ${escapeHtml(lecture.title)}.</p>`;
+      }
 
       // 2. Worked Examples
       const examplesEl = document.getElementById("tab-content-examples");
-      if (lecture.examples && lecture.examples.length > 0) {
-        examplesEl.innerHTML = lecture.examples.map((ex, exIdx) => `
-          <div class="worked-example-card">
-            <div class="example-header">
-              <span class="example-tag">✍️ Worked Example ${exIdx + 1}</span>
-              <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-teal);">${ex.examTag || 'Standard Past Question'}</span>
+      if (examplesEl) {
+        if (lecture.examples && lecture.examples.length > 0) {
+          examplesEl.innerHTML = lecture.examples.map((ex, exIdx) => `
+            <div class="worked-example-card">
+              <div class="example-header">
+                <span class="example-tag">✍️ Worked Example ${exIdx + 1}</span>
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-teal);">${escapeHtml(ex.examTag || 'Standard Past Question')}</span>
+              </div>
+              <div class="example-problem">
+                ${ex.problem}
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;" id="derivation-steps-${exIdx}">
+                ${ex.steps.map((st, stIdx) => `
+                  <div class="step-box">
+                    <span class="step-label">Step ${stIdx + 1}: ${escapeHtml(st.label)}</span>
+                    <div class="step-math">${st.math}</div>
+                    <div class="step-explanation">${escapeHtml(st.explanation)}</div>
+                  </div>
+                `).join('')}
+              </div>
             </div>
-            <div class="example-problem">
-              ${ex.problem}
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;" id="derivation-steps-${exIdx}">
-              ${ex.steps.map((st, stIdx) => `
-                <div class="step-box">
-                  <span class="step-label">Step ${stIdx + 1}: ${st.label}</span>
-                  <div class="step-math">${st.math}</div>
-                  <div class="step-explanation">${st.explanation}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `).join('');
-      } else {
-        examplesEl.innerHTML = `<p style="color: var(--color-text-secondary);">No worked examples provided for this lecture.</p>`;
+          `).join('');
+        } else {
+          examplesEl.innerHTML = `<p style="color: var(--color-text-secondary);">No worked examples provided for this lecture.</p>`;
+        }
       }
 
-      // 3. Quiz Checkpoint
+      // 3. Quiz Checkpoint (Self-check widget; does NOT award independent client XP)
       const quizEl = document.getElementById("tab-content-quiz");
-      if (lecture.quiz) {
-        const q = lecture.quiz;
-        quizEl.innerHTML = `
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-              <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--color-orange); background: rgba(242, 140, 40, 0.1); padding: 0.25rem 0.65rem; border-radius: var(--radius-pill);">
-                ⚡ Lesson Knowledge Checkpoint
-              </span>
-              <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-teal);">+25 XP</span>
+      if (quizEl) {
+        if (lecture.quiz) {
+          const q = lecture.quiz;
+          quizEl.innerHTML = `
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--color-orange); background: rgba(242, 140, 40, 0.1); padding: 0.25rem 0.65rem; border-radius: var(--radius-pill);">
+                  ⚡ Lesson Knowledge Checkpoint
+                </span>
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-teal);">Self-Check Practice</span>
+              </div>
+              <h3 style="font-size: 1.15rem; color: var(--color-navy); margin: 0 0 0.5rem 0;">
+                ${escapeHtml(q.prompt)}
+              </h3>
+              ${q.mathFormula ? `<div style="font-family: var(--font-mono); font-size: 1.1rem; color: var(--color-navy); background: var(--color-background); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 1.25rem;">${q.mathFormula}</div>` : ''}
             </div>
-            <h3 style="font-size: 1.15rem; color: var(--color-navy); margin: 0 0 0.5rem 0;">
-              ${q.prompt}
-            </h3>
-            ${q.mathFormula ? `<div style="font-family: var(--font-mono); font-size: 1.1rem; color: var(--color-navy); background: var(--color-background); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 1.25rem;">${q.mathFormula}</div>` : ''}
-          </div>
 
-          <div style="display: flex; flex-direction: column; gap: 0.75rem;" id="quiz-options-group">
-            ${q.options.map((opt, optIdx) => `
-              <button class="quiz-option-btn" onclick="submitQuizAnswer(${optIdx}, ${q.correctIndex})">
-                <span style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--color-border); display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;">${String.fromCharCode(65 + optIdx)}</span>
-                <span>${opt}</span>
-              </button>
-            `).join('')}
-          </div>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;" id="quiz-options-group">
+              ${q.options.map((opt, optIdx) => `
+                <button class="quiz-option-btn" onclick="submitQuizAnswer(${optIdx}, ${q.correctIndex})">
+                  <span style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--color-border); display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;">${String.fromCharCode(65 + optIdx)}</span>
+                  <span>${escapeHtml(opt)}</span>
+                </button>
+              `).join('')}
+            </div>
 
-          <div id="quiz-feedback-banner" style="display: none;"></div>
-        `;
-      } else {
-        quizEl.innerHTML = `<p style="color: var(--color-text-secondary);">No checkpoint question configured for this lesson.</p>`;
+            <div id="quiz-feedback-banner" style="display: none;"></div>
+          `;
+        } else {
+          quizEl.innerHTML = `<p style="color: var(--color-text-secondary);">No checkpoint question configured for this lesson.</p>`;
+        }
       }
 
       // Typeset formulas with KaTeX if loaded
@@ -963,10 +1248,12 @@
       renderMathElements();
     }
 
+    // Checkpoint Quiz submission: formative practice self-check only
     function submitQuizAnswer(selectedIndex, correctIndex) {
       const buttons = document.querySelectorAll("#quiz-options-group .quiz-option-btn");
       const feedbackBanner = document.getElementById("quiz-feedback-banner");
       const lecture = getActiveLectures()[activeLectureIndex];
+      if (!lecture || !lecture.quiz) return;
 
       buttons.forEach((btn, idx) => {
         btn.disabled = true;
@@ -977,49 +1264,149 @@
         }
       });
 
+      if (!feedbackBanner) return;
       if (selectedIndex === correctIndex) {
         feedbackBanner.className = "quiz-feedback-banner success";
         feedbackBanner.innerHTML = `
-          <strong>🎉 Correct! Excellent mathematical reasoning! (+25 XP)</strong>
-          <span>${lecture.quiz.explanation}</span>
+          <strong>🎉 Correct! Excellent mathematical reasoning!</strong>
+          <span>${escapeHtml(lecture.quiz.explanation)}</span>
         `;
-        AppState.awardXP(25);
-        document.getElementById("study-xp-chip").textContent = `⚡ +${AppState.xp} XP`;
       } else {
         feedbackBanner.className = "quiz-feedback-banner danger";
         feedbackBanner.innerHTML = `
           <strong>💡 Not quite right. Keep practicing!</strong>
-          <span>${lecture.quiz.explanation}</span>
+          <span>${escapeHtml(lecture.quiz.explanation)}</span>
         `;
       }
       feedbackBanner.style.display = "flex";
       renderMathElements();
     }
 
-    function toggleCurrentLessonCompletion() {
-      const lessonId = `lec-${activeLectureIndex}`;
-      const didComplete = AppState.toggleLessonComplete(activeCourse.id, lessonId);
-      
-      updateCompleteButtonState();
-      renderSidebarPlaylist();
-      updateMasteryProgressUI();
+    // Toggle Lesson Completion via POST /api/student/progress/toggle-lesson
+    async function toggleLessonCompletion(targetIndex) {
+      if (isTogglingCompletion) return;
+
+      const lectures = getActiveLectures();
+      if (targetIndex < 0 || targetIndex >= lectures.length) return;
+      const lecture = lectures[targetIndex];
+
+      if (!lecture || !lecture.id || typeof lecture.id !== 'string' || !lecture.id.trim()) {
+        showProgressFeedback("Cannot update progress: invalid lecture record.", "error");
+        return;
+      }
+
+      if (!activeCourse || !activeCourse.id) {
+        showProgressFeedback("Cannot update progress: invalid course.", "error");
+        return;
+      }
+
+      if (!window.ZiglagAPI || typeof window.ZiglagAPI.post !== 'function') {
+        showProgressFeedback("API client unavailable. Please refresh.", "error");
+        return;
+      }
+
+      const currentlyCompleted = Boolean(serverProgressMap[lecture.id]?.is_completed);
+      const targetCompleted = !currentlyCompleted;
+
+      // Extract playback metrics safely as non-negative integers
+      const durationSeconds = parseDurationToSeconds(lecture.duration || lecture.length);
+      let positionSeconds = 0;
+      if (targetIndex === activeLectureIndex) {
+        const actualPlayer = document.getElementById("actual-video-player");
+        if (actualPlayer && !isNaN(actualPlayer.currentTime) && actualPlayer.currentTime > 0) {
+          positionSeconds = Math.max(0, Math.floor(actualPlayer.currentTime));
+        }
+      }
+      if (durationSeconds > 0 && positionSeconds > durationSeconds) {
+        positionSeconds = durationSeconds;
+      }
+
+      const payload = {
+        course_id: activeCourse.id,
+        lecture_id: lecture.id,
+        is_completed: targetCompleted,
+        last_position_seconds: positionSeconds,
+        total_duration_seconds: durationSeconds
+      };
+
+      isTogglingCompletion = true;
+      setToggleButtonsDisabled(true);
+
+      try {
+        const res = await window.ZiglagAPI.post('/api/student/progress/toggle-lesson', payload);
+
+        if (res && res.success && res.progress) {
+          const serverCompleted = Boolean(res.progress.is_completed);
+          serverProgressMap[lecture.id] = {
+            is_completed: serverCompleted,
+            last_position_seconds: res.progress.last_position_seconds || 0,
+            total_duration_seconds: res.progress.total_duration_seconds || 0,
+            view_count: res.progress.view_count || 0,
+            xp_awarded: res.progress.xp_awarded || 0
+          };
+
+          const xpAwarded = res.xp_awarded_this_request || 0;
+          if (xpAwarded > 0) {
+            currentStudentTotalXP += xpAwarded;
+            const xpEl = document.getElementById("study-xp-chip");
+            if (xpEl) xpEl.textContent = `⚡ ${currentStudentTotalXP} XP`;
+            showProgressFeedback(`🎉 +${xpAwarded} XP Awarded! Lesson Completed!`, "success");
+          } else if (serverCompleted) {
+            showProgressFeedback("✓ Lesson marked as complete (0 XP — already awarded previously).", "info");
+          } else {
+            showProgressFeedback("Lesson marked as incomplete.", "info");
+          }
+
+          // Update UI
+          updateCompleteButtonState();
+          renderSidebarPlaylist();
+          updateMasteryProgressUI();
+
+          // Refresh dashboard in background to maintain platform-wide state
+          refreshDashboardInBackground();
+        } else {
+          showProgressFeedback("Failed to update lesson progress. Please try again.", "error");
+        }
+      } catch (err) {
+        console.error("[Course Player] toggle-lesson failed:", err);
+        if (err && err.status === 401) {
+          // ZiglagAPI will redirect to login.html
+          return;
+        }
+        const errMsg = (err && err.data && err.data.message) || "Failed to update lesson progress. Please check connection.";
+        showProgressFeedback(errMsg, "error");
+      } finally {
+        isTogglingCompletion = false;
+        setToggleButtonsDisabled(false);
+      }
     }
 
+    function toggleCurrentLessonCompletion() {
+      return toggleLessonCompletion(activeLectureIndex);
+    }
+
+    function toggleLessonFromSidebar(idx) {
+      return toggleLessonCompletion(idx);
+    }
+
+    // Updates top Mark Complete button state from authoritative serverProgressMap
     function updateCompleteButtonState() {
-      const lessonId = `lec-${activeLectureIndex}`;
-      const isDone = AppState.isLessonComplete(activeCourse.id, lessonId);
+      const lectures = getActiveLectures();
+      const lecture = lectures[activeLectureIndex];
+      const isDone = lecture ? Boolean(serverProgressMap[lecture.id]?.is_completed) : false;
       const btn = document.getElementById("btn-toggle-complete");
       const icon = document.getElementById("complete-toggle-icon");
       const label = document.getElementById("complete-toggle-label");
 
+      if (!btn) return;
       if (isDone) {
         btn.classList.add("completed");
-        icon.textContent = "✓";
-        label.textContent = "Completed (Click to Reset)";
+        if (icon) icon.textContent = "✓";
+        if (label) label.textContent = "Completed (Click to Reset)";
       } else {
         btn.classList.remove("completed");
-        icon.textContent = "✓";
-        label.textContent = "Mark as Complete";
+        if (icon) icon.textContent = "✓";
+        if (label) label.textContent = "Mark as Complete";
       }
     }
 
@@ -1041,28 +1428,31 @@
       }
     }
 
+    // Render Sidebar Curriculum Playlist with genuine server-confirmed checkmarks
     function renderSidebarPlaylist() {
       const container = document.getElementById("sidebar-playlist-container");
+      if (!container) return;
       const lectures = getActiveLectures();
-      document.getElementById("sidebar-lecture-count").textContent = `${lectures.length} Lessons`;
+      const countEl = document.getElementById("sidebar-lecture-count");
+      if (countEl) countEl.textContent = `${lectures.length} Lessons`;
 
       container.innerHTML = lectures.map((lec, idx) => {
-        const isCompleted = AppState.isLessonComplete(activeCourse.id, `lec-${idx}`);
+        const isCompleted = Boolean(serverProgressMap[lec.id]?.is_completed);
         const isActive = (idx === activeLectureIndex);
 
         return `
           <div class="sidebar-lesson-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" onclick="loadLecture(${idx})">
-            <div class="sidebar-check-box" onclick="event.stopPropagation(); toggleLessonFromSidebar(${idx})">
+            <div class="sidebar-check-box" onclick="event.stopPropagation(); toggleLessonFromSidebar(${idx})" title="${isCompleted ? 'Completed (Click to Reset)' : 'Mark as Complete'}">
               ${isCompleted ? '✓' : ''}
             </div>
             <div style="flex: 1; overflow: hidden;">
               <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${lec.title}
+                ${escapeHtml(lec.title)}
               </div>
               <div style="font-size: 0.75rem; color: var(--color-text-secondary); display: flex; align-items: center; gap: 0.5rem; margin-top: 0.15rem;">
-                <span>⏱️ ${lec.length}</span>
+                <span>⏱️ ${escapeHtml(lec.length || lec.duration || '15:00')}</span>
                 <span>•</span>
-                <span>${lec.topic}</span>
+                <span>${escapeHtml(lec.topic || 'Core Mathematics')}</span>
               </div>
             </div>
           </div>
@@ -1081,18 +1471,17 @@
       });
     }
 
-    function toggleLessonFromSidebar(idx) {
-      AppState.toggleLessonComplete(activeCourse.id, `lec-${idx}`);
-      renderSidebarPlaylist();
-      updateCompleteButtonState();
-      updateMasteryProgressUI();
-    }
-
+    // Updates Course Mastery progress summary & percentage
     function updateMasteryProgressUI() {
       const lectures = getActiveLectures();
       const total = lectures.length;
-      const completed = AppState.getCompletedCount(activeCourse.id);
-      const percent = Math.min(100, Math.round((completed / total) * 100));
+      let completed = 0;
+      lectures.forEach(l => {
+        if (serverProgressMap[l.id]?.is_completed) {
+          completed++;
+        }
+      });
+      const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
 
       const textEl = document.getElementById("study-progress-text");
       const barEl = document.getElementById("study-progress-bar");
@@ -1100,7 +1489,74 @@
 
       if (textEl) textEl.innerHTML = `<strong>${completed}</strong> of ${total} Lessons (${percent}%)`;
       if (barEl) barEl.style.width = `${percent}%`;
-      if (xpEl) xpEl.textContent = `⚡ +${AppState.xp} XP`;
+      if (xpEl) xpEl.textContent = `⚡ ${currentStudentTotalXP} XP`;
+
+      updateProgressBadge();
+    }
+
+    function updateProgressBadge() {
+      const badge = document.getElementById("lesson-progress-badge");
+      if (!badge) return;
+      const lectures = getActiveLectures();
+      const total = lectures.length;
+      let completed = 0;
+      lectures.forEach(l => {
+        if (serverProgressMap[l.id]?.is_completed) {
+          completed++;
+        }
+      });
+      const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
+      badge.textContent = `Lesson ${activeLectureIndex + 1} of ${total} · ${percent}% Completed`;
+    }
+
+    function setToggleButtonsDisabled(disabled) {
+      const btn = document.getElementById("btn-toggle-complete");
+      if (btn) btn.disabled = disabled;
+      const sideChecks = document.querySelectorAll(".sidebar-check-box");
+      sideChecks.forEach(cb => {
+        cb.style.pointerEvents = disabled ? 'none' : 'auto';
+        cb.style.opacity = disabled ? '0.6' : '1';
+      });
+    }
+
+    function showProgressFeedback(msg, type) {
+      const fb = document.getElementById("lesson-progress-feedback");
+      if (!fb) return;
+      fb.style.display = "inline-flex";
+      fb.textContent = msg;
+      if (type === "success") {
+        fb.style.background = "rgba(16, 185, 129, 0.15)";
+        fb.style.border = "1px solid rgba(16, 185, 129, 0.35)";
+        fb.style.color = "#047857";
+      } else if (type === "error") {
+        fb.style.background = "rgba(239, 68, 68, 0.15)";
+        fb.style.border = "1px solid rgba(239, 68, 68, 0.35)";
+        fb.style.color = "#b91c1c";
+      } else {
+        fb.style.background = "rgba(21, 154, 156, 0.12)";
+        fb.style.border = "1px solid rgba(21, 154, 156, 0.35)";
+        fb.style.color = "var(--color-navy)";
+      }
+    }
+
+    function clearProgressFeedback() {
+      const fb = document.getElementById("lesson-progress-feedback");
+      if (fb) {
+        fb.style.display = "none";
+        fb.textContent = "";
+      }
+    }
+
+    function refreshDashboardInBackground() {
+      if (window.ZiglagAPI && typeof window.ZiglagAPI.get === 'function') {
+        window.ZiglagAPI.get('/api/student/dashboard-summary').then(summary => {
+          if (summary && summary.stats && typeof summary.stats.total_xp === 'number') {
+            currentStudentTotalXP = summary.stats.total_xp;
+            const xpEl = document.getElementById("study-xp-chip");
+            if (xpEl) xpEl.textContent = `⚡ ${currentStudentTotalXP} XP`;
+          }
+        }).catch(() => {});
+      }
     }
 
     function insertMathSymbol(sym) {

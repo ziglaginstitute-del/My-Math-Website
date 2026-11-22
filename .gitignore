@@ -2,6 +2,7 @@
 .env
 instance/
 math_portal.db
+backups/
 assets/community_uploads/*
 !assets/community_uploads/.gitkeep
 assets/vault_pdfs/*

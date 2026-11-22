@@ -220,6 +220,133 @@
       opacity: 1;
     }
 
+    /* Phase 6.5.4: Achievements & Milestones Showcase Styles */
+    .achievement-tabs-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 0.75rem;
+    }
+
+    .achievement-tab-btn {
+      padding: 0.45rem 0.85rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .achievement-tab-btn:hover {
+      background: var(--color-surface-subtle);
+      color: var(--color-navy);
+      border-color: var(--color-teal);
+    }
+
+    .achievement-tab-btn.active {
+      background: var(--color-teal);
+      color: #ffffff;
+      border-color: var(--color-teal);
+      box-shadow: 0 2px 6px rgba(21, 154, 156, 0.25);
+    }
+
+    .achievement-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.15rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      min-width: 0;
+      position: relative;
+    }
+
+    .achievement-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .achievement-card.unlocked {
+      background: linear-gradient(135deg, rgba(21, 154, 156, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%);
+      border-color: rgba(21, 154, 156, 0.35);
+    }
+
+    [data-theme="dark"] .achievement-card.unlocked {
+      background: linear-gradient(135deg, rgba(21, 154, 156, 0.18) 0%, rgba(24, 32, 47, 0.9) 100%);
+      border-color: rgba(21, 154, 156, 0.45);
+    }
+
+    .achievement-card.unlocked .milestone-icon {
+      filter: grayscale(0);
+      opacity: 1;
+    }
+
+    .achievement-card.locked {
+      opacity: 0.85;
+      background: var(--color-surface-subtle);
+    }
+
+    .achievement-card.locked .milestone-icon {
+      filter: grayscale(1);
+      opacity: 0.45;
+    }
+
+    .next-milestone-banner {
+      background: linear-gradient(135deg, rgba(21, 154, 156, 0.12) 0%, rgba(16, 42, 67, 0.04) 100%);
+      border: 1px solid rgba(21, 154, 156, 0.35);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+
+    /* Milestone Toast Notification */
+    .milestone-toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 10005;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-width: 380px;
+      width: calc(100vw - 3rem);
+      pointer-events: none;
+    }
+
+    .milestone-toast {
+      background: var(--color-surface);
+      border: 1px solid rgba(21, 154, 156, 0.4);
+      border-left: 4px solid var(--color-teal);
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 24px rgba(16, 42, 67, 0.18);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      pointer-events: auto;
+      animation: milestoneSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes milestoneSlideIn {
+      from { transform: translateX(110%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
     /* Modal for Profile Edit */
     .profile-modal-overlay {
       position: fixed;
@@ -247,6 +374,745 @@
     [data-theme="dark"] .profile-modal-card {
       background: var(--color-surface);
       color: #FFFFFF;
+    }
+
+    /* ======================================================================
+       PHASE 6.5.3: STUDENT LEARNING ANALYTICS & RECOMMENDATIONS STYLES
+       ====================================================================== */
+    .dash-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .dash-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .dash-section-title {
+      margin: 0.25rem 0 0 0;
+      font-size: 1.6rem;
+      color: var(--color-navy);
+      font-family: var(--font-display);
+      font-weight: 700;
+    }
+
+    [data-theme="dark"] .dash-section-title {
+      color: #FFFFFF;
+    }
+
+    /* Common Empty State Card */
+    .dash-empty-card {
+      background: var(--color-surface-subtle);
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+
+    [data-theme="dark"] .dash-empty-card {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Task 3: Study Habits & Consistency Grid */
+    .dash-habits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .dash-habit-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+
+    .dash-habit-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-teal);
+    }
+
+    [data-theme="dark"] .dash-habit-card {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .dash-habit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dash-habit-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-secondary);
+    }
+
+    .dash-habit-icon {
+      font-size: 1.25rem;
+    }
+
+    .dash-habit-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--color-navy);
+      font-family: var(--font-display);
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    [data-theme="dark"] .dash-habit-value {
+      color: #FFFFFF;
+    }
+
+    .dash-habit-subval {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .dash-habit-detail {
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--color-teal);
+    }
+
+    .dash-habit-desc {
+      font-size: 0.775rem;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    /* Task 2: Topic Mastery Grid */
+    .dash-topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .dash-topic-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+
+    .dash-topic-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    [data-theme="dark"] .dash-topic-card {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .dash-topic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .dash-topic-title {
+      font-size: 0.975rem;
+      font-weight: 700;
+      color: var(--color-navy);
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    [data-theme="dark"] .dash-topic-title {
+      color: #FFFFFF;
+    }
+
+    .dash-topic-badge {
+      font-size: 0.725rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .topic-status-strong {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10B981;
+    }
+
+    .topic-status-moderate {
+      background: rgba(37, 99, 235, 0.12);
+      color: #2563EB;
+    }
+
+    .topic-status-needs-practice {
+      background: rgba(234, 88, 12, 0.12);
+      color: #EA580C;
+    }
+
+    .dash-topic-bar-bg {
+      background: var(--color-surface-subtle);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .dash-topic-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .dash-topic-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.775rem;
+      color: var(--color-text-secondary);
+    }
+
+    /* Task 1: Personalised Recommendations Grid */
+    .dash-recs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .dash-rec-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.25rem;
+      transition: all var(--transition-normal);
+      position: relative;
+    }
+
+    .dash-rec-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    [data-theme="dark"] .dash-rec-card {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .rec-card-remedial {
+      border-left: 4px solid #EA580C;
+    }
+
+    .rec-card-next {
+      border-left: 4px solid #0D9488;
+    }
+
+    .rec-card-revision {
+      border-left: 4px solid #6366F1;
+    }
+
+    .dash-rec-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-pill);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .rec-badge-remedial {
+      background: rgba(234, 88, 12, 0.12);
+      color: #EA580C;
+    }
+
+    .rec-badge-next {
+      background: rgba(13, 148, 136, 0.12);
+      color: #0D9488;
+    }
+
+    .rec-badge-revision {
+      background: rgba(99, 102, 241, 0.12);
+      color: #6366F1;
+    }
+
+    .dash-rec-topic {
+      font-size: 0.775rem;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      background: var(--color-surface-subtle);
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .dash-rec-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--color-navy);
+      margin: 0.35rem 0 0.2rem 0;
+      line-height: 1.35;
+    }
+
+    [data-theme="dark"] .dash-rec-title {
+      color: #FFFFFF;
+    }
+
+    .dash-rec-course {
+      font-size: 0.825rem;
+      color: var(--color-text-secondary);
+    }
+
+    .dash-rec-reason {
+      font-size: 0.825rem;
+      background: var(--color-surface-subtle);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+      color: var(--color-text-main);
+      line-height: 1.45;
+      margin-top: 0.6rem;
+    }
+
+    [data-theme="dark"] .dash-rec-reason {
+      background: rgba(255, 255, 255, 0.04);
+      color: #E2E8F0;
+    }
+
+    .dash-rec-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      border-top: 1px solid var(--color-border);
+      padding-top: 0.85rem;
+    }
+
+    /* Task 5: Diagnostic Learning Progress Styles */
+    .dash-diag-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .dash-diag-metric-box {
+      background: var(--color-surface-subtle);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    [data-theme="dark"] .dash-diag-metric-box {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .dash-diag-metric-lbl {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-secondary);
+    }
+
+    .dash-diag-metric-val {
+      font-size: 1.65rem;
+      font-weight: 800;
+      font-family: var(--font-display);
+    }
+
+    .dash-diag-metric-sub {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+    }
+
+    .dash-diag-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .dash-diag-detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dash-diag-breakdown-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    [data-theme="dark"] .dash-diag-breakdown-card {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .diag-chip-strength {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      font-size: 0.85rem;
+      color: var(--color-navy);
+    }
+
+    [data-theme="dark"] .diag-chip-strength {
+      color: #FFFFFF;
+    }
+
+    .diag-chip-weakness {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      background: rgba(234, 88, 12, 0.08);
+      border: 1px solid rgba(234, 88, 12, 0.25);
+      font-size: 0.85rem;
+      color: var(--color-navy);
+    }
+
+    [data-theme="dark"] .diag-chip-weakness {
+      color: #FFFFFF;
+    }
+
+    .dash-diag-invite-card {
+      background: linear-gradient(135deg, rgba(21, 154, 156, 0.08) 0%, rgba(249, 115, 22, 0.08) 100%);
+      border: 1px solid rgba(21, 154, 156, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+    }
+
+    [data-theme="dark"] .dash-diag-invite-card {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .dash-diag-invite-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--color-teal);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      flex-shrink: 0;
+    }
+
+    /* Task 4: 30-Day Activity History Styles */
+    .dash-activity-summary-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .dash-activity-stat-pill {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    [data-theme="dark"] .dash-activity-stat-pill {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .dash-activity-stat-lbl {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.04em;
+    }
+
+    .dash-activity-stat-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--color-navy);
+      font-family: var(--font-display);
+    }
+
+    [data-theme="dark"] .dash-activity-stat-val {
+      color: #FFFFFF;
+    }
+
+    .dash-activity-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    [data-theme="dark"] .dash-activity-card {
+      background: var(--color-surface);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .dash-activity-chart-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 0.5rem;
+    }
+
+    .dash-activity-timeline-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 120px;
+      min-width: 580px;
+      padding: 0.5rem 0.25rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .dash-day-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .dash-day-bar-container {
+      width: 100%;
+      max-width: 18px;
+      height: calc(100% - 18px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .dash-day-bar {
+      width: 100%;
+      border-radius: 3px 3px 1px 1px;
+      transition: height 0.4s ease, transform var(--transition-fast);
+    }
+
+    .dash-day-col:hover .dash-day-bar {
+      transform: scaleY(1.08);
+      filter: brightness(1.15);
+    }
+
+    .dash-day-lbl {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      height: 14px;
+      line-height: 14px;
+      text-align: center;
+    }
+
+    .dash-activity-legend {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.775rem;
+      color: var(--color-text-secondary);
+      flex-wrap: wrap;
+    }
+
+    .dash-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .dash-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    .dash-legend-dot.active {
+      background: var(--color-teal);
+    }
+
+    .dash-legend-dot.inactive {
+      background: var(--color-border);
+    }
+
+    /* Complete Responsive Viewport Hardening (375px Mobile Viewport) */
+    .dashboard-layout {
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+    }
+
+    .dashboard-layout > * {
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .dash-section,
+    .dash-section > * {
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0.75rem 1rem;
+        box-sizing: border-box;
+      }
+
+      .navbar-actions a.btn {
+        display: none; /* Hide secondary link in compact mobile navbar */
+      }
+
+      .dashboard-layout {
+        padding: 1.5rem 1rem 4rem 1rem;
+        gap: 1.75rem;
+        overflow-x: hidden;
+      }
+
+      .dash-welcome-card {
+        padding: 1.75rem 1.25rem;
+      }
+
+      .dash-metrics-grid,
+      .dash-habits-grid,
+      .dash-topic-grid,
+      .dash-recs-grid,
+      #dash-courses-grid,
+      .dash-diag-detail-grid,
+      .dash-diag-summary-grid,
+      .dashboard-layout div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      .dash-activity-summary-row {
+        grid-template-columns: 1fr 1fr !important;
+      }
+
+      .dash-section-title {
+        font-size: 1.35rem;
+      }
+
+      .dash-activity-card {
+        overflow: hidden;
+        min-width: 0;
+      }
+
+      .dash-diag-invite-card {
+        padding: 1.5rem 1.25rem;
+      }
+
+      .dash-diag-invite-card div[style*="min-width: 250px"] {
+        min-width: 0 !important;
+      }
+
+      .achievement-tabs-bar {
+        gap: 0.35rem;
+      }
+
+      .achievement-tab-btn {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+      }
+
+      .next-milestone-banner {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .milestone-toast-container {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+        width: auto;
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      html, body {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+        width: 100% !important;
+      }
+
+      .app-container {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+        width: 100% !important;
+      }
+
+      .navbar {
+        padding: 0.6rem 0.75rem;
+      }
+
+      .logo span {
+        font-size: 0.95rem;
+      }
+
+      .dashboard-layout {
+        padding: 1.25rem 0.75rem 3.5rem 0.75rem;
+      }
+
+      .dash-metric-card,
+      .dash-habit-card,
+      .dash-topic-card,
+      .dash-rec-card,
+      .dash-activity-card,
+      .dash-resume-card {
+        padding: 1.25rem 1rem;
+      }
+
+      .dash-activity-summary-row {
+        grid-template-columns: 1fr !important;
+      }
     }
   </style>
 </head>
@@ -296,6 +1162,21 @@
          ====================================================================== -->
     <main class="dashboard-layout">
 
+      <!-- Dynamic Notification & Loading State Banners -->
+      <div id="dash-error-banner" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid #EF4444; color: #EF4444; padding: 1rem 1.5rem; border-radius: var(--radius-md); justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: -1rem;">
+        <div>
+          <strong>⚠️ Unable to load dashboard data:</strong>
+          <span id="dash-error-msg" style="margin-left: 0.25rem;">Network or server error.</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadDashboardSummary()" style="color: #EF4444; border-color: #EF4444; padding: 0.25rem 0.75rem; font-size: 0.8rem;">
+          Retry ↺
+        </button>
+      </div>
+
+      <div id="dash-loading-indicator" style="display: none; background: var(--color-surface-subtle); border: 1px solid var(--color-border); padding: 0.75rem 1.25rem; border-radius: var(--radius-md); text-align: center; color: var(--color-teal); font-weight: 600; font-size: 0.875rem; margin-bottom: -1rem;">
+        ⏳ Synchronizing real student progress with server...
+      </div>
+
       <!-- 1. Welcome Message & Student Profile -->
       <div class="dash-welcome-card">
         <div class="dash-profile-meta">
@@ -320,10 +1201,10 @@
 
         <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
           <div class="hub-xp-chip" style="font-size: 0.95rem; padding: 0.45rem 1rem;" id="dash-streak-pill" title="Active Study Streak">
-            🔥 <span id="dash-streak-count">1</span>-Day Streak
+            🔥 <span id="dash-streak-count">0</span>-Day Streak
           </div>
           <div class="hub-xp-chip" style="font-size: 0.95rem; padding: 0.45rem 1rem; background: var(--color-orange-soft); color: var(--color-orange);" id="dash-xp-pill">
-            ⚡ <span id="dash-xp-count">350</span> XP
+            ⚡ <span id="dash-xp-count">0</span> XP
           </div>
         </div>
       </div>
@@ -341,7 +1222,7 @@
             <div id="dash-overall-bar" style="background: linear-gradient(90deg, var(--color-teal), var(--color-orange)); width: 0%; height: 100%; border-radius: 4px; transition: width 0.5s ease;"></div>
           </div>
           <span style="font-size: 0.8rem; color: var(--color-text-secondary);" id="dash-completed-subtext">
-            0 of 32 syllabus lectures completed
+            Loading enrolled course progress...
           </span>
         </div>
 
@@ -351,18 +1232,18 @@
             <span>WEEKLY ACTIVITY</span>
             <span style="color: var(--color-orange);">🔥 Study Streak</span>
           </div>
-          <div class="dash-metric-value" id="dash-active-days">1 Day</div>
+          <div class="dash-metric-value" id="dash-active-days">0 Days</div>
           <!-- 7-Day Dots -->
           <div class="hub-day-dots" style="margin-top: 0.4rem;" id="dash-week-dots">
-            <span class="hub-day-dot done" title="Monday">M ✓</span>
-            <span class="hub-day-dot today" title="Tuesday">T</span>
+            <span class="hub-day-dot" title="Monday">M</span>
+            <span class="hub-day-dot" title="Tuesday">T</span>
             <span class="hub-day-dot" title="Wednesday">W</span>
             <span class="hub-day-dot" title="Thursday">T</span>
             <span class="hub-day-dot" title="Friday">F</span>
             <span class="hub-day-dot" title="Saturday">S</span>
             <span class="hub-day-dot" title="Sunday">S</span>
           </div>
-          <span style="font-size: 0.8rem; color: var(--color-text-secondary);">Target: 5 study days per week</span>
+          <span style="font-size: 0.8rem; color: var(--color-text-secondary);" id="dash-today-study-subtext">Today: 0m studied · Target: 5 study days per week</span>
         </div>
 
         <!-- Metric 3: Diagnostic Assessment Status -->
@@ -371,9 +1252,9 @@
             <span>DIAGNOSTIC STATUS</span>
             <span style="color: #10B981;">🎯 Baseline</span>
           </div>
-          <div class="dash-metric-value" id="dash-diag-score">80%</div>
-          <span style="font-size: 0.8rem; color: #10B981; font-weight: 600;" id="dash-diag-status">
-            Proficient in Number Bases & Algebra
+          <div class="dash-metric-value" id="dash-diag-score">—</div>
+          <span style="font-size: 0.8rem; color: var(--color-text-secondary); font-weight: 600;" id="dash-diag-status">
+            Diagnostic assessment pending
           </span>
           <a href="#diagnostic" class="btn btn-secondary btn-sm" style="margin-top: 0.25rem; font-size: 0.78rem; justify-content: center;">
             Take Skill Checkpoint ➜
@@ -386,7 +1267,7 @@
             <span>TARGET MILESTONE</span>
             <span style="color: var(--color-navy);">⏳ Countdown</span>
           </div>
-          <div class="dash-metric-value" id="dash-countdown-days">WASSCE 2026</div>
+          <div class="dash-metric-value" id="dash-countdown-days">Exam Target</div>
           <span style="font-size: 0.8rem; color: var(--color-text-secondary);">
             Complete core topics to ensure distinction
           </span>
@@ -396,78 +1277,251 @@
         </div>
       </div>
 
-      <!-- 3. Split Layout: Recently Accessed & Recommended Next Lessons -->
-      <div class="dash-split-grid">
-        <!-- Left: Continue Learning (Recently Accessed) -->
-        <div class="dash-resume-card">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span class="hub-level-chip" style="background: var(--color-teal-soft); color: var(--color-teal);">▶ Jump Back In</span>
-              <h3 style="font-size: 1.25rem; margin: 0; color: var(--color-navy);">Recently Accessed Lesson</h3>
-            </div>
-            <span style="font-size: 0.8rem; color: var(--color-text-secondary);" id="recent-timestamp">Active Session</span>
+      <!-- ======================================================================
+           2. STUDY HABITS & CONSISTENCY (PHASE 6.5.3 TASK 3)
+           ====================================================================== -->
+      <section class="dash-section" id="section-study-habits" aria-labelledby="heading-study-habits">
+        <div class="dash-section-header">
+          <div>
+            <span class="section-subtitle">Study Habits &amp; Consistency</span>
+            <h2 id="heading-study-habits" class="dash-section-title">Verified Study Telemetry &amp; Routine</h2>
           </div>
+          <span class="hub-level-chip" style="background: var(--color-teal-soft); color: var(--color-teal);">
+            ⏱️ Lagos Calendar Time (WAT)
+          </span>
+        </div>
 
-          <div style="background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
-            <span class="pathway-badge" id="recent-course-badge">WASSCE & NECO Preparation</span>
-            <h4 style="font-size: 1.15rem; margin: 0; color: var(--color-navy);" id="recent-lesson-title">
-              L1: Introduction and Conversion to Base 10
-            </h4>
-            <p style="font-size: 0.9rem; margin: 0;" id="recent-lesson-desc">
-              Foundational conversion mechanics from base 2, 5, and 8 into decimal notation with worked step-by-step WAEC past questions.
+        <div class="dash-habits-grid">
+          <!-- Habit 1: Consistency Index -->
+          <div class="dash-habit-card">
+            <div class="dash-habit-header">
+              <span class="dash-habit-label">Consistency Index</span>
+              <span class="dash-habit-icon">📅</span>
+            </div>
+            <div class="dash-habit-value">
+              <span id="habit-consistency-14d">0%</span>
+              <span class="dash-habit-subval" id="habit-consistency-30d">/ 0% (30d)</span>
+            </div>
+            <div class="dash-habit-detail" id="habit-active-days-summary">
+              0 of 14 active days (14d) · 0 of 30 days (30d)
+            </div>
+            <p class="dash-habit-desc">
+              Ratio of calendar days with verified study sessions over rolling 14 and 30 day windows.
             </p>
-            <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
-              <span>⏱️ 30 mins</span>
-              <span>📹 Video + Worked Examples</span>
-              <span>🏷️ Topic: Number Bases</span>
-            </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-primary" id="btn-resume-lesson">
-              Resume Lesson ➜
-            </a>
-            <span style="font-size: 0.85rem; color: var(--color-text-secondary);">
-              Next Up: <strong>L2: Conversion from Base 10 to Other Bases</strong>
-            </span>
+          <!-- Habit 2: Attentiveness Score (Guard against 0 sessions) -->
+          <div class="dash-habit-card">
+            <div class="dash-habit-header">
+              <span class="dash-habit-label">Attentiveness Score</span>
+              <span class="dash-habit-icon">🎯</span>
+            </div>
+            <div class="dash-habit-value" id="habit-attentiveness-score">
+              Not enough data
+            </div>
+            <div class="dash-habit-detail" id="habit-attentiveness-detail">
+              Verified focus ratio
+            </div>
+            <p class="dash-habit-desc" id="habit-attentiveness-desc">
+              Ratio of active user engagement versus total duration across recorded study sessions.
+            </p>
+          </div>
+
+          <!-- Habit 3: Verified Study Duration -->
+          <div class="dash-habit-card">
+            <div class="dash-habit-header">
+              <span class="dash-habit-label">Verified Duration</span>
+              <span class="dash-habit-icon">⏱️</span>
+            </div>
+            <div class="dash-habit-value">
+              <span id="habit-today-duration">0m</span>
+              <span class="dash-habit-subval" id="habit-weekly-duration">/ 0h week</span>
+            </div>
+            <div class="dash-habit-detail" id="habit-duration-detail">
+              Today: 0m · This week: 0m
+            </div>
+            <p class="dash-habit-desc">
+              Total active study time tracked and verified on server for today and the current Lagos calendar week.
+            </p>
+          </div>
+
+          <!-- Habit 4: Study Streaks -->
+          <div class="dash-habit-card">
+            <div class="dash-habit-header">
+              <span class="dash-habit-label">Active Streak</span>
+              <span class="dash-habit-icon">🔥</span>
+            </div>
+            <div class="dash-habit-value">
+              <span id="habit-current-streak">0 Days</span>
+              <span class="dash-habit-subval" id="habit-longest-streak">(Best: 0)</span>
+            </div>
+            <div class="dash-habit-detail" id="habit-streak-detail">
+              Current active consecutive days
+            </div>
+            <p class="dash-habit-desc">
+              Continuous consecutive study days without interruption. Keep your daily momentum going!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           3. TOPIC MASTERY WIDGET (PHASE 6.5.3 TASK 2)
+           ====================================================================== -->
+      <section class="dash-section" id="section-topic-mastery" aria-labelledby="heading-topic-mastery">
+        <div class="dash-section-header">
+          <div>
+            <span class="section-subtitle">Syllabus Mastery</span>
+            <h2 id="heading-topic-mastery" class="dash-section-title">Topic-Level Concept Proficiency</h2>
+          </div>
+          <span class="hub-level-chip" id="dash-topic-mastery-summary" style="background: var(--color-orange-soft); color: var(--color-orange);">
+            0 Topics Tracked
+          </span>
+        </div>
+
+        <div id="dash-topic-mastery-grid" class="dash-topic-grid">
+          <div style="grid-column: 1 / -1; background: var(--color-surface-subtle); border: 1px dashed var(--color-border); border-radius: var(--radius-md); padding: 2rem; text-align: center;">
+            <p style="color: var(--color-text-secondary); margin: 0;">⏳ Loading topic mastery analytics...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           4. PERSONALISED RECOMMENDATIONS (PHASE 6.5.3 TASK 1)
+           ====================================================================== -->
+      <section class="dash-section" id="section-recommendations" aria-labelledby="heading-recommendations">
+        <div class="dash-section-header">
+          <div>
+            <span class="section-subtitle">Personalised Guidance</span>
+            <h2 id="heading-recommendations" class="dash-section-title">Personalised Recommended Lessons</h2>
+          </div>
+          <span class="hub-level-chip" id="dash-recs-count" style="background: var(--color-teal-soft); color: var(--color-teal);">
+            Smart Recommendations
+          </span>
+        </div>
+
+        <div id="dash-recommendations-grid" class="dash-recs-grid">
+          <div style="grid-column: 1 / -1; background: var(--color-surface-subtle); border: 1px dashed var(--color-border); border-radius: var(--radius-md); padding: 2rem; text-align: center;">
+            <p style="color: var(--color-text-secondary); margin: 0;">⏳ Loading personalised recommendations...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           5. DIAGNOSTIC PROGRESS & SKILL TRAJECTORY (PHASE 6.5.3 TASK 5)
+           ====================================================================== -->
+      <section class="dash-section" id="section-diagnostic-progress" aria-labelledby="heading-diagnostic-progress">
+        <div class="dash-section-header">
+          <div>
+            <span class="section-subtitle">Diagnostic Trajectory</span>
+            <h2 id="heading-diagnostic-progress" class="dash-section-title">Diagnostic Skill Growth &amp; Roadblocks</h2>
+          </div>
+          <a href="#diagnostic" class="btn btn-secondary btn-sm" onclick="scrollToDiagnosticSection()">
+            🎯 Assessment Hall ➜
+          </a>
+        </div>
+
+        <div id="dash-diagnostic-progress-content">
+          <div style="background: var(--color-surface-subtle); border: 1px dashed var(--color-border); border-radius: var(--radius-md); padding: 2rem; text-align: center;">
+            <p style="color: var(--color-text-secondary); margin: 0;">⏳ Loading diagnostic trajectory analytics...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           6. 30-DAY ACTIVITY HISTORY VISUALISATION (PHASE 6.5.3 TASK 4)
+           ====================================================================== -->
+      <section class="dash-section" id="section-activity-history" aria-labelledby="heading-activity-history">
+        <div class="dash-section-header">
+          <div>
+            <span class="section-subtitle">Study Telemetry</span>
+            <h2 id="heading-activity-history" class="dash-section-title">30-Day Activity &amp; Focus Timeline</h2>
+          </div>
+          <span class="hub-level-chip" id="activity-hist-daterange" style="background: var(--color-surface-subtle); color: var(--color-text-secondary);">
+            Past 30 Days
+          </span>
+        </div>
+
+        <!-- Activity Summary Row -->
+        <div class="dash-activity-summary-row">
+          <div class="dash-activity-stat-pill">
+            <span class="dash-activity-stat-lbl">Active Days</span>
+            <strong class="dash-activity-stat-val" id="act-summary-days">0 / 30</strong>
+          </div>
+          <div class="dash-activity-stat-pill">
+            <span class="dash-activity-stat-lbl">Study Time</span>
+            <strong class="dash-activity-stat-val" id="act-summary-time">0h (0m)</strong>
+          </div>
+          <div class="dash-activity-stat-pill">
+            <span class="dash-activity-stat-lbl">XP Earned</span>
+            <strong class="dash-activity-stat-val" id="act-summary-xp">⚡ 0 XP</strong>
+          </div>
+          <div class="dash-activity-stat-pill">
+            <span class="dash-activity-stat-lbl">Lessons Completed</span>
+            <strong class="dash-activity-stat-val" id="act-summary-lessons">📚 0</strong>
           </div>
         </div>
 
-        <!-- Right: Recommended Next Lessons -->
-        <div class="dash-resume-card">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="font-size: 1.15rem; margin: 0; color: var(--color-navy);">Recommended Next</h3>
-            <span style="font-size: 0.75rem; color: var(--color-teal); font-weight: 700;">Smart Recommendation</span>
-          </div>
-
-          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
-            <!-- Rec 1 -->
-            <div style="padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-white); display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <strong style="font-size: 0.9rem; color: var(--color-navy); display: block;">Quadratic Equations & Roots</strong>
-                <span style="font-size: 0.78rem; color: var(--color-text-secondary);">Senior Secondary (SS2) • 25 mins</span>
-              </div>
-              <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-secondary btn-sm">Start</a>
-            </div>
-
-            <!-- Rec 2 -->
-            <div style="padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-white); display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <strong style="font-size: 0.9rem; color: var(--color-navy); display: block;">Indices & Logarithmic Shortcuts</strong>
-                <span style="font-size: 0.78rem; color: var(--color-text-secondary);">JAMB UTME Prep • 30 mins</span>
-              </div>
-              <a href="course-view.html?id=utme-postutme-prep" class="btn btn-secondary btn-sm">Start</a>
-            </div>
-
-            <!-- Rec 3 -->
-            <div style="padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-white); display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <strong style="font-size: 0.9rem; color: var(--color-navy); display: block;">Circle Theorems (Angle at Center)</strong>
-                <span style="font-size: 0.78rem; color: var(--color-text-secondary);">WASSCE Core • 20 mins</span>
-              </div>
-              <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-secondary btn-sm">Start</a>
+        <!-- Timeline Chart Card -->
+        <div class="dash-activity-card">
+          <div class="dash-activity-chart-wrapper" id="dash-activity-chart-wrapper">
+            <div id="dash-activity-timeline-chart" class="dash-activity-timeline-chart">
+              <p style="color: var(--color-text-secondary); text-align: center; margin: 2rem auto;">
+                ⏳ Loading 30-day activity history...
+              </p>
             </div>
           </div>
+          <div class="dash-activity-legend">
+            <div class="dash-legend-item">
+              <span class="dash-legend-dot active"></span>
+              <span>Active Study Day</span>
+            </div>
+            <div class="dash-legend-item">
+              <span class="dash-legend-dot inactive"></span>
+              <span>Inactive / Rest Day</span>
+            </div>
+            <div class="dash-legend-item" style="margin-left: auto;">
+              <span>Hover or tap bars for daily telemetry</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           7. ENROLLED COURSES & LEARNING HUB (PRESERVED SECTIONS)
+           ====================================================================== -->
+      <!-- Prominent Continue Learning Card (Recently Accessed) -->
+      <div class="dash-resume-card" id="dash-recent-lesson-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="hub-level-chip" style="background: var(--color-teal-soft); color: var(--color-teal);">▶ Jump Back In</span>
+            <h3 style="font-size: 1.25rem; margin: 0; color: var(--color-navy);">Recently Accessed Lesson</h3>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--color-text-secondary);" id="recent-timestamp">—</span>
+        </div>
+
+        <div style="background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+          <span class="pathway-badge" id="recent-course-badge">No Recent Activity</span>
+          <h4 style="font-size: 1.15rem; margin: 0; color: var(--color-navy);" id="recent-lesson-title">
+            Start Your Learning Journey
+          </h4>
+          <p style="font-size: 0.9rem; margin: 0;" id="recent-lesson-desc">
+            You have not opened any lectures yet. Explore your enrolled courses below to begin.
+          </p>
+          <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem; flex-wrap: wrap;">
+            <span>⏱️ Self-Paced</span>
+            <span>📹 Video + Worked Examples</span>
+            <span>🏷️ Academic Syllabus</span>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <a href="courses.html" class="btn btn-primary" id="btn-resume-lesson">
+            Explore Courses ➜
+          </a>
+          <span style="font-size: 0.85rem; color: var(--color-text-secondary);">
+            Select an enrolled course to begin studying
+          </span>
         </div>
       </div>
 
@@ -493,154 +1547,8 @@
 
         <!-- Dynamic Course Grid -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.75rem;" id="dash-courses-grid">
-          <!-- Course Card 1: WASSCE Prep -->
-          <div class="course-card-dash" data-level="wassce sss">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <span class="pathway-badge" style="background: var(--color-orange-soft); color: var(--color-orange);">WASSCE Core</span>
-                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">6 Lectures • 30h</span>
-              </div>
-              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">WASSCE & NECO Mathematics</h3>
-              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
-                Number bases, modular arithmetic, circle theorems, and quadratic functions with WAEC marking rubrics.
-              </p>
-              
-              <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
-                  <span>Mastery Progress</span>
-                  <span id="prog-wassce-text">0/6 Completed (0%)</span>
-                </div>
-                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="prog-wassce-bar" style="background: var(--color-orange); width: 0%; height: 100%; border-radius: 3px;"></div>
-                </div>
-              </div>
-            </div>
-            <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
-          </div>
-
-          <!-- Course Card 2: JAMB UTME Prep -->
-          <div class="course-card-dash" data-level="jamb sss">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <span class="pathway-badge" style="background: var(--color-teal-soft); color: var(--color-teal);">JAMB UTME</span>
-                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">6 Lectures • 25h</span>
-              </div>
-              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">UTME Speed & CBT Practice</h3>
-              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
-                Speed-run techniques for indices, logarithms, sets, limits, derivatives, and coordinates with CBT mock countdown.
-              </p>
-
-              <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
-                  <span>Mastery Progress</span>
-                  <span id="prog-jamb-text">0/6 Completed (0%)</span>
-                </div>
-                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="prog-jamb-bar" style="background: var(--color-teal); width: 0%; height: 100%; border-radius: 3px;"></div>
-                </div>
-              </div>
-            </div>
-            <a href="course-view.html?id=utme-postutme-prep" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
-          </div>
-
-          <!-- Course Card 3: Senior Secondary Core -->
-          <div class="course-card-dash" data-level="sss">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <span class="pathway-badge">Senior High (SS 1–3)</span>
-                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">Comprehensive</span>
-              </div>
-              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">Senior Secondary Mathematics Core</h3>
-              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
-                Complete high school curriculum: quadratic equations, trigonometry, statistics, circle theorems, and coordinate geometry.
-              </p>
-
-              <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
-                  <span>Mastery Progress</span>
-                  <span>0/6 Completed (0%)</span>
-                </div>
-                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div style="background: var(--color-navy); width: 0%; height: 100%; border-radius: 3px;"></div>
-                </div>
-              </div>
-            </div>
-            <a href="course-view.html?id=wassce-gce-neco-prep" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
-          </div>
-
-          <!-- Course Card 4: Junior Secondary Foundations -->
-          <div class="course-card-dash" data-level="jss">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <span class="pathway-badge" style="background: var(--color-navy-soft); color: var(--color-navy);">Junior High (JSS 1–3)</span>
-                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">Foundational</span>
-              </div>
-              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">Junior Secondary Math Foundations</h3>
-              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
-                Fractions, directed numbers, basic algebra, perimeter & area of plane shapes, angles, and ratios.
-              </p>
-
-              <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
-                  <span>Mastery Progress</span>
-                  <span>0/6 Completed (0%)</span>
-                </div>
-                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div style="background: var(--color-teal); width: 0%; height: 100%; border-radius: 3px;"></div>
-                </div>
-              </div>
-            </div>
-            <a href="courses.html?sphere=secondary" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Browse JSS Modules ➜</a>
-          </div>
-
-          <!-- Course Card 5: Undergraduate Math -->
-          <div class="course-card-dash" data-level="other">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <span class="pathway-badge" style="background: rgba(99, 102, 241, 0.15); color: #6366F1;">College STEM</span>
-                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">4 Lectures • 40h</span>
-              </div>
-              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">Undergraduate Higher Mathematics</h3>
-              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
-                Vector spaces, matrix eigenvalues, partial differentiation, multivariable calculus, and real analysis.
-              </p>
-
-              <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
-                  <span>Mastery Progress</span>
-                  <span>0/4 Completed (0%)</span>
-                </div>
-                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div style="background: #6366F1; width: 0%; height: 100%; border-radius: 3px;"></div>
-                </div>
-              </div>
-            </div>
-            <a href="course-view.html?id=undergrad-math-courses" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
-          </div>
-
-          <!-- Course Card 6: WASSCE Physics -->
-          <div class="course-card-dash" data-level="wassce sss">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <span class="pathway-badge" style="background: var(--color-orange-soft); color: var(--color-orange);">Physics WASSCE</span>
-                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">6 Lectures • 30h</span>
-              </div>
-              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">WASSCE & NECO Physics Prep</h3>
-              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
-                Mechanics, thermal energy, wave propagation, current electricity, optics, and practical experimental guide.
-              </p>
-
-              <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
-                  <span>Mastery Progress</span>
-                  <span>0/6 Completed (0%)</span>
-                </div>
-                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div style="background: var(--color-orange); width: 0%; height: 100%; border-radius: 3px;"></div>
-                </div>
-              </div>
-            </div>
-            <a href="course-view.html?id=wassce-gce-neco-physics" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
+          <div style="grid-column: 1 / -1; background: var(--color-surface-subtle); border: 1px dashed var(--color-border); border-radius: var(--radius-lg); padding: 2.5rem 1.5rem; text-align: center;">
+            <p style="color: var(--color-text-secondary); margin: 0;">⏳ Loading enrolled courses...</p>
           </div>
         </div>
       </section>
@@ -668,21 +1576,26 @@
         <div id="diag-test-container" style="display: none; background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 2rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <span style="font-weight: 700; color: var(--color-teal); font-size: 0.85rem;" id="diag-question-num">Question 1 of 3</span>
-            <span style="font-size: 0.8rem; color: var(--color-text-secondary);" id="diag-topic-tag">Topic: Linear Equations</span>
+            <span style="font-size: 0.8rem; color: var(--color-text-secondary);" id="diag-topic-tag">Topic: Linear Algebra</span>
           </div>
 
           <h3 style="font-size: 1.15rem; color: var(--color-navy); margin-bottom: 1rem;" id="diag-question-text">
-            Solve for x in the equation: 3(x - 2) + 4 = 2(x + 5)
+            Solve for x in the linear algebraic equation: 3(x - 2) + 4 = 2(x + 5)
           </h3>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;" id="diag-options-grid">
-            <button class="btn btn-secondary" onclick="recordDiagnosticAnswer(0)">A) x = 8</button>
-            <button class="btn btn-secondary" onclick="recordDiagnosticAnswer(1)">B) x = 12</button>
-            <button class="btn btn-secondary" onclick="recordDiagnosticAnswer(2)">C) x = 14</button>
-            <button class="btn btn-secondary" onclick="recordDiagnosticAnswer(3)">D) x = 10</button>
+            <!-- Options dynamically rendered by renderDiagnosticQuestion() -->
           </div>
 
-          <div id="diag-feedback" style="display: none; padding: 1rem; border-radius: var(--radius-sm); font-size: 0.9rem;"></div>
+          <div id="diag-feedback" style="display: none; padding: 1rem; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 1rem;"></div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;" id="diag-nav-row">
+            <button class="btn btn-secondary btn-sm" id="btn-prev-question" onclick="prevDiagnosticQuestion()" style="display: none;">◂ Previous Question</button>
+            <div style="display: flex; gap: 0.5rem; margin-left: auto;">
+              <button class="btn btn-primary btn-sm" id="btn-next-question" onclick="nextDiagnosticQuestion()">Next Question ➜</button>
+              <button class="btn btn-primary btn-sm" id="btn-submit-diagnostic" onclick="submitDiagnosticAssessment()" style="display: none;">Submit Assessment 🚀</button>
+            </div>
+          </div>
         </div>
 
         <!-- Diagnostic Completed Results View -->
@@ -692,12 +1605,12 @@
             <div>
               <h3 style="margin: 0; color: var(--color-navy); font-size: 1.3rem;">Diagnostic Assessment Complete</h3>
               <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-secondary);" id="diag-score-summary">
-                You scored 3 out of 3 (100%) on this checkpoint.
+                Diagnostic proficiency recorded to your dashboard.
               </p>
             </div>
           </div>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.25rem;" id="diag-recommendations">
-            <!-- Recommendations injected via script -->
+            <!-- Topic breakdown & Recommendations injected via script -->
           </div>
         </div>
       </section>
@@ -787,12 +1700,12 @@
             </div>
             <div>
               <div style="font-size: 1.6rem; font-weight: 800; color: var(--color-navy);" id="goal-hours-display">
-                <span id="hours-spent-val">4.5</span> / <span id="hours-target-val">10</span> <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-secondary);">Hours</span>
+                <span id="hours-spent-val">0</span> / <span id="hours-target-val">10</span> <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-secondary);">Hours</span>
               </div>
-              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.2rem;">Weekly Target Progress: 45%</div>
+              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.2rem;" id="goal-hours-subtext">Heartbeat tracking pending Phase 6.4</div>
             </div>
             <div class="course-progress-bar-bg" style="height: 6px;">
-              <div class="course-progress-bar-fill" id="goal-hours-bar" style="width: 45%; background: var(--color-teal);"></div>
+              <div class="course-progress-bar-fill" id="goal-hours-bar" style="width: 0%; background: var(--color-teal);"></div>
             </div>
           </div>
 
@@ -804,12 +1717,12 @@
             </div>
             <div>
               <div style="font-size: 1.6rem; font-weight: 800; color: var(--color-navy);" id="goal-questions-display">
-                <span id="questions-solved-val">28</span> / <span id="questions-target-val">50</span> <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-secondary);">Questions</span>
+                <span id="questions-solved-val">0</span> / <span id="questions-target-val">50</span> <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-secondary);">Questions</span>
               </div>
-              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.2rem;">Weekly Target Progress: 56%</div>
+              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.2rem;" id="goal-questions-subtext">Weekly Target Progress: 0%</div>
             </div>
             <div class="course-progress-bar-bg" style="height: 6px;">
-              <div class="course-progress-bar-fill" id="goal-questions-bar" style="width: 56%; background: var(--color-orange);"></div>
+              <div class="course-progress-bar-fill" id="goal-questions-bar" style="width: 0%; background: var(--color-orange);"></div>
             </div>
           </div>
 
@@ -821,9 +1734,9 @@
             </div>
             <div>
               <div style="font-size: 1.3rem; font-weight: 800; color: var(--color-navy);" id="goal-exam-name">
-                WASSCE & JAMB 2026
+                Exam Target
               </div>
-              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.2rem;">Countdown status: On Track</div>
+              <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.2rem;">Enrolled Examination Track</div>
             </div>
             <div style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 700; color: #10B981; background: rgba(16, 185, 129, 0.1); padding: 0.35rem 0.65rem; border-radius: var(--radius-pill); width: fit-content;">
               <span>●</span> Active Weekly Study Routine
@@ -832,19 +1745,54 @@
         </div>
       </section>
 
-      <!-- 9. Achievements & Milestones Tracker -->
-      <section class="glass-card" style="padding: 2.25rem;">
+      <!-- 9. Achievements & Milestones Showcase (Phase 6.5.4) -->
+      <section class="glass-card" id="section-achievements" style="padding: 2.25rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
           <div>
             <span class="section-subtitle">Real Achievements</span>
             <h2 style="font-size: 1.5rem; margin: 0.25rem 0 0 0; color: var(--color-navy);">Earned Milestones & Badges</h2>
           </div>
-          <span style="font-size: 0.85rem; color: var(--color-text-secondary);">
-            Badges unlock automatically as you complete lectures and verify topics.
-          </span>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span id="achievements-summary-badge" style="background: var(--color-teal-soft); color: var(--color-teal); font-weight: 700; font-size: 0.85rem; padding: 0.4rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(21, 154, 156, 0.3);">
+              0 of 18 Earned
+            </span>
+          </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+        <!-- Next Milestone Highlight Banner -->
+        <div id="next-milestone-banner" class="next-milestone-banner" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 1rem; min-width: 0; flex: 1 1 300px;">
+            <div style="font-size: 2.25rem; flex-shrink: 0;" id="next-milestone-icon">🔥</div>
+            <div style="min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-teal); background: rgba(21, 154, 156, 0.15); padding: 0.15rem 0.5rem; border-radius: var(--radius-sm);" id="next-milestone-category">UPCOMING TARGET</span>
+                <strong style="color: var(--color-navy); font-size: 1rem;" id="next-milestone-title">Habit Builder</strong>
+              </div>
+              <p style="margin: 0; font-size: 0.84rem; color: var(--color-text-secondary);" id="next-milestone-desc">Achieve a continuous 3-day study streak.</p>
+            </div>
+          </div>
+          <div style="min-width: 200px; flex: 0 1 240px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--color-navy); margin-bottom: 0.35rem;">
+              <span id="next-milestone-progress-text">1 / 3 days</span>
+              <span id="next-milestone-pct" style="color: var(--color-teal);">33%</span>
+            </div>
+            <div class="progress-bar-container" style="height: 8px;">
+              <div class="progress-bar-fill" id="next-milestone-bar" style="width: 33%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="achievement-tabs-bar" role="tablist">
+          <button type="button" class="achievement-tab-btn active" data-category="all" id="tab-achievements-all">All (18)</button>
+          <button type="button" class="achievement-tab-btn" data-category="learning_progress" id="tab-achievements-progress">🌱 Progress</button>
+          <button type="button" class="achievement-tab-btn" data-category="study_consistency" id="tab-achievements-consistency">🔥 Consistency</button>
+          <button type="button" class="achievement-tab-btn" data-category="study_commitment" id="tab-achievements-commitment">⏱️ Commitment</button>
+          <button type="button" class="achievement-tab-btn" data-category="diagnostic_improvement" id="tab-achievements-diagnostic">🎯 Diagnostic</button>
+        </div>
+
+        <!-- Dynamic Milestones Grid -->
+        <div id="achievements-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem;">
           <div class="milestone-badge unlocked" id="badge-first-step">
             <span class="milestone-icon">🌱</span>
             <div>
@@ -852,7 +1800,6 @@
               <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Enrolled & explored platform</span>
             </div>
           </div>
-
           <div class="milestone-badge" id="badge-streak">
             <span class="milestone-icon">🔥</span>
             <div>
@@ -860,7 +1807,6 @@
               <span style="font-size: 0.75rem; color: var(--color-text-secondary);">3+ continuous study days</span>
             </div>
           </div>
-
           <div class="milestone-badge" id="badge-diagnostic">
             <span class="milestone-icon">🎯</span>
             <div>
@@ -868,7 +1814,6 @@
               <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Completed skill checkpoint</span>
             </div>
           </div>
-
           <div class="milestone-badge" id="badge-mastery">
             <span class="milestone-icon">🏆</span>
             <div>
@@ -877,11 +1822,20 @@
             </div>
           </div>
         </div>
+
+        <!-- Empty state container for 0 achievements -->
+        <div id="achievements-empty-state" style="display: none; text-align: center; padding: 2.5rem 1rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🌟</div>
+          <h3 style="color: var(--color-navy); margin-bottom: 0.35rem;">Begin Your Learning Quest!</h3>
+          <p style="color: var(--color-text-secondary); max-width: 480px; margin: 0 auto; font-size: 0.88rem;">
+            Watch your first curriculum lecture or take a diagnostic assessment to start earning verified academic badges and build your streak.
+          </p>
+        </div>
       </section>
 
       <!-- Transparency Notice -->
       <div style="text-align: center; font-size: 0.825rem; color: var(--color-text-secondary); padding: 1rem; border-radius: var(--radius-sm); background: var(--color-surface-subtle); border: 1px solid var(--color-border);">
-        🔒 <strong>Local Progress Persistence Active:</strong> All completed lessons, diagnostic scores, and earned study streaks are saved directly to your browser's local state. No fabricated or simulated statistics are introduced.
+        🔒 <strong>Cloud-Synchronized Progress:</strong> All course enrollments, lecture completions, diagnostic scores, and earned study streaks are loaded directly from your authenticated student account in real time. Zero simulated or fabricated metrics are introduced.
       </div>
 
     </main>
@@ -890,34 +1844,71 @@
          PROFILE CUSTOMIZATION MODAL
          ====================================================================== -->
     <div class="profile-modal-overlay" id="profile-modal">
-      <div class="profile-modal-card">
-        <h3 style="margin-top: 0; margin-bottom: 0.5rem; color: var(--color-navy); font-size: 1.4rem;">
-          Customize Scholar Profile
-        </h3>
-        <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">
-          Update your student display name and target education level to tailor your dashboard goals.
+      <div class="profile-modal-card" style="max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+          <h3 style="margin: 0; color: var(--color-navy); font-size: 1.4rem;">
+            Customize Scholar Profile
+          </h3>
+          <button type="button" onclick="closeProfileModal()" aria-label="Close modal" style="background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: var(--color-text-secondary);">&times;</button>
+        </div>
+        <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 1.25rem;">
+          Update your student account details and target examination track. Changes synchronize with your learning record.
         </p>
 
-        <div class="form-group">
-          <label for="input-scholar-name">Your Full Name or Alias</label>
-          <input type="text" id="input-scholar-name" placeholder="e.g. Adeola, Emmanuel, Aisha" class="form-control">
-        </div>
+        <!-- Dynamic Feedback Banners -->
+        <div id="profile-modal-error" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid #EF4444; color: #EF4444; padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1rem;"></div>
+        <div id="profile-modal-success" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; color: #10B981; padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1rem;"></div>
 
-        <div class="form-group">
-          <label for="select-target-level">Target Education Level</label>
-          <select id="select-target-level" class="form-control">
-            <option value="Junior Secondary (JSS 1–3)">Junior Secondary (JSS 1–3)</option>
-            <option value="Senior Secondary (SS 1–3) • WASSCE Candidate" selected>Senior Secondary (SS 1–3) • WASSCE Candidate</option>
-            <option value="JAMB / UTME Speed Preparation">JAMB / UTME Speed Preparation</option>
-            <option value="WASSCE & NECO Distinction Track">WASSCE & NECO Distinction Track</option>
-            <option value="Undergraduate University STEM">Undergraduate University STEM</option>
-          </select>
-        </div>
+        <form id="profile-edit-form" onsubmit="event.preventDefault(); saveProfileModal();">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="input-scholar-name" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Full Name <span style="color: #EF4444;">*</span></label>
+            <input type="text" id="input-scholar-name" placeholder="e.g. Adekunle Adeleke" class="form-control" required minlength="2" maxlength="150" style="width: 100%;">
+          </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-          <button class="btn btn-secondary btn-sm" onclick="closeProfileModal()">Cancel</button>
-          <button class="btn btn-primary btn-sm" onclick="saveProfileModal()">Save Profile</button>
-        </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="select-education-level" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Education Level <span style="color: #EF4444;">*</span></label>
+              <select id="select-education-level" class="form-control" style="width: 100%;">
+                <option value="JSS 1">Junior Secondary 1 (JSS 1)</option>
+                <option value="JSS 2">Junior Secondary 2 (JSS 2)</option>
+                <option value="JSS 3">Junior Secondary 3 (JSS 3)</option>
+                <option value="SS1">Senior Secondary 1 (SS1)</option>
+                <option value="SS2">Senior Secondary 2 (SS2)</option>
+                <option value="SS3" selected>Senior Secondary 3 (SS3)</option>
+                <option value="JAMB/UTME">JAMB / UTME</option>
+                <option value="Other supported programmes">Other / Undergraduate</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="select-intended-exam" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Target Examination <span style="color: #EF4444;">*</span></label>
+              <select id="select-intended-exam" class="form-control" style="width: 100%;">
+                <option value="WASSCE" selected>WASSCE (WAEC)</option>
+                <option value="NECO">NECO</option>
+                <option value="GCE">GCE</option>
+                <option value="JAMB/UTME">JAMB / UTME</option>
+                <option value="Post-UTME">Post-UTME</option>
+                <option value="Senior Secondary">Senior Secondary Exam</option>
+                <option value="School Examination">School Examination</option>
+                <option value="Not yet decided">Not Yet Decided</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="input-scholar-phone" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Phone Number <span style="font-size: 0.75rem; color: var(--color-text-secondary);">(Optional)</span></label>
+            <input type="tel" id="input-scholar-phone" placeholder="e.g. +234 801 234 5678" class="form-control" maxlength="30" style="width: 100%;">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="input-scholar-avatar" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Avatar Image URL <span style="font-size: 0.75rem; color: var(--color-text-secondary);">(Optional)</span></label>
+            <input type="url" id="input-scholar-avatar" placeholder="e.g. https://... or /avatars/scholar.png" class="form-control" maxlength="500" style="width: 100%;">
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-profile" onclick="closeProfileModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="btn-save-profile">Save Profile</button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -975,16 +1966,22 @@
   <script src="app.js"></script>
   <script>
     // ==========================================================================
-    // STUDENT LEARNING DASHBOARD CONTROLLER
+    // STUDENT LEARNING DASHBOARD CONTROLLER (PHASE 6.3.2 STAGE 6.2)
     // ==========================================================================
-    document.addEventListener("DOMContentLoaded", () => {
-      loadStudentProfile();
-      updateDashboardProgress();
-      checkMilestones();
-    });
+    let currentStudent = null;
 
-    // 1. Profile Management & Authentication Verification
-    async function loadStudentProfile() {
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Time-of-day greeting
       const greetingEl = document.getElementById("dash-greeting-time");
       if (greetingEl) {
         const hour = new Date().getHours();
@@ -993,115 +1990,1361 @@
         else greetingEl.textContent = "GOOD EVENING";
       }
 
+      // 2. Fetch authoritative dashboard summary
+      loadDashboardSummary();
+    });
+
+    async function loadDashboardSummary() {
+      const errorBanner = document.getElementById("dash-error-banner");
+      const loadingIndicator = document.getElementById("dash-loading-indicator");
+      if (errorBanner) errorBanner.style.display = "none";
+      if (loadingIndicator) loadingIndicator.style.display = "block";
+
       try {
-        const response = await fetch('/api/auth/me');
-        if (!response.ok) {
-          // Unauthenticated or invalid session -> redirect to login
-          window.location.href = '/login.html?next=/dashboard.html';
-          return;
-        }
+        const data = await window.ZiglagAPI.get('/api/student/dashboard-summary');
+        if (loadingIndicator) loadingIndicator.style.display = "none";
 
-        const data = await response.json();
-        if (data.success && data.student) {
-          const student = data.student;
-          const nameEl = document.getElementById("dash-scholar-name");
-          const levelEl = document.getElementById("dash-level-badge");
-          const avatarEl = document.getElementById("dash-avatar-icon");
+        if (data && data.success) {
+          currentStudent = data.student || {};
+          renderDashboardData(data);
 
-          if (nameEl) nameEl.textContent = student.full_name;
-          if (levelEl) levelEl.textContent = `${student.education_level} • ${student.intended_exam} Candidate`;
-          if (avatarEl && student.full_name) {
-            avatarEl.textContent = student.full_name.trim().charAt(0).toUpperCase();
-          }
-
-          // Pre-populate profile modal
-          const inputName = document.getElementById("input-scholar-name");
-          const selectLevel = document.getElementById("select-target-level");
-          if (inputName) inputName.value = student.full_name;
-          if (selectLevel) selectLevel.value = `${student.education_level} • ${student.intended_exam} Candidate`;
+          // Asynchronously load 30-Day Activity History (Task 4)
+          loadActivityHistory();
         } else {
-          window.location.href = '/login.html?next=/dashboard.html';
+          showDashboardError((data && data.message) || "Failed to load dashboard summary.");
         }
       } catch (err) {
-        console.warn("Could not verify session with server:", err);
+        if (loadingIndicator) loadingIndicator.style.display = "none";
+        // If HTTP 401, ZiglagAPI automatically handles redirect to /login.html
+        if (err.status !== 401) {
+          showDashboardError(err.message || "Failed to connect to the server.");
+        }
+      }
+    }
+
+    function showDashboardError(msg) {
+      const errorBanner = document.getElementById("dash-error-banner");
+      const errorMsg = document.getElementById("dash-error-msg");
+      if (errorBanner) {
+        if (errorMsg) errorMsg.textContent = msg;
+        errorBanner.style.display = "flex";
+      }
+      const grid = document.getElementById("dash-courses-grid");
+      if (grid && !grid.querySelector('[data-course-id]')) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; background: var(--color-surface-subtle); border: 1px dashed #EF4444; border-radius: var(--radius-lg); padding: 2.5rem 1.5rem; text-align: center;">
+            <p style="color: #EF4444; font-weight: 600; margin-bottom: 0.5rem;">⚠️ Unable to load enrolled courses</p>
+            <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">${escapeHtml(msg)}</p>
+            <button class="btn btn-secondary btn-sm" onclick="loadDashboardSummary()">Retry Loading ↺</button>
+          </div>
+        `;
+      }
+    }
+
+    function renderDashboardData(data) {
+      const student = data.student || {};
+      const stats = data.stats || {};
+      const enrolledCourses = data.enrolled_courses || [];
+      const recentLessons = data.recent_lessons || [];
+      const diagnostic = data.latest_diagnostic || null;
+      const milestones = data.milestones || [];
+
+      // 1. Student Profile Header
+      const nameEl = document.getElementById("dash-scholar-name");
+      const levelEl = document.getElementById("dash-level-badge");
+      const avatarEl = document.getElementById("dash-avatar-icon");
+
+      if (nameEl) {
+        nameEl.textContent = student.full_name || 'Scholar';
+      }
+      if (levelEl) {
+        levelEl.textContent = `${student.education_level || ''} • ${student.intended_exam || ''} Candidate`;
+      }
+      if (avatarEl && student.full_name) {
+        avatarEl.textContent = student.full_name.trim().charAt(0).toUpperCase();
+      }
+
+      // Pre-populate profile modal with live student info
+      const inputName = document.getElementById("input-scholar-name");
+      const selectEdu = document.getElementById("select-education-level");
+      const selectExam = document.getElementById("select-intended-exam");
+      const inputPhone = document.getElementById("input-scholar-phone");
+      const inputAvatar = document.getElementById("input-scholar-avatar");
+
+      if (inputName && student.full_name) inputName.value = student.full_name;
+      if (selectEdu && student.education_level) selectEdu.value = student.education_level;
+      if (selectExam && student.intended_exam) selectExam.value = student.intended_exam;
+      if (inputPhone && student.phone !== undefined) inputPhone.value = student.phone || "";
+      if (inputAvatar && student.avatar_url !== undefined) inputAvatar.value = student.avatar_url || "";
+
+      // 2. XP & Streak Chips
+      const streakCountEl = document.getElementById("dash-streak-count");
+      const xpCountEl = document.getElementById("dash-xp-count");
+      if (streakCountEl) {
+        streakCountEl.textContent = stats.current_streak ?? 0;
+      }
+      if (xpCountEl) {
+        xpCountEl.textContent = stats.total_xp ?? 0;
+      }
+
+      // 3. Overall Syllabus Progress Metric
+      let totalEnrolledPublished = 0;
+      let totalEnrolledCompleted = 0;
+      enrolledCourses.forEach(c => {
+        totalEnrolledPublished += (c.total_published_lectures || 0);
+        totalEnrolledCompleted += (c.completed_lectures || 0);
+      });
+
+      const overallPercent = totalEnrolledPublished > 0
+        ? Math.min(100, Math.round((totalEnrolledCompleted / totalEnrolledPublished) * 100))
+        : 0;
+
+      const progressPercentEl = document.getElementById("dash-progress-percent");
+      const overallBarEl = document.getElementById("dash-overall-bar");
+      const completedSubtextEl = document.getElementById("dash-completed-subtext");
+
+      if (progressPercentEl) progressPercentEl.textContent = `${overallPercent}%`;
+      if (overallBarEl) overallBarEl.style.width = `${overallPercent}%`;
+      if (completedSubtextEl) {
+        completedSubtextEl.textContent = `${totalEnrolledCompleted} of ${totalEnrolledPublished} enrolled syllabus lectures completed`;
+      }
+
+      // 4. Weekly Activity Metric (7 Lagos Calendar Days: Mon-Sun)
+      const activeDaysEl = document.getElementById("dash-active-days");
+      if (activeDaysEl) {
+        const streak = stats.current_streak || 0;
+        activeDaysEl.textContent = `${streak} ${streak === 1 ? 'Day' : 'Days'}`;
+      }
+
+      const weekDotsEl = document.getElementById("dash-week-dots");
+      if (weekDotsEl && Array.isArray(stats.weekly_activity)) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        weekDotsEl.innerHTML = stats.weekly_activity.map(day => {
+          const isToday = (day.date === todayStr);
+          const isDone = Boolean(day.is_active);
+          let cls = "hub-day-dot";
+          if (isDone) cls += " done";
+          if (isToday) cls += " today";
+          const letter = escapeHtml((day.day_name || 'D').charAt(0));
+          const studyMins = (typeof day.minutes_spent === 'number') ? day.minutes_spent : (day.seconds_spent ? Math.floor(day.seconds_spent / 60) : 0);
+          const title = `${escapeHtml(day.day_name)} (${day.date}): ${isDone ? `Active (${studyMins}m studied, ${day.xp_earned} XP, ${day.lessons_completed} lessons)` : 'No activity'}`;
+          return `<span class="${cls}" title="${title}">${letter}${isDone ? ' ✓' : ''}</span>`;
+        }).join('');
+      }
+
+      const todayStudyEl = document.getElementById("dash-today-study-subtext");
+      const studyTimeData = data.study_time || {};
+      if (todayStudyEl) {
+        const todayFmt = studyTimeData.today_formatted || '0m';
+        todayStudyEl.textContent = `Today: ${todayFmt} studied · Target: 5 study days per week`;
+      }
+
+      // 5. Diagnostic Status Metric Card
+      const diagScoreEl = document.getElementById("dash-diag-score");
+      const diagStatusEl = document.getElementById("dash-diag-status");
+      if (diagnostic) {
+        if (diagScoreEl) diagScoreEl.textContent = `${diagnostic.percentage}%`;
+        if (diagStatusEl) {
+          const bd = diagnostic.topic_breakdown || {};
+          const firstTopic = Object.keys(bd)[0];
+          diagStatusEl.textContent = firstTopic
+            ? `Proficiency: ${firstTopic} (${bd[firstTopic]})`
+            : `Score: ${diagnostic.score}/${diagnostic.max_score} (${diagnostic.subject})`;
+          diagStatusEl.style.color = "#10B981";
+        }
+      } else {
+        if (diagScoreEl) diagScoreEl.textContent = "—";
+        if (diagStatusEl) {
+          diagStatusEl.textContent = "Diagnostic assessment pending";
+          diagStatusEl.style.color = "var(--color-text-secondary)";
+        }
+      }
+
+      // 6. Target Milestone Metric Card
+      const countdownEl = document.getElementById("dash-countdown-days");
+      if (countdownEl && student.intended_exam) {
+        countdownEl.textContent = `${student.intended_exam} Target`;
+      }
+
+      // 7. Recently Accessed Lesson
+      const recentTimestampEl = document.getElementById("recent-timestamp");
+      const recentBadgeEl = document.getElementById("recent-course-badge");
+      const recentTitleEl = document.getElementById("recent-lesson-title");
+      const recentDescEl = document.getElementById("recent-lesson-desc");
+      const resumeBtnEl = document.getElementById("btn-resume-lesson");
+
+      if (recentLessons.length > 0) {
+        const rec = recentLessons[0];
+        if (recentBadgeEl) recentBadgeEl.textContent = rec.course_title || 'Enrolled Course';
+        if (recentTitleEl) recentTitleEl.textContent = rec.lecture_title || 'Recent Lesson';
+        if (recentTimestampEl) {
+          recentTimestampEl.textContent = rec.last_accessed_at ? 'Active Session' : 'Enrolled';
+        }
+        if (recentDescEl) {
+          recentDescEl.textContent = `Lesson status: ${rec.is_completed ? '✓ Completed' : 'In Progress'} · Views: ${rec.view_count}`;
+        }
+        if (resumeBtnEl) {
+          resumeBtnEl.href = `course-view.html?id=${encodeURIComponent(rec.course_id)}`;
+          resumeBtnEl.textContent = "Resume Lesson ➜";
+        }
+      } else {
+        // Zero-state for recent lessons
+        if (recentBadgeEl) recentBadgeEl.textContent = "No Recent Activity";
+        if (recentTitleEl) recentTitleEl.textContent = "Start Your Learning Journey";
+        if (recentTimestampEl) recentTimestampEl.textContent = "Zero-State";
+        if (recentDescEl) {
+          recentDescEl.textContent = "You have not opened any lectures yet. Explore your enrolled courses below to begin.";
+        }
+        if (resumeBtnEl) {
+          resumeBtnEl.href = "courses.html";
+          resumeBtnEl.textContent = "Explore Courses ➜";
+        }
+      }
+
+      // 8. Enrolled Courses Grid
+      renderEnrolledCoursesGrid(enrolledCourses);
+
+      // 9. Goals Section (Real Study Time, Questions, Exam Target)
+      const studyTime = data.study_time || {};
+      const weeklySec = studyTime.weekly_seconds || 0;
+      const todaySec = studyTime.today_seconds || 0;
+      const weeklyHours = (weeklySec / 3600).toFixed(1);
+      const targetHours = studyTime.weekly_target_hours || 10;
+      const studyPct = Math.min(100, Math.round((weeklySec / (targetHours * 3600)) * 100));
+
+      const hoursSpentEl = document.getElementById("hours-spent-val");
+      const hoursTargetEl = document.getElementById("hours-target-val");
+      const hoursBarEl = document.getElementById("goal-hours-bar");
+      const hoursSubtextEl = document.getElementById("goal-hours-subtext");
+
+      if (hoursSpentEl) hoursSpentEl.textContent = weeklyHours;
+      if (hoursTargetEl) hoursTargetEl.textContent = targetHours.toString();
+      if (hoursBarEl) hoursBarEl.style.width = `${studyPct}%`;
+      if (hoursSubtextEl) {
+        if (weeklySec === 0 && todaySec === 0) {
+          hoursSubtextEl.textContent = "0m studied today • No study sessions recorded yet this week.";
+        } else {
+          hoursSubtextEl.textContent = `Today: ${studyTime.today_formatted || '0m'} • Weekly Progress: ${studyPct}% of ${targetHours}h target`;
+        }
+      }
+
+      const questionsSolvedEl = document.getElementById("questions-solved-val");
+      const questionsTargetEl = document.getElementById("questions-target-val");
+      const questionsBarEl = document.getElementById("goal-questions-bar");
+      const totalQ = stats.total_questions_practiced || 0;
+      if (questionsSolvedEl) questionsSolvedEl.textContent = totalQ;
+      if (questionsTargetEl) questionsTargetEl.textContent = "50";
+      if (questionsBarEl) {
+        const qPct = Math.min(100, Math.round((totalQ / 50) * 100));
+        questionsBarEl.style.width = `${qPct}%`;
+      }
+
+      const goalExamEl = document.getElementById("goal-exam-name");
+      if (goalExamEl && student.intended_exam) {
+        goalExamEl.textContent = `${student.intended_exam} Target`;
+      }
+
+      // 10. Milestones & Badges (Phase 6.5.4)
+      renderMilestones(stats, enrolledCourses, diagnostic, milestones, data.achievements);
+
+      // 11. Phase 6.5.3: Study Habits & Consistency (Task 3)
+      try {
+        if (data.analytics && data.analytics.study_habits) {
+          renderStudyHabits(data.analytics.study_habits);
+        } else {
+          renderStudyHabits({});
+        }
+      } catch (errHabits) {
+        console.warn("Error rendering study habits:", errHabits);
+      }
+
+      // 12. Phase 6.5.3: Topic Mastery Widget (Task 2)
+      try {
+        const topicMastery = (data.analytics && data.analytics.topic_mastery) ? data.analytics.topic_mastery : [];
+        renderTopicMastery(topicMastery, enrolledCourses);
+      } catch (errTopics) {
+        console.warn("Error rendering topic mastery:", errTopics);
+      }
+
+      // 13. Phase 6.5.3: Personalised Recommendations (Task 1)
+      try {
+        const recommendations = data.recommendations || [];
+        renderRecommendations(recommendations);
+      } catch (errRecs) {
+        console.warn("Error rendering recommendations:", errRecs);
+      }
+
+      // 14. Phase 6.5.3: Diagnostic Learning Progress (Task 5)
+      try {
+        renderDiagnosticProgress(data.diagnostic_progress || null);
+      } catch (errDiag) {
+        console.warn("Error rendering diagnostic progress:", errDiag);
+      }
+    }
+
+    function renderEnrolledCoursesGrid(courses) {
+      const grid = document.getElementById("dash-courses-grid");
+      if (!grid) return;
+
+      if (!courses || courses.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; background: var(--color-surface-subtle); border: 1px dashed var(--color-border); border-radius: var(--radius-lg); padding: 3rem 2rem; text-align: center;">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 0.75rem;">📚</span>
+            <h3 style="font-size: 1.25rem; color: var(--color-navy); margin-bottom: 0.5rem;">No Courses Enrolled Yet</h3>
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 1.5rem auto;">
+              Select your examination preparation track or explore our full syllabus catalog to begin learning.
+            </p>
+            <a href="courses.html" class="btn btn-primary btn-sm">Explore Course Catalog ➜</a>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = courses.map(course => {
+        const levelTags = getCourseLevelTags(course.course_id);
+        const title = escapeHtml(course.title);
+        const desc = escapeHtml(course.description || 'Structured academic preparation covering syllabus requirements with step-by-step worked examples.');
+        const completed = course.completed_lectures || 0;
+        const total = course.total_published_lectures || 0;
+        const pct = course.progress_percentage || 0;
+        const cid = encodeURIComponent(course.course_id);
+
+        return `
+          <div class="course-card-dash" data-level="${levelTags}" data-course-id="${escapeHtml(course.course_id)}">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span class="pathway-badge" style="background: var(--color-orange-soft); color: var(--color-orange);">${title}</span>
+                <span style="font-size: 0.8rem; color: var(--color-text-secondary);">${total} Lectures</span>
+              </div>
+              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-navy);">${title}</h3>
+              <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                ${desc}
+              </p>
+              
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                  <span>Mastery Progress</span>
+                  <span>${completed}/${total} Completed (${pct}%)</span>
+                </div>
+                <div style="background: var(--color-surface-subtle); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div style="background: var(--color-orange); width: ${pct}%; height: 100%; border-radius: 3px; transition: width 0.4s ease;"></div>
+                </div>
+              </div>
+            </div>
+            <a href="course-view.html?id=${cid}" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">Enter Study Room ➜</a>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getCourseLevelTags(courseId) {
+      const map = {
+        'wassce-gce-neco-prep': 'wassce sss',
+        'utme-postutme-prep': 'jamb sss',
+        'wassce-gce-neco-physics': 'wassce sss',
+        'utme-postutme-physics': 'jamb sss',
+        'ss-math-mastery': 'sss',
+        'sss-math-core': 'sss',
+        'jss-math-foundations': 'jss',
+        'undergrad-math-courses': 'other',
+        'other-exams-prep': 'other wassce jamb',
+        'other-exams-physics': 'other wassce jamb',
+        'extras-general-videos': 'other'
+      };
+      return map[courseId] || 'all';
+    }
+
+    // ==========================================================================
+    // PHASE 6.5.4 ACHIEVEMENTS & MILESTONES SHOWCASE
+    // ==========================================================================
+    let currentAchievementsData = null;
+    let currentAchievementTab = 'all';
+
+    function renderMilestones(stats, enrolledCourses, diagnostic, serverMilestones, achievementsData) {
+      const bFirst = document.getElementById("badge-first-step");
+      const bStreak = document.getElementById("badge-streak");
+      const bDiag = document.getElementById("badge-diagnostic");
+      const bMastery = document.getElementById("badge-mastery");
+
+      // 1. Basic fallback milestone logic for backwards compatibility
+      const hasFirstCompleted = (stats && stats.total_lessons_completed > 0) ||
+        (serverMilestones && serverMilestones.some(m => m.id === 'first_lesson_completed'));
+
+      if (bFirst) {
+        if (hasFirstCompleted) bFirst.classList.add("unlocked");
+        else bFirst.classList.remove("unlocked");
+      }
+
+      if (bStreak) {
+        if (stats && (stats.current_streak || 0) >= 3) bStreak.classList.add("unlocked");
+        else bStreak.classList.remove("unlocked");
+      }
+
+      if (bDiag) {
+        if (diagnostic !== null) bDiag.classList.add("unlocked");
+        else bDiag.classList.remove("unlocked");
+      }
+
+      if (bMastery) {
+        const hasFullCourse = enrolledCourses && enrolledCourses.some(c => c.progress_percentage === 100 && c.total_published_lectures > 0);
+        if (hasFullCourse) bMastery.classList.add("unlocked");
+        else bMastery.classList.remove("unlocked");
+      }
+
+      // 2. Full Phase 6.5.4 Achievements Showcase Integration
+      if (!achievementsData) {
+        return;
+      }
+
+      currentAchievementsData = achievementsData;
+
+      // Update summary badge
+      const summaryBadge = document.getElementById("achievements-summary-badge");
+      if (summaryBadge && achievementsData.summary) {
+        const sm = achievementsData.summary;
+        summaryBadge.textContent = `${sm.earned} of ${sm.total} Earned (${sm.completion_percentage}%)`;
+      }
+
+      // Update Next Milestone Banner
+      const nextBanner = document.getElementById("next-milestone-banner");
+      if (nextBanner) {
+        const nextM = achievementsData.summary ? achievementsData.summary.next_milestone : null;
+        if (nextM) {
+          nextBanner.style.display = "flex";
+          const iconEl = document.getElementById("next-milestone-icon");
+          const catEl = document.getElementById("next-milestone-category");
+          const titleEl = document.getElementById("next-milestone-title");
+          const descEl = document.getElementById("next-milestone-desc");
+          const progTxtEl = document.getElementById("next-milestone-progress-text");
+          const pctEl = document.getElementById("next-milestone-pct");
+          const barEl = document.getElementById("next-milestone-bar");
+
+          if (iconEl) iconEl.textContent = nextM.icon || '🎯';
+          if (catEl) catEl.textContent = nextM.category_label || 'NEXT TARGET';
+          if (titleEl) titleEl.textContent = nextM.title;
+          if (descEl) descEl.textContent = nextM.description;
+          if (progTxtEl) progTxtEl.textContent = nextM.formatted_progress;
+          if (pctEl) pctEl.textContent = `${nextM.progress_percentage}%`;
+          if (barEl) barEl.style.width = `${nextM.progress_percentage}%`;
+        } else {
+          nextBanner.style.display = "none";
+        }
+      }
+
+      // Update category tab button counters
+      if (achievementsData.categories) {
+        const catMap = {};
+        achievementsData.categories.forEach(c => { catMap[c.id] = c; });
+        const tabAll = document.getElementById("tab-achievements-all");
+        const tabProg = document.getElementById("tab-achievements-progress");
+        const tabCons = document.getElementById("tab-achievements-consistency");
+        const tabComm = document.getElementById("tab-achievements-commitment");
+        const tabDiag = document.getElementById("tab-achievements-diagnostic");
+
+        if (tabAll) tabAll.textContent = `All (${achievementsData.summary.total})`;
+        if (tabProg && catMap['learning_progress']) tabProg.textContent = `🌱 Progress (${catMap['learning_progress'].earned}/${catMap['learning_progress'].total})`;
+        if (tabCons && catMap['study_consistency']) tabCons.textContent = `🔥 Consistency (${catMap['study_consistency'].earned}/${catMap['study_consistency'].total})`;
+        if (tabComm && catMap['study_commitment']) tabComm.textContent = `⏱️ Commitment (${catMap['study_commitment'].earned}/${catMap['study_commitment'].total})`;
+        if (tabDiag && catMap['diagnostic_improvement']) tabDiag.textContent = `🎯 Diagnostic (${catMap['diagnostic_improvement'].earned}/${catMap['diagnostic_improvement'].total})`;
+      }
+
+      // Render milestone cards for current tab
+      renderAchievementCards(currentAchievementTab);
+
+      // Setup tab event listeners once
+      setupAchievementTabs();
+
+      // Check and trigger non-intrusive notifications for newly earned milestones
+      checkAndShowAchievementToasts(achievementsData.achievements);
+    }
+
+    function renderAchievementCards(category) {
+      if (!currentAchievementsData || !currentAchievementsData.achievements) return;
+      const grid = document.getElementById("achievements-grid");
+      const emptyState = document.getElementById("achievements-empty-state");
+      if (!grid) return;
+
+      let list = currentAchievementsData.achievements;
+      if (category && category !== 'all') {
+        list = list.filter(a => a.category === category);
+      }
+
+      if (list.length === 0) {
+        grid.style.display = "none";
+        if (emptyState) emptyState.style.display = "block";
+        return;
+      }
+
+      grid.style.display = "grid";
+      if (emptyState) emptyState.style.display = "none";
+
+      grid.innerHTML = list.map(m => {
+        const isUnlocked = m.is_earned;
+        const cardClass = `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+
+        let compatId = '';
+        if (m.id === 'first_lesson') compatId = 'id="badge-first-step"';
+        else if (m.id === 'streak_3') compatId = 'id="badge-streak"';
+        else if (m.id === 'first_diagnostic') compatId = 'id="badge-diagnostic"';
+        else if (m.id === 'lessons_50') compatId = 'id="badge-mastery"';
+
+        let statusHtml = '';
+        if (isUnlocked) {
+          let dateStr = '';
+          if (m.earned_at) {
+            try {
+              const d = new Date(m.earned_at);
+              dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+            } catch (e) {
+              dateStr = '';
+            }
+          }
+          statusHtml = `
+            <div style="margin-top: 0.65rem; padding-top: 0.5rem; border-top: 1px solid rgba(21, 154, 156, 0.2); display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 0.72rem; color: #047857; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
+                ✓ Unlocked ${dateStr ? '• ' + dateStr : ''}
+              </span>
+              <span style="font-size: 0.7rem; font-weight: 700; color: var(--color-teal); background: rgba(21, 154, 156, 0.12); padding: 0.1rem 0.4rem; border-radius: var(--radius-sm);">EARNED</span>
+            </div>
+          `;
+        } else {
+          statusHtml = `
+            <div style="margin-top: 0.65rem; padding-top: 0.5rem; border-top: 1px solid var(--color-border);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                <span>${m.formatted_progress}</span>
+                <span>${m.progress_percentage}%</span>
+              </div>
+              <div class="progress-bar-container" style="height: 6px; background: rgba(0,0,0,0.06);">
+                <div class="progress-bar-fill" style="width: ${m.progress_percentage}%; background: var(--color-teal);"></div>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="${cardClass} milestone-badge ${isUnlocked ? 'unlocked' : ''}" ${compatId} data-category="${m.category}" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <span class="milestone-icon" style="font-size: 1.75rem; line-height: 1;">${m.icon}</span>
+                <span style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.04em; background: var(--color-surface-subtle); padding: 0.15rem 0.45rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+                  ${m.category_label}
+                </span>
+              </div>
+              <strong style="display: block; font-size: 0.92rem; color: var(--color-navy); margin-bottom: 0.25rem;">${m.title}</strong>
+              <span style="display: block; font-size: 0.77rem; color: var(--color-text-secondary); line-height: 1.4;">${m.description}</span>
+            </div>
+            ${statusHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    let achievementTabsInitialized = false;
+    function setupAchievementTabs() {
+      if (achievementTabsInitialized) return;
+      const tabBtns = document.querySelectorAll(".achievement-tab-btn");
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentAchievementTab = btn.getAttribute("data-category") || 'all';
+          renderAchievementCards(currentAchievementTab);
+        });
+      });
+      achievementTabsInitialized = true;
+    }
+
+    function checkAndShowAchievementToasts(achievements) {
+      if (!achievements || !Array.isArray(achievements)) return;
+
+      const studentKey = (currentStudent && currentStudent.email) ?
+        `ziglag_shown_milestones_${currentStudent.email.toLowerCase().trim()}` : 'ziglag_shown_milestones';
+
+      let storage = null;
+      try {
+        storage = window.localStorage || window.sessionStorage;
+      } catch (e) {
+        try { storage = window.sessionStorage; } catch (e2) { storage = null; }
+      }
+
+      let shownIds = [];
+      if (storage) {
+        try {
+          const stored = storage.getItem(studentKey);
+          if (stored) shownIds = JSON.parse(stored);
+        } catch (e) {
+          shownIds = [];
+        }
+      }
+
+      const newlyEarned = achievements.filter(a => a.is_earned && !shownIds.includes(a.id));
+      if (newlyEarned.length === 0) return;
+
+      // Show up to 2 toasts per session to avoid overwhelming user
+      const toShow = newlyEarned.slice(0, 2);
+      toShow.forEach((ach, index) => {
+        setTimeout(() => {
+          showMilestoneToast(ach);
+        }, index * 800 + 400);
+      });
+
+      // Mark all earned as shown in persistent storage
+      achievements.filter(a => a.is_earned).forEach(a => {
+        if (!shownIds.includes(a.id)) shownIds.push(a.id);
+      });
+
+      if (storage) {
+        try {
+          storage.setItem(studentKey, JSON.stringify(shownIds));
+        } catch (e) {
+          console.warn("Could not save shown milestones to storage:", e);
+        }
+      }
+    }
+
+    function showMilestoneToast(achievement) {
+      const container = document.getElementById("milestone-toast-container");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      toast.className = "milestone-toast";
+      toast.innerHTML = `
+        <div style="font-size: 1.85rem; flex-shrink: 0; line-height: 1;">${achievement.icon || '🏆'}</div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--color-teal); letter-spacing: 0.05em;">Milestone Unlocked!</span>
+            <button type="button" class="toast-close-btn" style="background: none; border: none; font-size: 1.15rem; color: var(--color-text-secondary); cursor: pointer; padding: 0; line-height: 1;" aria-label="Dismiss">&times;</button>
+          </div>
+          <strong style="display: block; font-size: 0.9rem; color: var(--color-navy); margin: 0.15rem 0;">${achievement.title}</strong>
+          <span style="display: block; font-size: 0.78rem; color: var(--color-text-secondary);">${achievement.description}</span>
+        </div>
+      `;
+
+      const closeBtn = toast.querySelector(".toast-close-btn");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+          toast.style.animation = "none";
+          toast.style.opacity = "0";
+          toast.style.transform = "translateX(110%)";
+          toast.style.transition = "all 0.25s ease";
+          setTimeout(() => toast.remove(), 250);
+        });
+      }
+
+      container.appendChild(toast);
+
+      // Auto dismiss after 5 seconds
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.style.animation = "none";
+          toast.style.opacity = "0";
+          toast.style.transform = "translateX(110%)";
+          toast.style.transition = "all 0.25s ease";
+          setTimeout(() => toast.remove(), 250);
+        }
+      }, 5000);
+    }
+
+    // ==========================================================================
+    // PHASE 6.5.3 ANALYTICS & RECOMMENDATION RENDERERS
+    // ==========================================================================
+
+    function renderStudyHabits(habits) {
+      if (!habits) habits = {};
+
+      const h14 = document.getElementById("habit-consistency-14d");
+      const h30 = document.getElementById("habit-consistency-30d");
+      const activeDaysSummary = document.getElementById("habit-active-days-summary");
+      const attentivenessScore = document.getElementById("habit-attentiveness-score");
+      const attentivenessDetail = document.getElementById("habit-attentiveness-detail");
+      const attentivenessDesc = document.getElementById("habit-attentiveness-desc");
+      const todayDur = document.getElementById("habit-today-duration");
+      const weeklyDur = document.getElementById("habit-weekly-duration");
+      const durDetail = document.getElementById("habit-duration-detail");
+      const currStreak = document.getElementById("habit-current-streak");
+      const longStreak = document.getElementById("habit-longest-streak");
+      const streakDetail = document.getElementById("habit-streak-detail");
+
+      // 1. Consistency indices
+      const c14 = habits.consistency_index_14d !== undefined ? habits.consistency_index_14d : 0;
+      const c30 = habits.consistency_index_30d !== undefined ? habits.consistency_index_30d : 0;
+      if (h14) h14.textContent = `${c14}%`;
+      if (h30) h30.textContent = `/ ${c30}% (30d)`;
+      if (activeDaysSummary) {
+        const a14 = habits.active_days_14d || 0;
+        const t14 = habits.total_days_14d || 14;
+        const a30 = habits.active_days_30d || 0;
+        const t30 = habits.total_days_30d || 30;
+        activeDaysSummary.textContent = `${a14} of ${t14} days (14d) · ${a30} of ${t30} days (30d)`;
+      }
+
+      // 2. Attentiveness: Task 3 Rule - If recorded_sessions_count is 0, display "Not enough data"
+      const sessionCount = habits.recorded_sessions_count || 0;
+      if (sessionCount === 0) {
+        if (attentivenessScore) attentivenessScore.textContent = "Not enough data";
+        if (attentivenessDetail) attentivenessDetail.textContent = "0 verified study sessions";
+        if (attentivenessDesc) {
+          attentivenessDesc.textContent = "Attentiveness calculates the ratio of active focus vs idle time once you complete a study session.";
+        }
+      } else {
+        const att = habits.attentiveness_score !== undefined ? habits.attentiveness_score : 100;
+        if (attentivenessScore) attentivenessScore.textContent = `${att}%`;
+        if (attentivenessDetail) {
+          const focusLevel = att >= 85 ? "High Focus Telemetry" : (att >= 60 ? "Moderate Focus" : "Needs Consistency");
+          attentivenessDetail.textContent = `${focusLevel} (${sessionCount} ${sessionCount === 1 ? 'session' : 'sessions'})`;
+        }
+        if (attentivenessDesc) {
+          attentivenessDesc.textContent = "Active learner interaction ratio during recorded study sessions.";
+        }
+      }
+
+      // 3. Durations
+      const todayMins = habits.today_verified_minutes || 0;
+      const weeklyHours = habits.weekly_verified_hours !== undefined ? habits.weekly_verified_hours : (habits.weekly_verified_minutes ? (habits.weekly_verified_minutes / 60).toFixed(1) : 0);
+      if (todayDur) todayDur.textContent = `${todayMins}m`;
+      if (weeklyDur) weeklyDur.textContent = `/ ${weeklyHours}h week`;
+      if (durDetail) {
+        durDetail.textContent = `Today: ${todayMins} mins · This week: ${weeklyHours} hours`;
+      }
+
+      // 4. Streaks
+      const cur = habits.current_streak || 0;
+      const lng = habits.longest_streak || 0;
+      if (currStreak) currStreak.textContent = `${cur} ${cur === 1 ? 'Day' : 'Days'}`;
+      if (longStreak) longStreak.textContent = `(Best: ${lng})`;
+      if (streakDetail) {
+        streakDetail.textContent = cur > 0 ? "Daily streak active today" : "Start a session to ignite streak";
+      }
+    }
+
+    function renderTopicMastery(topicMastery, enrolledCourses) {
+      const grid = document.getElementById("dash-topic-mastery-grid");
+      const summaryEl = document.getElementById("dash-topic-mastery-summary");
+      if (!grid) return;
+
+      if (!enrolledCourses || enrolledCourses.length === 0) {
+        if (summaryEl) summaryEl.textContent = "0 Topics Available";
+        grid.innerHTML = `
+          <div class="dash-empty-card" style="grid-column: 1 / -1;">
+            <span style="font-size: 2.25rem; display: block; margin-bottom: 0.5rem;">📚</span>
+            <h3 style="color: var(--color-navy); margin-bottom: 0.5rem;">No Enrolled Courses</h3>
+            <p style="color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 1.25rem auto; font-size: 0.9rem;">
+              Enroll in a course from our curriculum catalog to begin tracking your concept-level topic mastery.
+            </p>
+            <a href="courses.html" class="btn btn-primary btn-sm">Explore Courses ➜</a>
+          </div>
+        `;
+        return;
+      }
+
+      if (!topicMastery || !Array.isArray(topicMastery) || topicMastery.length === 0) {
+        if (summaryEl) summaryEl.textContent = "0 Topics Available";
+        grid.innerHTML = `
+          <div class="dash-empty-card" style="grid-column: 1 / -1;">
+            <span style="font-size: 2.25rem; display: block; margin-bottom: 0.5rem;">📊</span>
+            <h3 style="color: var(--color-navy); margin-bottom: 0.5rem;">No Topic Mastery Data</h3>
+            <p style="color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 1.25rem auto; font-size: 0.9rem;">
+              Topic mastery analytics will appear here as you begin studying and completing course lectures.
+            </p>
+            <a href="courses.html" class="btn btn-primary btn-sm">Start Studying ➜</a>
+          </div>
+        `;
+        return;
+      }
+
+      if (summaryEl) {
+        summaryEl.textContent = `${topicMastery.length} Topics Tracked`;
+      }
+
+      grid.innerHTML = topicMastery.map(t => {
+        const name = escapeHtml(t.topic || 'General Topic');
+        const comp = t.completed_lectures || 0;
+        const tot = t.total_lectures || 0;
+        const pct = t.percentage !== undefined ? t.percentage : (tot > 0 ? Math.round((comp / tot) * 100) : 0);
+
+        let badgeClass = "topic-status-needs-practice";
+        let badgeText = "Needs Focus";
+        let barColor = "var(--color-orange)";
+
+        if (pct >= 70) {
+          badgeClass = "topic-status-strong";
+          badgeText = "Strong Progress";
+          barColor = "var(--color-teal)";
+        } else if (pct >= 30) {
+          badgeClass = "topic-status-moderate";
+          badgeText = "In Progress";
+          barColor = "#2563EB";
+        }
+
+        return `
+          <div class="dash-topic-card" data-topic="${name}">
+            <div class="dash-topic-header">
+              <h4 class="dash-topic-title">${name}</h4>
+              <span class="dash-topic-badge ${badgeClass}">${badgeText} (${pct}%)</span>
+            </div>
+            <div class="dash-topic-bar-bg" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${name} topic mastery ${pct}%">
+              <div class="dash-topic-bar-fill" style="width: ${pct}%; background: ${barColor};"></div>
+            </div>
+            <div class="dash-topic-meta">
+              <span>${comp} of ${tot} ${tot === 1 ? 'lecture' : 'lectures'} completed</span>
+              <span style="font-weight: 700; color: ${barColor};">${pct}%</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderRecommendations(recommendations) {
+      const grid = document.getElementById("dash-recommendations-grid");
+      const countEl = document.getElementById("dash-recs-count");
+      if (!grid) return;
+
+      if (!recommendations || !Array.isArray(recommendations) || recommendations.length === 0) {
+        if (countEl) countEl.textContent = "0 Active Tasks";
+        grid.innerHTML = `
+          <div class="dash-empty-card" style="grid-column: 1 / -1;">
+            <span style="font-size: 2.25rem; display: block; margin-bottom: 0.5rem;">🎉</span>
+            <h3 style="color: var(--color-navy); margin-bottom: 0.5rem;">You're All Caught Up!</h3>
+            <p style="color: var(--color-text-secondary); max-width: 520px; margin: 0 auto 1.25rem auto; font-size: 0.9rem;">
+              You have no urgent remedial lessons or pending syllabus milestones right now. Continue your regular studies or explore other enrolled courses below.
+            </p>
+            <a href="courses.html" class="btn btn-primary btn-sm">Explore Course Catalog ➜</a>
+          </div>
+        `;
+        return;
+      }
+
+      // Deduplicate recommendations by course_id + lecture_id
+      const seenLectures = new Set();
+      const uniqueRecs = [];
+      for (const r of recommendations) {
+        const key = `${r.course_id || ''}::${r.lecture_id || ''}`;
+        if (!seenLectures.has(key)) {
+          seenLectures.add(key);
+          uniqueRecs.push(r);
+        }
+      }
+
+      if (countEl) {
+        countEl.textContent = `${uniqueRecs.length} ${uniqueRecs.length === 1 ? 'Recommendation' : 'Recommendations'}`;
+      }
+
+      grid.innerHTML = uniqueRecs.map(r => {
+        const isRemedial = (r.type === 'DIAGNOSTIC_REMEDIAL' || r.priority === 1);
+        const isRevision = (r.type === 'SPACED_REVISION' || r.priority === 4);
+
+        let cardClass = "dash-rec-card";
+        let badgeClass = "rec-badge-next";
+        let icon = "📚";
+        let defaultLabel = "Recommended Next Lesson";
+
+        if (isRemedial) {
+          cardClass += " rec-card-remedial";
+          badgeClass = "rec-badge-remedial";
+          icon = "🎯";
+          defaultLabel = "High Priority Remediation";
+        } else if (isRevision) {
+          cardClass += " rec-card-revision";
+          badgeClass = "rec-badge-revision";
+          icon = "🔄";
+          defaultLabel = "Spaced Revision";
+        } else {
+          cardClass += " rec-card-next";
+        }
+
+        const priorityLabel = escapeHtml(r.priority_label || defaultLabel);
+        const topic = escapeHtml(r.topic || 'Core Concept');
+        const lecTitle = escapeHtml(r.lecture_title || 'Targeted Lesson');
+        const courseTitle = escapeHtml(r.course_title || 'Enrolled Course');
+        const duration = escapeHtml(r.duration || '20-30 mins');
+        const reason = escapeHtml(r.reason || 'Recommended based on your curriculum roadmap.');
+
+        let actionUrl = r.action_url;
+        if (!actionUrl || typeof actionUrl !== 'string' || actionUrl.trim() === '') {
+          const cid = encodeURIComponent(r.course_id || '');
+          const lid = encodeURIComponent(r.lecture_id || '');
+          actionUrl = `course-view.html?id=${cid}${lid ? `&lec=${lid}` : ''}`;
+        }
+
+        return `
+          <div class="${cardClass}" data-course-id="${escapeHtml(r.course_id || '')}" data-lecture-id="${escapeHtml(r.lecture_id || '')}">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <span class="dash-rec-badge ${badgeClass}">${icon} ${priorityLabel}</span>
+                <span class="dash-rec-topic">${topic}</span>
+              </div>
+              <h4 class="dash-rec-title">${lecTitle}</h4>
+              <div class="dash-rec-course">Course: <strong>${courseTitle}</strong></div>
+              <div class="dash-rec-reason">
+                💡 ${reason}
+              </div>
+            </div>
+            <div class="dash-rec-footer">
+              <span style="font-size: 0.8rem; color: var(--color-text-secondary); display: flex; align-items: center; gap: 0.25rem;">
+                ⏱️ ${duration}
+              </span>
+              <a href="${actionUrl}" class="btn btn-primary btn-sm" style="justify-content: center;">
+                Start Learning ➜
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDiagnosticProgress(diagProgress) {
+      const container = document.getElementById("dash-diagnostic-progress-content");
+      if (!container) return;
+
+      if (!diagProgress || !diagProgress.has_taken_diagnostic) {
+        container.innerHTML = `
+          <div class="dash-diag-invite-card">
+            <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
+              <div class="dash-diag-invite-icon">🎯</div>
+              <div style="flex: 1; min-width: 250px;">
+                <h3 style="color: var(--color-navy); margin: 0 0 0.5rem 0;">Establish Your Learning Baseline</h3>
+                <p style="color: var(--color-text-secondary); margin: 0 0 1rem 0; font-size: 0.925rem; line-height: 1.5;">
+                  You haven't completed a diagnostic skill checkpoint yet. Take a short 3-question evaluation in Mathematics to uncover concept strengths, detect topic roadblocks, and unlock high-precision study recommendations.
+                </p>
+                <button class="btn btn-primary btn-sm" onclick="startDiagnosticFromInvite()">
+                  Start Diagnostic Checkpoint 🚀
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const latestPct = diagProgress.latest_percentage !== undefined ? diagProgress.latest_percentage : 0;
+      const basePct = diagProgress.baseline_percentage !== undefined ? diagProgress.baseline_percentage : latestPct;
+      const delta = diagProgress.improvement_percentage !== undefined ? diagProgress.improvement_percentage : (latestPct - basePct);
+      const attempts = diagProgress.total_attempts || 1;
+
+      let deltaColor = "var(--color-text-secondary)";
+      let deltaText = `${delta}%`;
+      if (delta > 0) {
+        deltaColor = "#10B981";
+        deltaText = `+${delta}% ▲`;
+      } else if (delta < 0) {
+        deltaColor = "#EF4444";
+        deltaText = `${delta}% ▼`;
+      }
+
+      const strengths = Array.isArray(diagProgress.strengths) ? diagProgress.strengths : [];
+      const weaknesses = Array.isArray(diagProgress.weaknesses) ? diagProgress.weaknesses : [];
+
+      container.innerHTML = `
+        <div class="dash-diag-summary-grid">
+          <div class="dash-diag-metric-box">
+            <span class="dash-diag-metric-lbl">Latest Score</span>
+            <div class="dash-diag-metric-val" style="color: var(--color-navy);">${latestPct}%</div>
+            <span class="dash-diag-metric-sub">Attempt #${attempts}</span>
+          </div>
+          <div class="dash-diag-metric-box">
+            <span class="dash-diag-metric-lbl">Baseline Score</span>
+            <div class="dash-diag-metric-val" style="color: var(--color-text-secondary);">${basePct}%</div>
+            <span class="dash-diag-metric-sub">Initial Checkpoint</span>
+          </div>
+          <div class="dash-diag-metric-box">
+            <span class="dash-diag-metric-lbl">Skill Growth</span>
+            <div class="dash-diag-metric-val" style="color: ${deltaColor};">${deltaText}</div>
+            <span class="dash-diag-metric-sub">${delta >= 0 ? 'Improvement' : 'Change'}</span>
+          </div>
+          <div class="dash-diag-metric-box">
+            <span class="dash-diag-metric-lbl">Total Attempts</span>
+            <div class="dash-diag-metric-val" style="color: var(--color-teal);">${attempts}</div>
+            <span class="dash-diag-metric-sub">Evaluations Logged</span>
+          </div>
+        </div>
+
+        <div class="dash-diag-detail-grid">
+          <!-- Strengths -->
+          <div class="dash-diag-breakdown-card">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <span style="font-size: 1.25rem;">✨</span>
+              <h4 style="margin: 0; font-size: 1.05rem; color: var(--color-navy);">Demonstrated Strengths</h4>
+            </div>
+            ${strengths.length > 0 ? `
+              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                ${strengths.map(s => {
+                  const name = escapeHtml(s.topic || s.topic_name || 'Core Topic');
+                  const p = s.percentage !== undefined ? `${s.percentage}%` : 'Mastered';
+                  return `
+                    <div class="diag-chip-strength">
+                      <span style="font-weight: 600;">✓ ${name}</span>
+                      <span class="hub-level-chip" style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-weight: 700;">${p}</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : `
+              <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin: 0;">
+                No clear strengths identified yet. Retake the diagnostic checkpoint to demonstrate topic mastery.
+              </p>
+            `}
+          </div>
+
+          <!-- Weaknesses -->
+          <div class="dash-diag-breakdown-card">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <span style="font-size: 1.25rem;">🎯</span>
+              <h4 style="margin: 0; font-size: 1.05rem; color: var(--color-navy);">Target Remediation Areas</h4>
+            </div>
+            ${weaknesses.length > 0 ? `
+              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                ${weaknesses.map(w => {
+                  const name = escapeHtml(w.topic || w.topic_name || 'Core Topic');
+                  const p = w.percentage !== undefined ? `${w.percentage}%` : 'Needs Focus';
+                  return `
+                    <div class="diag-chip-weakness">
+                      <span style="font-weight: 600;">⚠️ ${name}</span>
+                      <span class="hub-level-chip" style="background: rgba(234, 88, 12, 0.15); color: #EA580C; font-weight: 700;">${p}</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : `
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10B981; border-radius: var(--radius-sm); padding: 1rem; color: #10B981; font-size: 0.875rem;">
+                🎉 <strong>Full Topic Proficiency!</strong> No concept roadblocks detected in your latest diagnostic evaluation.
+              </div>
+            `}
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+          <button class="btn btn-secondary btn-sm" onclick="startDiagnosticFromInvite()">
+            Retake Diagnostic Evaluation ↺
+          </button>
+        </div>
+      `;
+    }
+
+    async function loadActivityHistory() {
+      try {
+        const data = await window.ZiglagAPI.get('/api/student/analytics/activity-history?days=30');
+        if (data && data.success && Array.isArray(data.history)) {
+          renderActivityHistory(data);
+        } else {
+          renderActivityHistoryError((data && data.message) || "No activity history available.");
+        }
+      } catch (err) {
+        console.warn("Activity history fetch error:", err);
+        renderActivityHistoryError("Activity history telemetry temporarily unavailable.");
+      }
+    }
+
+    function renderActivityHistory(data) {
+      const chartEl = document.getElementById("dash-activity-timeline-chart");
+      const daterangeEl = document.getElementById("activity-hist-daterange");
+      const actDaysEl = document.getElementById("act-summary-days");
+      const actTimeEl = document.getElementById("act-summary-time");
+      const actXpEl = document.getElementById("act-summary-xp");
+      const actLessonsEl = document.getElementById("act-summary-lessons");
+
+      if (daterangeEl && data.start_date && data.end_date) {
+        daterangeEl.textContent = `${data.start_date} to ${data.end_date}`;
+      }
+
+      const daysReq = data.days_requested || 30;
+      const activeDays = data.total_active_days || 0;
+      const totMins = data.total_minutes_spent || 0;
+      const totHours = data.total_hours_spent !== undefined ? data.total_hours_spent : (totMins / 60).toFixed(1);
+      const totXp = data.total_xp_earned || 0;
+      const totLessons = data.total_lessons_completed || 0;
+
+      if (actDaysEl) actDaysEl.textContent = `${activeDays} / ${daysReq}`;
+      if (actTimeEl) actTimeEl.textContent = `${totHours}h (${totMins}m)`;
+      if (actXpEl) actXpEl.textContent = `⚡ ${totXp} XP`;
+      if (actLessonsEl) actLessonsEl.textContent = `📚 ${totLessons}`;
+
+      if (!chartEl) return;
+
+      const history = data.history || [];
+      if (history.length === 0) {
+        chartEl.innerHTML = `<p style="color: var(--color-text-secondary); text-align: center; margin: 2rem auto;">No activity records logged in this timeframe.</p>`;
+        return;
+      }
+
+      const maxMinutes = Math.max(...history.map(d => d.minutes_spent || 0), 15);
+
+      chartEl.innerHTML = history.map((day, idx) => {
+        const mins = day.minutes_spent || 0;
+        const isActive = Boolean(day.is_active);
+        const xp = day.xp_earned || 0;
+        const lessons = day.lessons_completed || 0;
+        const dayName = day.day_name || '';
+        const dateStr = day.date || '';
+        const dayOfMonth = dateStr ? dateStr.split('-')[2] : '';
+
+        let barHeight = 6;
+        let barColor = "var(--color-border)";
+        let barShadow = "none";
+
+        if (isActive) {
+          barHeight = Math.min(100, Math.max(18, Math.round((mins / maxMinutes) * 100)));
+          barColor = "linear-gradient(180deg, var(--color-teal) 0%, #0F766E 100%)";
+          barShadow = "0 0 6px rgba(13, 148, 136, 0.35)";
+        }
+
+        const title = `${dateStr} (${dayName}): ${isActive ? `${mins}m active, ${xp} XP, ${lessons} lessons completed` : 'No study activity'}`;
+        const showLabel = (idx % 5 === 0) || (idx === history.length - 1);
+
+        return `
+          <div class="dash-day-col" title="${title}" role="img" aria-label="${title}">
+            <div class="dash-day-bar-container">
+              <div class="dash-day-bar" style="height: ${barHeight}%; background: ${barColor}; box-shadow: ${barShadow};"></div>
+            </div>
+            <span class="dash-day-lbl">${showLabel ? dayOfMonth : ''}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderActivityHistoryError(msg) {
+      const chartEl = document.getElementById("dash-activity-timeline-chart");
+      if (chartEl) {
+        chartEl.innerHTML = `
+          <div style="color: var(--color-text-secondary); text-align: center; margin: 1.5rem auto; font-size: 0.875rem;">
+            📊 ${escapeHtml(msg)}
+          </div>
+        `;
+      }
+    }
+
+    function startDiagnosticFromInvite() {
+      const diagSection = document.getElementById("diagnostic");
+      if (diagSection) {
+        diagSection.scrollIntoView({ behavior: 'smooth' });
+        startDiagnosticTest();
+      }
+    }
+
+    function scrollToDiagnosticSection() {
+      const diagSection = document.getElementById("diagnostic");
+      if (diagSection) {
+        diagSection.scrollIntoView({ behavior: 'smooth' });
       }
     }
 
     async function handleDashboardLogout() {
       try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        await window.ZiglagAPI.post('/api/auth/logout');
       } catch (e) {
         console.error("Logout error:", e);
       }
       window.location.href = '/login.html';
     }
 
-    function openProfileModal() {
-      const modal = document.getElementById("profile-modal");
-      const currentName = localStorage.getItem("ziglag_scholar_name") || "";
-      const currentLevel = localStorage.getItem("ziglag_scholar_level") || "Senior Secondary (SS3) • WASSCE Candidate";
+    let isSavingProfile = false;
 
-      document.getElementById("input-scholar-name").value = currentName;
-      document.getElementById("select-target-level").value = currentLevel;
+    function showProfileModalError(msg) {
+      const errEl = document.getElementById("profile-modal-error");
+      const succEl = document.getElementById("profile-modal-success");
+      if (succEl) succEl.style.display = "none";
+      if (errEl) {
+        errEl.textContent = msg;
+        errEl.style.display = "block";
+      }
+    }
+
+    function showProfileModalSuccess(msg) {
+      const errEl = document.getElementById("profile-modal-error");
+      const succEl = document.getElementById("profile-modal-success");
+      if (errEl) errEl.style.display = "none";
+      if (succEl) {
+        succEl.textContent = msg;
+        succEl.style.display = "block";
+      }
+    }
+
+    function resetProfileModalFeedback() {
+      const errEl = document.getElementById("profile-modal-error");
+      const succEl = document.getElementById("profile-modal-success");
+      if (errEl) {
+        errEl.textContent = "";
+        errEl.style.display = "none";
+      }
+      if (succEl) {
+        succEl.textContent = "";
+        succEl.style.display = "none";
+      }
+    }
+
+    function openProfileModal() {
+      resetProfileModalFeedback();
+      const modal = document.getElementById("profile-modal");
+      const inputName = document.getElementById("input-scholar-name");
+      const selectEdu = document.getElementById("select-education-level");
+      const selectExam = document.getElementById("select-intended-exam");
+      const inputPhone = document.getElementById("input-scholar-phone");
+      const inputAvatar = document.getElementById("input-scholar-avatar");
+
+      if (currentStudent) {
+        if (inputName && currentStudent.full_name) inputName.value = currentStudent.full_name;
+        if (selectEdu && currentStudent.education_level) selectEdu.value = currentStudent.education_level;
+        if (selectExam && currentStudent.intended_exam) selectExam.value = currentStudent.intended_exam;
+        if (inputPhone) inputPhone.value = currentStudent.phone || "";
+        if (inputAvatar) inputAvatar.value = currentStudent.avatar_url || "";
+      }
+
+      const saveBtn = document.getElementById("btn-save-profile");
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Profile";
+      }
+      isSavingProfile = false;
 
       if (modal) modal.style.display = "flex";
     }
 
     function closeProfileModal() {
+      if (isSavingProfile) return;
       const modal = document.getElementById("profile-modal");
       if (modal) modal.style.display = "none";
+      resetProfileModalFeedback();
     }
 
-    function saveProfileModal() {
-      const name = document.getElementById("input-scholar-name").value.trim() || "Scholar";
-      const level = document.getElementById("select-target-level").value;
+    async function saveProfileModal() {
+      if (isSavingProfile) return;
 
-      localStorage.setItem("ziglag_scholar_name", name);
-      localStorage.setItem("ziglag_scholar_level", level);
+      const inputName = document.getElementById("input-scholar-name");
+      const selectEdu = document.getElementById("select-education-level");
+      const selectExam = document.getElementById("select-intended-exam");
+      const inputPhone = document.getElementById("input-scholar-phone");
+      const inputAvatar = document.getElementById("input-scholar-avatar");
+      const saveBtn = document.getElementById("btn-save-profile");
 
-      loadStudentProfile();
-      closeProfileModal();
+      const fullName = (inputName ? inputName.value : "").trim();
+      const educationLevel = (selectEdu ? selectEdu.value : "").trim();
+      const intendedExam = (selectExam ? selectExam.value : "").trim();
+      const phoneRaw = (inputPhone ? inputPhone.value : "").trim();
+      const avatarRaw = (inputAvatar ? inputAvatar.value : "").trim();
+
+      // Client-side validations matching backend rules
+      if (!fullName || fullName.length < 2) {
+        showProfileModalError("Please provide your full name (at least 2 characters).");
+        if (inputName) inputName.focus();
+        return;
+      }
+      if (fullName.length > 150) {
+        showProfileModalError("Full name cannot exceed 150 characters.");
+        if (inputName) inputName.focus();
+        return;
+      }
+
+      if (phoneRaw) {
+        if (phoneRaw.length < 7 || phoneRaw.length > 30 || !/^\+?[0-9\s\-\(\)]{7,30}$/.test(phoneRaw)) {
+          showProfileModalError("Phone must contain a valid phone number (7 to 30 characters: digits, spaces, dashes, parentheses).");
+          if (inputPhone) inputPhone.focus();
+          return;
+        }
+      }
+
+      if (avatarRaw) {
+        if (avatarRaw.length > 500) {
+          showProfileModalError("Avatar URL cannot exceed 500 characters.");
+          if (inputAvatar) inputAvatar.focus();
+          return;
+        }
+        const lowerAvatar = avatarRaw.toLowerCase();
+        if (['javascript:', 'data:', 'vbscript:', 'file:'].some(scheme => lowerAvatar.startsWith(scheme))) {
+          showProfileModalError("Avatar URL contains an unsafe or unsupported URL scheme.");
+          if (inputAvatar) inputAvatar.focus();
+          return;
+        }
+        if (!lowerAvatar.startsWith('http://') && !lowerAvatar.startsWith('https://') && !lowerAvatar.startsWith('/')) {
+          showProfileModalError("Avatar URL must start with http://, https://, or a valid relative path starting with /.");
+          if (inputAvatar) inputAvatar.focus();
+          return;
+        }
+      }
+
+      // Build permitted payload ONLY
+      const payload = {
+        full_name: fullName,
+        education_level: educationLevel,
+        intended_exam: intendedExam,
+        phone: phoneRaw ? phoneRaw : null,
+        avatar_url: avatarRaw ? avatarRaw : null
+      };
+
+      // In-flight state
+      isSavingProfile = true;
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving... ⏳";
+      }
+      resetProfileModalFeedback();
+
+      try {
+        const response = await window.ZiglagAPI.put('/api/student/profile', payload);
+
+        if (response && response.success && response.student) {
+          const updated = response.student;
+          currentStudent = Object.assign({}, currentStudent, updated);
+
+          // Update DOM display immediately
+          updateDashboardProfileDisplay(updated);
+
+          showProfileModalSuccess(response.message || "Profile updated successfully!");
+
+          // Reload dashboard summary so all metrics and auto-enrolments synchronize with server
+          loadDashboardSummary();
+
+          setTimeout(() => {
+            isSavingProfile = false;
+            if (saveBtn) {
+              saveBtn.disabled = false;
+              saveBtn.textContent = "Save Profile";
+            }
+            closeProfileModal();
+          }, 800);
+        } else {
+          isSavingProfile = false;
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Profile";
+          }
+          showProfileModalError((response && response.message) || "Failed to update profile.");
+        }
+      } catch (err) {
+        isSavingProfile = false;
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Save Profile";
+        }
+        // If HTTP 401, ZiglagAPI will handle redirect. Otherwise show error and keep modal open
+        if (err.status !== 401) {
+          showProfileModalError(err.message || "An error occurred while saving profile.");
+        }
+      }
     }
 
-    // 2. Real Learning Progress Calculation
-    function updateDashboardProgress() {
-      const completedMap = AppState.completedLessons || {};
-      let totalCompleted = 0;
-      Object.keys(completedMap).forEach(k => {
-        totalCompleted += completedMap[k].length;
-      });
+    function updateDashboardProfileDisplay(student) {
+      if (!student) return;
 
-      const totalSyllabusLectures = 32;
-      const percent = Math.min(100, Math.round((totalCompleted / totalSyllabusLectures) * 100));
+      const nameEl = document.getElementById("dash-scholar-name");
+      const levelEl = document.getElementById("dash-level-badge");
+      const avatarEl = document.getElementById("dash-avatar-icon");
+      const countdownEl = document.getElementById("dash-countdown-days");
+      const goalExamEl = document.getElementById("goal-exam-name");
 
-      const percentEl = document.getElementById("dash-progress-percent");
-      const barEl = document.getElementById("dash-overall-bar");
-      const subtextEl = document.getElementById("dash-completed-subtext");
-
-      if (percentEl) percentEl.textContent = `${percent}%`;
-      if (barEl) barEl.style.width = `${percent}%`;
-      if (subtextEl) subtextEl.textContent = `${totalCompleted} of ${totalSyllabusLectures} syllabus lectures completed`;
-
-      // Update WASSCE specific bar
-      const wassceCount = (completedMap['wassce-gce-neco-prep'] || []).length;
-      const wasscePercent = Math.round((wassceCount / 6) * 100);
-      const wassceText = document.getElementById("prog-wassce-text");
-      const wassceBar = document.getElementById("prog-wassce-bar");
-      if (wassceText) wassceText.textContent = `${wassceCount}/6 Completed (${wasscePercent}%)`;
-      if (wassceBar) wassceBar.style.width = `${wasscePercent}%`;
-
-      // Update JAMB specific bar
-      const jambCount = (completedMap['utme-postutme-prep'] || completedMap['jamb-postjamb-prep'] || []).length;
-      const jambPercent = Math.round((jambCount / 6) * 100);
-      const jambText = document.getElementById("prog-jamb-text");
-      const jambBar = document.getElementById("prog-jamb-bar");
-      if (jambText) jambText.textContent = `${jambCount}/6 Completed (${jambPercent}%)`;
-      if (jambBar) jambBar.style.width = `${jambPercent}%`;
-
-      // Dynamic XP Calculation: 50 XP per completed lecture + 300 base XP
-      const xp = 300 + (totalCompleted * 50);
-      const xpEl = document.getElementById("dash-xp-count");
-      if (xpEl) xpEl.textContent = xp;
+      if (nameEl && student.full_name) {
+        nameEl.textContent = student.full_name;
+      }
+      if (levelEl) {
+        levelEl.textContent = `${student.education_level || ''} • ${student.intended_exam || ''} Candidate`;
+      }
+      if (avatarEl && student.full_name) {
+        avatarEl.textContent = student.full_name.trim().charAt(0).toUpperCase();
+      }
+      if (countdownEl && student.intended_exam) {
+        countdownEl.textContent = `${student.intended_exam} Target`;
+      }
+      if (goalExamEl && student.intended_exam) {
+        goalExamEl.textContent = `${student.intended_exam} Target`;
+      }
     }
 
     // 3. Course Level Filtering
@@ -1120,152 +3363,337 @@
       });
     }
 
-    // 4. Interactive Diagnostic Assessment Logic
+    // 4. Interactive Diagnostic Assessment Logic (Phase 6.3.2 Stage 6 Step 4)
     const DIAGNOSTIC_QUESTIONS = [
       {
-        q: "Solve for x in the linear algebraic equation: 3(x - 2) + 4 = 2(x + 5)",
+        id: "diag_math_01",
         topic: "Linear Algebra",
-        options: ["x = 8", "x = 12", "x = 14", "x = 10"],
-        correct: 1,
-        explain: "Expanding brackets: 3x - 6 + 4 = 2x + 10 ⟹ 3x - 2 = 2x + 10. Subtract 2x from both sides: x - 2 = 10 ⟹ x = 12."
+        prompt: "Solve for x in the linear algebraic equation: 3(x - 2) + 4 = 2(x + 5)",
+        options: ["x = 8", "x = 12", "x = 14", "x = 10"]
       },
       {
-        q: "If log₁₀(2) = 0.3010 and log₁₀(3) = 0.4771, calculate the exact value of log₁₀(18):",
+        id: "diag_math_02",
         topic: "Logarithms & Indices",
-        options: ["1.2552", "0.9542", "1.1761", "1.0791"],
-        correct: 0,
-        explain: "18 = 2 × 3² ⟹ log₁₀(18) = log₁₀(2) + 2·log₁₀(3) = 0.3010 + 2(0.4771) = 1.2552."
+        prompt: "If log₁₀(2) = 0.3010 and log₁₀(3) = 0.4771, calculate the exact value of log₁₀(18):",
+        options: ["1.2552", "0.9542", "1.1761", "1.0791"]
       },
       {
-        q: "In a circle with center O, the angle subtended by an arc at the center is 110°. Find the angle subtended by the same arc at any point on the circumference:",
+        id: "diag_math_03",
         topic: "Circle Geometry Theorems",
-        options: ["220°", "110°", "55°", "90°"],
-        correct: 2,
-        explain: "Circle Theorem: The angle subtended by an arc at the center is twice the angle subtended by it at the circumference. Therefore, Angle = 110° / 2 = 55°."
+        prompt: "In a circle with center O, the angle subtended by an arc at the center is 110°. Find the angle subtended by the same arc at any point on the circumference:",
+        options: ["220°", "110°", "55°", "90°"]
       }
     ];
 
     let diagCurrentIdx = 0;
-    let diagScore = 0;
+    let diagSelectedAnswers = {};
+    let diagStartTime = 0;
+    let isSubmittingDiagnostic = false;
 
     function startDiagnosticTest() {
       diagCurrentIdx = 0;
-      diagScore = 0;
-      document.getElementById("diag-test-container").style.display = "block";
-      document.getElementById("diag-results-box").style.display = "none";
-      document.getElementById("btn-start-diagnostic").style.display = "none";
+      diagSelectedAnswers = {};
+      diagStartTime = Date.now();
+      isSubmittingDiagnostic = false;
+
+      const testContainer = document.getElementById("diag-test-container");
+      const resultsBox = document.getElementById("diag-results-box");
+      const startBtn = document.getElementById("btn-start-diagnostic");
+      const feedback = document.getElementById("diag-feedback");
+
+      if (testContainer) testContainer.style.display = "block";
+      if (resultsBox) resultsBox.style.display = "none";
+      if (startBtn) startBtn.style.display = "none";
+      if (feedback) {
+        feedback.style.display = "none";
+        feedback.innerHTML = "";
+      }
+
       renderDiagnosticQuestion();
     }
 
     function renderDiagnosticQuestion() {
       const q = DIAGNOSTIC_QUESTIONS[diagCurrentIdx];
-      document.getElementById("diag-question-num").textContent = `Question ${diagCurrentIdx + 1} of ${DIAGNOSTIC_QUESTIONS.length}`;
-      document.getElementById("diag-topic-tag").textContent = `Topic: ${q.topic}`;
-      document.getElementById("diag-question-text").textContent = q.q;
+      if (!q) return;
 
+      const numEl = document.getElementById("diag-question-num");
+      const topicEl = document.getElementById("diag-topic-tag");
+      const textEl = document.getElementById("diag-question-text");
       const optsGrid = document.getElementById("diag-options-grid");
-      optsGrid.innerHTML = "";
-      q.options.forEach((opt, idx) => {
-        const b = document.createElement("button");
-        b.className = "btn btn-secondary";
-        b.textContent = opt;
-        b.onclick = () => recordDiagnosticAnswer(idx);
-        optsGrid.appendChild(b);
-      });
-
+      const prevBtn = document.getElementById("btn-prev-question");
+      const nextBtn = document.getElementById("btn-next-question");
+      const submitBtn = document.getElementById("btn-submit-diagnostic");
       const feedback = document.getElementById("diag-feedback");
-      feedback.style.display = "none";
+
+      if (numEl) numEl.textContent = `Question ${diagCurrentIdx + 1} of ${DIAGNOSTIC_QUESTIONS.length}`;
+      if (topicEl) topicEl.textContent = `Topic: ${q.topic}`;
+      if (textEl) textEl.textContent = q.prompt;
+
+      if (optsGrid) {
+        optsGrid.innerHTML = "";
+        q.options.forEach((opt, idx) => {
+          const b = document.createElement("button");
+          const isSelected = (diagSelectedAnswers[q.id] === idx);
+          b.className = isSelected ? "btn btn-primary" : "btn btn-secondary";
+          b.textContent = `${String.fromCharCode(65 + idx)}) ${opt}`;
+          b.type = "button";
+          b.onclick = () => selectDiagnosticOption(q.id, idx);
+          optsGrid.appendChild(b);
+        });
+      }
+
+      if (prevBtn) {
+        prevBtn.style.display = (diagCurrentIdx > 0) ? "inline-flex" : "none";
+      }
+
+      if (diagCurrentIdx === DIAGNOSTIC_QUESTIONS.length - 1) {
+        if (nextBtn) nextBtn.style.display = "none";
+        if (submitBtn) {
+          submitBtn.style.display = "inline-flex";
+          submitBtn.disabled = isSubmittingDiagnostic;
+          submitBtn.textContent = isSubmittingDiagnostic ? "Evaluating on Server... ⏳" : "Submit Assessment 🚀";
+        }
+      } else {
+        if (nextBtn) nextBtn.style.display = "inline-flex";
+        if (submitBtn) submitBtn.style.display = "none";
+      }
+
+      if (feedback) {
+        feedback.style.display = "none";
+        feedback.innerHTML = "";
+      }
     }
 
-    function recordDiagnosticAnswer(chosenIdx) {
-      const q = DIAGNOSTIC_QUESTIONS[diagCurrentIdx];
-      const isCorrect = (chosenIdx === q.correct);
-      if (isCorrect) diagScore++;
+    function selectDiagnosticOption(questionId, chosenIdx) {
+      diagSelectedAnswers[questionId] = chosenIdx;
 
-      const opts = document.querySelectorAll("#diag-options-grid button");
-      opts.forEach((btn, idx) => {
-        btn.style.pointerEvents = "none";
-        if (idx === q.correct) {
-          btn.style.background = "#10B981";
-          btn.style.color = "#FFFFFF";
-          btn.style.borderColor = "#10B981";
-        } else if (idx === chosenIdx && !isCorrect) {
-          btn.style.background = "rgba(239, 68, 68, 0.1)";
-          btn.style.color = "#EF4444";
-          btn.style.borderColor = "#EF4444";
-        }
-      });
+      const q = DIAGNOSTIC_QUESTIONS[diagCurrentIdx];
+      if (!q || q.id !== questionId) return;
+
+      const optsGrid = document.getElementById("diag-options-grid");
+      if (optsGrid) {
+        const buttons = optsGrid.querySelectorAll("button");
+        buttons.forEach((b, idx) => {
+          b.className = (idx === chosenIdx) ? "btn btn-primary" : "btn btn-secondary";
+        });
+      }
 
       const feedback = document.getElementById("diag-feedback");
-      feedback.style.display = "block";
-      feedback.style.background = isCorrect ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.06)";
-      feedback.style.borderColor = isCorrect ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)";
-      feedback.innerHTML = `
-        <div style="font-weight:700; color:${isCorrect ? '#10B981' : '#EF4444'}; margin-bottom:0.35rem;">
-          ${isCorrect ? '✓ Correct Answer!' : '⚠️ Incorrect.'}
-        </div>
-        <div style="color:var(--color-text-main); font-size:0.88rem;">${q.explain}</div>
-        <button class="btn btn-primary btn-sm" style="margin-top:0.75rem;" onclick="nextDiagnosticQuestion()">
-          ${diagCurrentIdx < DIAGNOSTIC_QUESTIONS.length - 1 ? 'Next Question ➜' : 'View Results ➜'}
-        </button>
-      `;
+      if (feedback) {
+        feedback.style.display = "none";
+        feedback.innerHTML = "";
+      }
+    }
+
+    function prevDiagnosticQuestion() {
+      if (diagCurrentIdx > 0) {
+        diagCurrentIdx--;
+        renderDiagnosticQuestion();
+      }
     }
 
     function nextDiagnosticQuestion() {
-      diagCurrentIdx++;
-      if (diagCurrentIdx < DIAGNOSTIC_QUESTIONS.length) {
+      if (diagCurrentIdx < DIAGNOSTIC_QUESTIONS.length - 1) {
+        diagCurrentIdx++;
         renderDiagnosticQuestion();
-      } else {
-        finishDiagnostic();
       }
     }
 
-    function finishDiagnostic() {
-      document.getElementById("diag-test-container").style.display = "none";
+    async function submitDiagnosticAssessment() {
+      if (isSubmittingDiagnostic) return;
+
+      const feedback = document.getElementById("diag-feedback");
+      const submitBtn = document.getElementById("btn-submit-diagnostic");
+
+      // 1. Completeness Validation: Verify all 3 questions answered
+      const unansweredIndex = DIAGNOSTIC_QUESTIONS.findIndex(q => diagSelectedAnswers[q.id] === undefined || diagSelectedAnswers[q.id] === null);
+      if (unansweredIndex !== -1) {
+        // Navigate to the unanswered question first
+        diagCurrentIdx = unansweredIndex;
+        renderDiagnosticQuestion();
+
+        // Then render incomplete feedback
+        if (feedback) {
+          feedback.style.display = "block";
+          feedback.style.background = "rgba(239, 68, 68, 0.08)";
+          feedback.style.border = "1px solid #EF4444";
+          feedback.style.color = "#EF4444";
+          feedback.innerHTML = `⚠️ <strong>Incomplete Submission:</strong> Please answer all ${DIAGNOSTIC_QUESTIONS.length} questions before submitting. Question ${unansweredIndex + 1} has not been answered.`;
+        }
+        return;
+      }
+
+      // 2. Compute non-negative integer time_spent_seconds
+      const elapsedSeconds = Math.max(0, Math.round((Date.now() - diagStartTime) / 1000));
+
+      // 3. Construct payload strictly according to backend contract
+      const payload = {
+        subject: "Mathematics",
+        time_spent_seconds: elapsedSeconds,
+        answers: DIAGNOSTIC_QUESTIONS.map(q => ({
+          question_id: q.id,
+          selected_option: diagSelectedAnswers[q.id]
+        }))
+      };
+
+      // 4. In-flight UI state
+      isSubmittingDiagnostic = true;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Evaluating on Server... ⏳";
+      }
+      if (feedback) {
+        feedback.style.display = "block";
+        feedback.style.background = "var(--color-surface-subtle)";
+        feedback.style.border = "1px solid var(--color-border)";
+        feedback.style.color = "var(--color-teal)";
+        feedback.innerHTML = `⏳ <strong>Evaluating Assessment:</strong> Submitting your responses to the server for authoritative evaluation...`;
+      }
+
+      try {
+        const response = await window.ZiglagAPI.post('/api/student/diagnostic/submit', payload);
+
+        if (response && response.success && response.evaluation) {
+          isSubmittingDiagnostic = false;
+          renderDiagnosticResults(response.evaluation);
+          // Refresh dashboard summary to sync server-side saved diagnostic, metrics, and milestones
+          loadDashboardSummary();
+        } else {
+          isSubmittingDiagnostic = false;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit Assessment 🚀";
+          }
+          if (feedback) {
+            feedback.style.display = "block";
+            feedback.style.background = "rgba(239, 68, 68, 0.08)";
+            feedback.style.border = "1px solid #EF4444";
+            feedback.style.color = "#EF4444";
+            feedback.innerHTML = `⚠️ <strong>Evaluation Failed:</strong> ${escapeHtml((response && response.message) || "Server was unable to evaluate diagnostic assessment.")}`;
+          }
+        }
+      } catch (err) {
+        isSubmittingDiagnostic = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Submit Assessment 🚀";
+        }
+        if (err.status === 401) {
+          if (feedback) {
+            feedback.style.display = "none";
+            feedback.innerHTML = "";
+          }
+        } else if (feedback) {
+          feedback.style.display = "block";
+          feedback.style.background = "rgba(239, 68, 68, 0.08)";
+          feedback.style.border = "1px solid #EF4444";
+          feedback.style.color = "#EF4444";
+          feedback.innerHTML = `⚠️ <strong>Network or Server Error:</strong> ${escapeHtml(err.message || "Failed to submit assessment.")}`;
+        }
+      }
+    }
+
+    function renderDiagnosticResults(evalData) {
+      const testContainer = document.getElementById("diag-test-container");
       const resultsBox = document.getElementById("diag-results-box");
-      resultsBox.style.display = "block";
-      document.getElementById("btn-start-diagnostic").style.display = "inline-flex";
-      document.getElementById("btn-start-diagnostic").textContent = "Retake Assessment ↺";
+      const startBtn = document.getElementById("btn-start-diagnostic");
+      const scoreSummary = document.getElementById("diag-score-summary");
+      const recsGrid = document.getElementById("diag-recommendations");
 
-      const total = DIAGNOSTIC_QUESTIONS.length;
-      const pct = Math.round((diagScore / total) * 100);
+      if (testContainer) testContainer.style.display = "none";
+      if (resultsBox) resultsBox.style.display = "block";
+      if (startBtn) {
+        startBtn.style.display = "inline-flex";
+        startBtn.textContent = "Retake Assessment ↺";
+      }
 
-      document.getElementById("diag-score-summary").textContent = `You scored ${diagScore} out of ${total} (${pct}%). Diagnostic proficiency recorded to your dashboard.`;
+      const score = evalData.score !== undefined ? evalData.score : 0;
+      const maxScore = evalData.max_score || DIAGNOSTIC_QUESTIONS.length;
+      const percentage = evalData.percentage !== undefined ? evalData.percentage : Math.round((score / maxScore) * 100);
+      const subject = escapeHtml(evalData.subject || "Mathematics");
 
-      // Update dashboard metric
+      if (scoreSummary) {
+        scoreSummary.innerHTML = `
+          You scored <strong>${score} out of ${maxScore} (${percentage}%)</strong> on this checkpoint in ${subject}.
+          <div style="font-size: 0.825rem; color: var(--color-text-secondary); margin-top: 0.35rem;">
+            ⚡ <strong>0 XP Awarded:</strong> Diagnostic assessments establish your learning baseline and award 0 XP under platform rules.
+          </div>
+        `;
+      }
+
+      // Update dashboard metric chips immediately
       const scoreEl = document.getElementById("dash-diag-score");
       const statusEl = document.getElementById("dash-diag-status");
-      if (scoreEl) scoreEl.textContent = `${pct}%`;
+      if (scoreEl) scoreEl.textContent = `${percentage}%`;
       if (statusEl) {
-        statusEl.textContent = pct >= 70 ? "High Proficiency in Core Algebra & Geometry" : "Recommendation: Review Circle Theorems & Logarithms";
+        const bd = evalData.topic_breakdown || {};
+        const topics = Object.keys(bd);
+        if (topics.length > 0) {
+          const first = topics[0];
+          const firstVal = bd[first];
+          const firstTopicPct = (typeof firstVal === 'object' && firstVal !== null && firstVal.percentage !== undefined)
+            ? `${firstVal.percentage}%`
+            : (typeof firstVal === 'number' ? `${firstVal}%` : String(firstVal));
+          statusEl.textContent = `Proficiency: ${first} (${firstTopicPct})`;
+        } else {
+          statusEl.textContent = `Score: ${score}/${maxScore} (${subject})`;
+        }
+        statusEl.style.color = (score > 0) ? "#10B981" : "var(--color-text-secondary)";
       }
 
-      // Unlock diagnostic milestone badge
+      // Unlock diagnostic milestone badge immediately
       const diagBadge = document.getElementById("badge-diagnostic");
       if (diagBadge) diagBadge.classList.add("unlocked");
-      localStorage.setItem("ziglag_diag_badge", "true");
-    }
 
-    function checkMilestones() {
-      const completedMap = AppState.completedLessons || {};
-      let totalCompleted = 0;
-      Object.keys(completedMap).forEach(k => {
-        totalCompleted += completedMap[k].length;
-      });
+      // Render Topic Breakdown & Recommendations safely
+      if (recsGrid) {
+        const bd = evalData.topic_breakdown || {};
+        const recs = evalData.recommendations || [];
 
-      if (totalCompleted > 0) {
-        const b = document.getElementById("badge-first-step");
-        if (b) b.classList.add("unlocked");
-      }
-      if (totalCompleted >= 6) {
-        const m = document.getElementById("badge-mastery");
-        if (m) m.classList.add("unlocked");
-      }
-      if (localStorage.getItem("ziglag_diag_badge") === "true") {
-        const d = document.getElementById("badge-diagnostic");
-        if (d) d.classList.add("unlocked");
+        let html = "";
+        Object.keys(bd).forEach(topicName => {
+          const tData = bd[topicName] || {};
+          const isCorrect = Boolean(tData.is_correct);
+          const topicPct = (tData.percentage !== undefined) ? tData.percentage : (isCorrect ? 100 : 0);
+          const borderClr = isCorrect ? "#10B981" : "#EF4444";
+          const bgClr = isCorrect ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.08)";
+          const statusText = isCorrect ? "✓ Mastered (100%)" : "⚠️ Needs Remediation (0%)";
+
+          html += `
+            <div style="padding: 1rem; border-radius: var(--radius-sm); border: 1px solid ${borderClr}; background: ${bgClr};">
+              <strong style="font-size: 0.9rem; color: var(--color-navy); display: block; margin-bottom: 0.25rem;">
+                ${escapeHtml(topicName)}
+              </strong>
+              <span style="font-size: 0.8rem; font-weight: 700; color: ${borderClr};">${statusText}</span>
+            </div>
+          `;
+        });
+
+        if (recs && recs.length > 0) {
+          html += `
+            <div style="grid-column: 1 / -1; margin-top: 0.5rem; padding: 1.25rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
+              <strong style="color: var(--color-navy); display: block; margin-bottom: 0.5rem; font-size: 0.95rem;">
+                📌 Recommended Targeted Study Actions:
+              </strong>
+              <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.88rem; color: var(--color-text-main); line-height: 1.5;">
+                ${recs.map(r => `<li style="margin-bottom: 0.35rem;">${escapeHtml(r)}</li>`).join("")}
+              </ul>
+            </div>
+          `;
+        } else if (score === maxScore) {
+          html += `
+            <div style="grid-column: 1 / -1; margin-top: 0.5rem; padding: 1.25rem; background: rgba(16, 185, 129, 0.08); border: 1px solid #10B981; border-radius: var(--radius-sm); color: #10B981;">
+              <strong>🎯 Full Mastery Demonstrated:</strong> Excellent mathematical proficiency across all evaluated topics! Continue with your structured course lectures.
+            </div>
+          `;
+        }
+
+        recsGrid.innerHTML = html;
       }
     }
   </script>
+
+  <!-- Achievement Toast Notification Container (Phase 6.5.4) -->
+  <div id="milestone-toast-container" class="milestone-toast-container" aria-live="polite"></div>
 </body>
 </html>

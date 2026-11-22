@@ -8,11 +8,14 @@ import hashlib
 import re
 from functools import wraps
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from flask import Flask, send_from_directory, request, jsonify, redirect, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import func, text
+from decimal import Decimal, ROUND_HALF_UP
 from dotenv import load_dotenv
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -469,6 +472,227 @@ class Lecture(db.Model):
             'notes_url': self.notes_url or '',
             'created_at': self.created_at.isoformat() if self.created_at else ''
         }
+
+
+# ============================================================================
+# PHASE 6.2 / 6.3 STUDENT LEARNING MODELS
+# ============================================================================
+
+class StudentEnrollment(db.Model):
+    __tablename__ = 'student_enrollments'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text('gen_random_uuid()'), default=uuid.uuid4)
+    student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('students.id', ondelete='CASCADE'), nullable=False)
+    course_id = db.Column(db.String(100), db.ForeignKey('courses.id', ondelete='RESTRICT'), nullable=False)
+    enrolled_at = db.Column(db.DateTime(timezone=True), server_default=db.text('CURRENT_TIMESTAMP'), default=lambda: datetime.now(timezone.utc), nullable=False)
+    is_pinned = db.Column(db.Boolean, server_default=db.text('true'), default=True, nullable=False)
+    completed_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    last_accessed_at = db.Column(db.DateTime(timezone=True), server_default=db.text('CURRENT_TIMESTAMP'), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'course_id', name='uq_student_enrollments_student_course'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'student_id': str(self.student_id),
+            'course_id': self.course_id,
+            'enrolled_at': self.enrolled_at.isoformat() if self.enrolled_at else None,
+            'is_pinned': self.is_pinned,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'last_accessed_at': self.last_accessed_at.isoformat() if self.last_accessed_at else None
+        }
+
+
+class StudentLessonProgress(db.Model):
+    __tablename__ = 'student_lesson_progress'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text('gen_random_uuid()'), default=uuid.uuid4)
+    student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('students.id', ondelete='CASCADE'), nullable=False)
+    course_id = db.Column(db.String(100), db.ForeignKey('courses.id', ondelete='RESTRICT'), nullable=False)
+    lecture_id = db.Column(db.String(100), db.ForeignKey('lectures.id', ondelete='RESTRICT'), nullable=False)
+    is_completed = db.Column(db.Boolean, server_default=db.text('false'), default=False, nullable=False)
+    completed_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    first_completed_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    xp_awarded = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    last_position_seconds = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    total_duration_seconds = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    view_count = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    seconds_spent = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    last_accessed_at = db.Column(db.DateTime(timezone=True), server_default=db.text('CURRENT_TIMESTAMP'), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'lecture_id', name='uq_student_lesson_progress_student_lecture'),
+        db.CheckConstraint('last_position_seconds >= 0 AND (total_duration_seconds = 0 OR last_position_seconds <= total_duration_seconds)', name='chk_lesson_progress_position_bounds'),
+        db.CheckConstraint('total_duration_seconds >= 0', name='chk_lesson_progress_duration_nonneg'),
+        db.CheckConstraint('view_count >= 0', name='chk_lesson_progress_view_count_nonneg'),
+        db.CheckConstraint('(xp_awarded = 0 AND first_completed_at IS NULL) OR (xp_awarded = 50 AND first_completed_at IS NOT NULL)', name='chk_lesson_progress_xp_consistency'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'student_id': str(self.student_id),
+            'course_id': self.course_id,
+            'lecture_id': self.lecture_id,
+            'is_completed': self.is_completed,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'first_completed_at': self.first_completed_at.isoformat() if self.first_completed_at else None,
+            'xp_awarded': self.xp_awarded,
+            'last_position_seconds': self.last_position_seconds,
+            'total_duration_seconds': self.total_duration_seconds,
+            'view_count': self.view_count,
+            'seconds_spent': self.seconds_spent,
+            'last_accessed_at': self.last_accessed_at.isoformat() if self.last_accessed_at else None
+        }
+
+
+class StudentDailyActivity(db.Model):
+    __tablename__ = 'student_daily_activity'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text('gen_random_uuid()'), default=uuid.uuid4)
+    student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('students.id', ondelete='CASCADE'), nullable=False)
+    activity_date = db.Column(db.Date, nullable=False, server_default=db.text("(CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Lagos')::date"), default=lambda: datetime.now(timezone(timedelta(hours=1))).date())
+    minutes_spent = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    seconds_spent = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    lessons_completed = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    questions_practiced = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    xp_earned = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    last_active_at = db.Column(db.DateTime(timezone=True), server_default=db.text('CURRENT_TIMESTAMP'), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'activity_date', name='uq_student_daily_activity_student_date'),
+        db.CheckConstraint('minutes_spent >= 0', name='chk_daily_activity_minutes_nonneg'),
+        db.CheckConstraint('seconds_spent >= 0', name='ck_student_daily_seconds_non_negative'),
+        db.CheckConstraint('lessons_completed >= 0', name='chk_daily_activity_lessons_nonneg'),
+        db.CheckConstraint('questions_practiced >= 0', name='chk_daily_activity_questions_nonneg'),
+        db.CheckConstraint('xp_earned >= 0', name='chk_daily_activity_xp_nonneg'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'student_id': str(self.student_id),
+            'activity_date': self.activity_date.isoformat() if self.activity_date else None,
+            'minutes_spent': self.minutes_spent,
+            'seconds_spent': self.seconds_spent,
+            'lessons_completed': self.lessons_completed,
+            'questions_practiced': self.questions_practiced,
+            'xp_earned': self.xp_earned,
+            'last_active_at': self.last_active_at.isoformat() if self.last_active_at else None
+        }
+
+
+class StudentDiagnosticHistory(db.Model):
+    __tablename__ = 'student_diagnostic_history'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text('gen_random_uuid()'), default=uuid.uuid4)
+    student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('students.id', ondelete='CASCADE'), nullable=False)
+    subject = db.Column(db.String(50), server_default=db.text("'Mathematics'"), default='Mathematics', nullable=False)
+    attempt_number = db.Column(db.Integer, server_default=db.text('1'), default=1, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+    max_score = db.Column(db.Integer, nullable=False)
+    percentage = db.Column(db.Integer, nullable=False)
+    topic_breakdown = db.Column(JSONB, server_default=db.text("'{}'::jsonb"), default=dict, nullable=False)
+    recommendations = db.Column(JSONB, server_default=db.text("'[]'::jsonb"), default=list, nullable=False)
+    time_spent_seconds = db.Column(db.Integer, server_default=db.text('0'), default=0, nullable=False)
+    completed_at = db.Column(db.DateTime(timezone=True), server_default=db.text('CURRENT_TIMESTAMP'), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'subject', 'attempt_number', name='uq_student_diagnostic_attempt'),
+        db.CheckConstraint('score >= 0', name='chk_diagnostic_history_score_nonneg'),
+        db.CheckConstraint('max_score > 0', name='chk_diagnostic_history_max_score_pos'),
+        db.CheckConstraint('score <= max_score', name='chk_diagnostic_history_score_max'),
+        db.CheckConstraint('attempt_number > 0', name='chk_diagnostic_history_attempt_pos'),
+        db.CheckConstraint("percentage = ROUND((score::numeric / max_score::numeric) * 100)::integer", name='chk_diagnostic_history_percentage_calc'),
+        db.CheckConstraint("jsonb_typeof(topic_breakdown) = 'object'", name='chk_diagnostic_topic_breakdown_object'),
+        db.CheckConstraint("jsonb_typeof(recommendations) = 'array'", name='chk_diagnostic_recommendations_array'),
+        db.CheckConstraint('time_spent_seconds >= 0', name='chk_diagnostic_history_time_nonneg'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'student_id': str(self.student_id),
+            'subject': self.subject,
+            'attempt_number': self.attempt_number,
+            'score': self.score,
+            'max_score': self.max_score,
+            'percentage': self.percentage,
+            'topic_breakdown': self.topic_breakdown if isinstance(self.topic_breakdown, dict) else {},
+            'recommendations': self.recommendations if isinstance(self.recommendations, list) else [],
+            'time_spent_seconds': self.time_spent_seconds,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None
+        }
+
+
+# ============================================================================
+# PHASE 6.3 STUDENT LEARNING CONSTANTS & CONFIGURATION
+# ============================================================================
+
+DIAGNOSTIC_QUESTION_BANK = {
+    'diag_math_01': {
+        'topic': 'Linear Algebra',
+        'prompt': 'Solve for x in the linear algebraic equation: 3(x - 2) + 4 = 2(x + 5)',
+        'options': ['x = 8', 'x = 12', 'x = 14', 'x = 10'],
+        'correct_option': 1,  # 0-indexed: "x = 12"
+        'num_options': 4,
+        'recommendation_if_incorrect': 'Review linear algebraic equations, bracket expansion, and isolating unknown terms.'
+    },
+    'diag_math_02': {
+        'topic': 'Logarithms & Indices',
+        'prompt': 'If log₁₀(2) = 0.3010 and log₁₀(3) = 0.4771, calculate the exact value of log₁₀(18):',
+        'options': ['1.2552', '0.9542', '1.1761', '1.0791'],
+        'correct_option': 0,  # 0-indexed: "1.2552"
+        'num_options': 4,
+        'recommendation_if_incorrect': 'Practice logarithmic expansion laws, power rules, and prime-factor decomposition.'
+    },
+    'diag_math_03': {
+        'topic': 'Circle Geometry Theorems',
+        'prompt': 'In a circle with center O, the angle subtended by an arc at the center is 110°. Find the angle subtended by the same arc at any point on the circumference:',
+        'options': ['220°', '110°', '55°', '90°'],
+        'correct_option': 2,  # 0-indexed: "55°"
+        'num_options': 4,
+        'recommendation_if_incorrect': 'Revise Circle Theorems: angle subtended by an arc at the center versus circumference.'
+    }
+}
+
+EXAM_COURSE_MAP = {
+    'WASSCE': 'wassce-gce-neco-prep',
+    'WAEC': 'wassce-gce-neco-prep',
+    'NECO': 'wassce-gce-neco-prep',
+    'GCE': 'wassce-gce-neco-prep',
+    'JAMB': 'utme-postutme-prep',
+    'UTME': 'utme-postutme-prep',
+    'JAMB/UTME': 'utme-postutme-prep',
+    'Post-UTME': 'utme-postutme-prep',
+    'POST-UTME': 'utme-postutme-prep',
+    'Senior Secondary': 'wassce-gce-neco-prep',
+    'School Examination': 'wassce-gce-neco-prep',
+    'Not yet decided': 'wassce-gce-neco-prep'
+}
+
+
+def resolve_exam_course(intended_exam):
+    """
+    Resolves a student's intended_exam to a published course_id based on approved mapping.
+    Defaults to 'wassce-gce-neco-prep' if unknown, unspecified, or empty.
+    """
+    if not intended_exam or not isinstance(intended_exam, str):
+        return 'wassce-gce-neco-prep'
+
+    clean_exam = intended_exam.strip()
+    if clean_exam in EXAM_COURSE_MAP:
+        return EXAM_COURSE_MAP[clean_exam]
+
+    clean_upper = clean_exam.upper()
+    for k, v in EXAM_COURSE_MAP.items():
+        if k.upper() == clean_upper:
+            return v
+
+    return 'wassce-gce-neco-prep'
+
 
 class VaultResource(db.Model):
     __tablename__ = 'vault_resources'
@@ -3164,6 +3388,1653 @@ def delete_community_answer(aid):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+
+
+# ============================================================================
+# PHASE 6.3 STUDENT LEARNING & DASHBOARD REST APIs
+# ============================================================================
+
+@app.route('/api/student/diagnostic/submit', methods=['POST'])
+@student_login_required
+def submit_diagnostic_assessment(student):
+    """
+    Submits and server-evaluates a diagnostic assessment.
+
+    Security & Validation:
+    - Derives student identity exclusively from authenticated session (via @student_login_required).
+    - Rejects any client-supplied 'student_id' in body (HTTP 400).
+    - Enforces CSRF token check (X-CSRF-Token, X-CSRFToken, or csrf_token).
+    - Validates answers contain exactly the expected question IDs from DIAGNOSTIC_QUESTION_BANK.
+    - Rejects missing, duplicate, unknown question IDs, non-integer, boolean, or out-of-range choices.
+    - Rejects negative or non-integer time_spent_seconds.
+
+    Evaluation:
+    - Calculates score, max_score, and Decimal ROUND_HALF_UP percentage.
+    - Generates topic_breakdown (JSON object) and recommendations (JSON array).
+    - Allocates attempt_number concurrency-safely via row lock on Student.id.
+    - Records 0 XP awarded (diagnostic assessments never grant XP).
+    - Updates student_daily_activity.questions_practiced += max_score in the same transaction.
+    - Never exposes correct answers in the response.
+    """
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({
+            'success': False,
+            'message': 'Invalid request payload. Expected a JSON object.',
+            'code': 'INVALID_PAYLOAD'
+        }), 400
+
+    # 1. Reject student_id in request body
+    if 'student_id' in data:
+        return jsonify({
+            'success': False,
+            'message': 'Student identity cannot be supplied in request body; it is derived from session.',
+            'code': 'FORBIDDEN_FIELD'
+        }), 400
+
+    # 2. CSRF Token Verification
+    session_csrf = session.get('csrf_token')
+    req_csrf = request.headers.get('X-CSRF-Token') or request.headers.get('X-CSRFToken') or data.get('csrf_token')
+    if not session_csrf or not req_csrf or not secrets.compare_digest(str(req_csrf), str(session_csrf)):
+        return jsonify({
+            'success': False,
+            'message': 'Missing or invalid CSRF token. Please refresh and try again.',
+            'code': 'CSRF_FAILED'
+        }), 400
+
+    # 3. Subject Validation
+    raw_subject = data.get('subject', 'Mathematics')
+    if not isinstance(raw_subject, str) or not raw_subject.strip() or len(raw_subject.strip()) > 50:
+        return jsonify({
+            'success': False,
+            'message': 'Subject must be a non-empty string of at most 50 characters.',
+            'code': 'INVALID_SUBJECT'
+        }), 400
+    subject = raw_subject.strip()
+
+    # 4. time_spent_seconds Validation
+    raw_time = data.get('time_spent_seconds', 0)
+    if isinstance(raw_time, bool) or not isinstance(raw_time, int) or raw_time < 0:
+        return jsonify({
+            'success': False,
+            'message': 'time_spent_seconds must be a non-negative integer.',
+            'code': 'INVALID_TIME'
+        }), 400
+    time_spent_seconds = raw_time
+
+    # 5. Answers Structure & Completeness Validation
+    answers = data.get('answers')
+    if not isinstance(answers, list) or len(answers) == 0:
+        return jsonify({
+            'success': False,
+            'message': 'answers must be a non-empty list of question responses.',
+            'code': 'INVALID_ANSWERS'
+        }), 400
+
+    expected_qids = set(DIAGNOSTIC_QUESTION_BANK.keys())
+    submitted_qids = []
+    answer_map = {}
+
+    for idx, ans in enumerate(answers):
+        if not isinstance(ans, dict):
+            return jsonify({
+                'success': False,
+                'message': f'Answer item at index {idx} must be a JSON object.',
+                'code': 'INVALID_ANSWER_ITEM'
+            }), 400
+
+        qid = ans.get('question_id')
+        if not isinstance(qid, str) or not qid.strip():
+            return jsonify({
+                'success': False,
+                'message': f'question_id at index {idx} must be a non-empty string.',
+                'code': 'INVALID_QUESTION_ID'
+            }), 400
+        qid = qid.strip()
+
+        # Reject unknown question IDs
+        if qid not in expected_qids:
+            return jsonify({
+                'success': False,
+                'message': f'Unknown question ID: {qid}. Expected one of {sorted(list(expected_qids))}.',
+                'code': 'UNKNOWN_QUESTION_ID'
+            }), 400
+
+        submitted_qids.append(qid)
+
+        # Validate selected_option: must be genuine int, non-boolean, and within valid range
+        opt = ans.get('selected_option')
+        if isinstance(opt, bool) or not isinstance(opt, int):
+            return jsonify({
+                'success': False,
+                'message': f'selected_option for question {qid} must be an integer, not boolean or other type.',
+                'code': 'INVALID_OPTION_TYPE'
+            }), 400
+
+        q_spec = DIAGNOSTIC_QUESTION_BANK[qid]
+        if opt < 0 or opt >= q_spec['num_options']:
+            return jsonify({
+                'success': False,
+                'message': f'selected_option {opt} for question {qid} is out of valid range (0 to {q_spec["num_options"] - 1}).',
+                'code': 'OPTION_OUT_OF_RANGE'
+            }), 400
+
+        answer_map[qid] = opt
+
+    # Check for duplicate question IDs
+    if len(submitted_qids) != len(set(submitted_qids)):
+        return jsonify({
+            'success': False,
+            'message': 'Duplicate question IDs detected in submission.',
+            'code': 'DUPLICATE_QUESTION_ID'
+        }), 400
+
+    # Check for missing questions (must contain exactly the expected question IDs)
+    missing_ids = expected_qids - set(submitted_qids)
+    if missing_ids:
+        return jsonify({
+            'success': False,
+            'message': f'Missing expected diagnostic question(s): {sorted(list(missing_ids))}.',
+            'code': 'MISSING_QUESTIONS'
+        }), 400
+
+    # 6. Authoritative Server-Side Evaluation
+    max_score = len(DIAGNOSTIC_QUESTION_BANK)
+    score = 0
+    topic_breakdown = {}
+    recommendations = []
+
+    for qid, q_spec in DIAGNOSTIC_QUESTION_BANK.items():
+        topic = q_spec['topic']
+        student_choice = answer_map[qid]
+        is_correct = (student_choice == q_spec['correct_option'])
+
+        if is_correct:
+            score += 1
+        else:
+            rec = q_spec.get('recommendation_if_incorrect')
+            if rec and rec not in recommendations:
+                recommendations.append(rec)
+
+        topic_breakdown[topic] = {
+            'score': 1 if is_correct else 0,
+            'max_score': 1,
+            'percentage': 100 if is_correct else 0,
+            'is_correct': is_correct,
+            'needs_remediation': not is_correct
+        }
+
+    # Decimal ROUND_HALF_UP matching PostgreSQL ROUND((score::numeric / max_score::numeric) * 100)::integer
+    pct_decimal = (Decimal(score) * Decimal(100) / Decimal(max_score)).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+    percentage = int(pct_decimal)
+
+    # 7. Database Persistence & Daily Activity Update in One Atomic Transaction
+    try:
+        # Acquire row lock on Student to serialize concurrent attempt allocations for this student
+        db.session.query(Student.id).filter_by(id=student.id).with_for_update().one()
+
+        # Allocate concurrency-safe attempt_number
+        max_attempt = db.session.query(
+            func.coalesce(func.max(StudentDiagnosticHistory.attempt_number), 0)
+        ).filter_by(student_id=student.id, subject=subject).scalar()
+        attempt_number = int(max_attempt) + 1
+
+        # Create diagnostic history record
+        diag_record = StudentDiagnosticHistory(
+            id=uuid.uuid4(),
+            student_id=student.id,
+            subject=subject,
+            attempt_number=attempt_number,
+            score=score,
+            max_score=max_score,
+            percentage=percentage,
+            topic_breakdown=topic_breakdown,
+            recommendations=recommendations,
+            time_spent_seconds=time_spent_seconds,
+            completed_at=datetime.now(timezone.utc)
+        )
+        db.session.add(diag_record)
+
+        # Concurrency-safe atomic UPSERT on student_daily_activity
+        # Diagnostic awards 0 XP; increments questions_practiced by max_score (3)
+        daily_upsert_sql = text("""
+            INSERT INTO public.student_daily_activity (
+                id, student_id, activity_date, minutes_spent, lessons_completed, questions_practiced, xp_earned, last_active_at
+            )
+            VALUES (
+                gen_random_uuid(), :student_id, (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Lagos')::date,
+                0, 0, :questions_count, 0, CURRENT_TIMESTAMP
+            )
+            ON CONFLICT (student_id, activity_date)
+            DO UPDATE SET
+                questions_practiced = public.student_daily_activity.questions_practiced + EXCLUDED.questions_practiced,
+                last_active_at = CURRENT_TIMESTAMP;
+        """)
+        db.session.execute(daily_upsert_sql, {
+            'student_id': str(student.id),
+            'questions_count': max_score
+        })
+
+        # Commit both operations atomically
+        db.session.commit()
+
+        # Build clean response (zero correct answer options exposed)
+        evaluation_data = diag_record.to_dict()
+        evaluation_data['xp_awarded'] = 0
+
+        return jsonify({
+            'success': True,
+            'message': 'Diagnostic assessment evaluated and recorded successfully.',
+            'evaluation': evaluation_data
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Diagnostic Error] Failed to persist assessment for student {student.id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to record diagnostic assessment due to a database error.',
+            'code': 'PERSISTENCE_ERROR'
+        }), 500
+
+
+@app.route('/api/student/progress/toggle-lesson', methods=['POST'])
+@student_login_required
+def toggle_lesson_progress(student):
+    """
+    Toggles lesson completion status, updates watch duration and playback position,
+    and grants exactly 50 XP on verified first-time completion within an atomic transaction.
+    """
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({
+            'success': False,
+            'message': 'Invalid request payload. Expected a JSON object.',
+            'code': 'INVALID_PAYLOAD'
+        }), 400
+
+    # 1. Reject client-supplied forbidden fields
+    if 'student_id' in data:
+        return jsonify({
+            'success': False,
+            'message': 'student_id cannot be supplied in request body; it is derived from session.',
+            'code': 'FORBIDDEN_FIELD'
+        }), 400
+
+    if 'xp_awarded' in data:
+        return jsonify({
+            'success': False,
+            'message': 'xp_awarded cannot be supplied by the client; XP is managed exclusively by the server.',
+            'code': 'FORBIDDEN_FIELD'
+        }), 400
+
+    # 2. CSRF Token Verification
+    session_csrf = session.get('csrf_token')
+    req_csrf = request.headers.get('X-CSRF-Token') or request.headers.get('X-CSRFToken') or data.get('csrf_token')
+    if not session_csrf or not req_csrf or not secrets.compare_digest(str(req_csrf), str(session_csrf)):
+        return jsonify({
+            'success': False,
+            'message': 'Missing or invalid CSRF token. Please refresh and try again.',
+            'code': 'CSRF_FAILED'
+        }), 400
+
+    # 3. Validate course_id and lecture_id
+    raw_course_id = data.get('course_id')
+    raw_lecture_id = data.get('lecture_id')
+    if not isinstance(raw_course_id, str) or not raw_course_id.strip():
+        return jsonify({
+            'success': False,
+            'message': 'course_id must be a non-empty string.',
+            'code': 'INVALID_COURSE_ID'
+        }), 400
+    if not isinstance(raw_lecture_id, str) or not raw_lecture_id.strip():
+        return jsonify({
+            'success': False,
+            'message': 'lecture_id must be a non-empty string.',
+            'code': 'INVALID_LECTURE_ID'
+        }), 400
+
+    course_id = raw_course_id.strip()
+    lecture_id = raw_lecture_id.strip()
+
+    # 4. Validate is_completed: must be genuine JSON boolean
+    is_completed = data.get('is_completed')
+    if not isinstance(is_completed, bool):
+        return jsonify({
+            'success': False,
+            'message': 'is_completed must be a genuine boolean value (true or false).',
+            'code': 'INVALID_COMPLETED_STATUS'
+        }), 400
+
+    # 5. Validate last_position_seconds and total_duration_seconds
+    raw_pos = data.get('last_position_seconds', 0)
+    raw_dur = data.get('total_duration_seconds', 0)
+
+    if isinstance(raw_pos, bool) or not isinstance(raw_pos, int) or raw_pos < 0:
+        return jsonify({
+            'success': False,
+            'message': 'last_position_seconds must be a non-negative integer, not boolean.',
+            'code': 'INVALID_POSITION'
+        }), 400
+
+    if isinstance(raw_dur, bool) or not isinstance(raw_dur, int) or raw_dur < 0:
+        return jsonify({
+            'success': False,
+            'message': 'total_duration_seconds must be a non-negative integer, not boolean.',
+            'code': 'INVALID_DURATION'
+        }), 400
+
+    if raw_dur > 0 and raw_pos > raw_dur:
+        return jsonify({
+            'success': False,
+            'message': 'last_position_seconds cannot exceed total_duration_seconds.',
+            'code': 'POSITION_EXCEEDS_DURATION'
+        }), 400
+
+    last_position_seconds = raw_pos
+    total_duration_seconds = raw_dur
+
+    # 6. Verify course and lecture existence & publication status
+    course = Course.query.filter_by(id=course_id).first()
+    if not course or not course.is_published:
+        return jsonify({
+            'success': False,
+            'message': f'Course with ID "{course_id}" not found or is currently unpublished.',
+            'code': 'COURSE_NOT_FOUND'
+        }), 404
+
+    lecture = Lecture.query.filter_by(id=lecture_id).first()
+    if not lecture or not lecture.is_published:
+        return jsonify({
+            'success': False,
+            'message': f'Lecture with ID "{lecture_id}" not found or is currently unpublished.',
+            'code': 'LECTURE_NOT_FOUND'
+        }), 404
+
+    if lecture.course_id != course_id:
+        return jsonify({
+            'success': False,
+            'message': f'Lecture "{lecture_id}" belongs to course "{lecture.course_id}", not "{course_id}".',
+            'code': 'RELATIONAL_MISMATCH'
+        }), 400
+
+    # 7. Concurrency-Safe Insert-or-Lock Transaction Sequence
+    try:
+        # Step A: Safe seed insert if no record exists yet (view_count defaults to 0: completion is NOT an opening)
+        seed_sql = text("""
+            INSERT INTO public.student_lesson_progress (
+                id, student_id, course_id, lecture_id, is_completed, xp_awarded,
+                last_position_seconds, total_duration_seconds, view_count, last_accessed_at
+            )
+            VALUES (
+                gen_random_uuid(), :student_id, :course_id, :lecture_id, FALSE, 0,
+                :pos, :dur, 0, CURRENT_TIMESTAMP
+            )
+            ON CONFLICT (student_id, lecture_id) DO NOTHING;
+        """)
+        db.session.execute(seed_sql, {
+            'student_id': str(student.id),
+            'course_id': course_id,
+            'lecture_id': lecture_id,
+            'pos': last_position_seconds,
+            'dur': total_duration_seconds
+        })
+
+        # Step B: Select row with exclusive lock
+        progress = db.session.query(StudentLessonProgress).filter_by(
+            student_id=student.id, lecture_id=lecture_id
+        ).with_for_update().one()
+
+        xp_to_award = 0
+        lessons_inc = 0
+        now = datetime.now(timezone.utc)
+
+        if is_completed:
+            progress.is_completed = True
+            if progress.first_completed_at is None:
+                # FIRST-TIME COMPLETION: Award exactly 50 XP
+                progress.first_completed_at = now
+                progress.completed_at = now
+                progress.xp_awarded = 50
+                xp_to_award = 50
+                lessons_inc = 1
+            else:
+                # REPEATED COMPLETION: Zero additional XP
+                if progress.completed_at is None:
+                    progress.completed_at = now
+                xp_to_award = 0
+                lessons_inc = 0
+        else:
+            # UNCHECKING: Mark incomplete, clear completed_at, but PRESERVE first_completed_at and xp_awarded
+            progress.is_completed = False
+            progress.completed_at = None
+            xp_to_award = 0
+            lessons_inc = 0
+
+        # Update playback metrics and access timestamp without modifying view_count
+        progress.last_position_seconds = last_position_seconds
+        if total_duration_seconds > 0:
+            progress.total_duration_seconds = max(progress.total_duration_seconds or 0, total_duration_seconds)
+        progress.last_accessed_at = now
+
+        # Step C: Atomically update student_daily_activity in the same transaction
+        daily_upsert_sql = text("""
+            INSERT INTO public.student_daily_activity (
+                id, student_id, activity_date, minutes_spent, lessons_completed, questions_practiced, xp_earned, last_active_at
+            )
+            VALUES (
+                gen_random_uuid(), :student_id, (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Lagos')::date,
+                0, :lessons_inc, 0, :xp_inc, CURRENT_TIMESTAMP
+            )
+            ON CONFLICT (student_id, activity_date)
+            DO UPDATE SET
+                xp_earned = public.student_daily_activity.xp_earned + EXCLUDED.xp_earned,
+                lessons_completed = public.student_daily_activity.lessons_completed + EXCLUDED.lessons_completed,
+                last_active_at = CURRENT_TIMESTAMP;
+        """)
+        db.session.execute(daily_upsert_sql, {
+            'student_id': str(student.id),
+            'lessons_inc': lessons_inc,
+            'xp_inc': xp_to_award
+        })
+
+        # Step D: Commit both operations atomically
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Lesson progress updated successfully.',
+            'progress': progress.to_dict(),
+            'xp_awarded_this_request': xp_to_award
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Progress Error] Failed to update lesson progress for student {student.id}, lecture {lecture_id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to record lesson progress due to a database error.',
+            'code': 'PERSISTENCE_ERROR'
+        }), 500
+
+
+@app.route('/api/student/progress/open-lecture', methods=['POST'])
+@student_login_required
+def open_lecture(student):
+    """
+    Records genuine lecture-opening event.
+    Creates progress record if absent (view_count = 1), or increments view_count (+1).
+    Does NOT award XP, increment lessons_completed, or alter playback positions / completion status.
+    """
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({
+            'success': False,
+            'message': 'Invalid request payload. Expected a JSON object.',
+            'code': 'INVALID_PAYLOAD'
+        }), 400
+
+    # 1. Reject client-supplied student_id
+    if 'student_id' in data:
+        return jsonify({
+            'success': False,
+            'message': 'student_id cannot be supplied in request body; it is derived from session.',
+            'code': 'FORBIDDEN_FIELD'
+        }), 400
+
+    # 2. CSRF Token Verification
+    session_csrf = session.get('csrf_token')
+    req_csrf = request.headers.get('X-CSRF-Token') or request.headers.get('X-CSRFToken') or data.get('csrf_token')
+    if not session_csrf or not req_csrf or not secrets.compare_digest(str(req_csrf), str(session_csrf)):
+        return jsonify({
+            'success': False,
+            'message': 'Missing or invalid CSRF token. Please refresh and try again.',
+            'code': 'CSRF_FAILED'
+        }), 400
+
+    # 3. Validate course_id and lecture_id
+    raw_course_id = data.get('course_id')
+    raw_lecture_id = data.get('lecture_id')
+    if not isinstance(raw_course_id, str) or not raw_course_id.strip():
+        return jsonify({
+            'success': False,
+            'message': 'course_id must be a non-empty string.',
+            'code': 'INVALID_COURSE_ID'
+        }), 400
+    if not isinstance(raw_lecture_id, str) or not raw_lecture_id.strip():
+        return jsonify({
+            'success': False,
+            'message': 'lecture_id must be a non-empty string.',
+            'code': 'INVALID_LECTURE_ID'
+        }), 400
+
+    course_id = raw_course_id.strip()
+    lecture_id = raw_lecture_id.strip()
+
+    # 4. Verify course and lecture existence & publication status
+    course = Course.query.filter_by(id=course_id).first()
+    if not course or not course.is_published:
+        return jsonify({
+            'success': False,
+            'message': f'Course with ID "{course_id}" not found or is currently unpublished.',
+            'code': 'COURSE_NOT_FOUND'
+        }), 404
+
+    lecture = Lecture.query.filter_by(id=lecture_id).first()
+    if not lecture or not lecture.is_published:
+        return jsonify({
+            'success': False,
+            'message': f'Lecture with ID "{lecture_id}" not found or is currently unpublished.',
+            'code': 'LECTURE_NOT_FOUND'
+        }), 404
+
+    if lecture.course_id != course_id:
+        return jsonify({
+            'success': False,
+            'message': f'Lecture "{lecture_id}" belongs to course "{lecture.course_id}", not "{course_id}".',
+            'code': 'RELATIONAL_MISMATCH'
+        }), 400
+
+    # 5. Concurrency-Safe View Count Increment & Progress Retrieval
+    try:
+        # Atomic UPSERT: view_count = 1 on insert, or view_count = view_count + 1 on conflict
+        # Does NOT reset completion status or position
+        upsert_view_sql = text("""
+            INSERT INTO public.student_lesson_progress (
+                id, student_id, course_id, lecture_id, is_completed, xp_awarded,
+                last_position_seconds, total_duration_seconds, view_count, last_accessed_at
+            )
+            VALUES (
+                gen_random_uuid(), :student_id, :course_id, :lecture_id, FALSE, 0,
+                0, 0, 1, CURRENT_TIMESTAMP
+            )
+            ON CONFLICT (student_id, lecture_id)
+            DO UPDATE SET
+                view_count = public.student_lesson_progress.view_count + 1,
+                last_accessed_at = CURRENT_TIMESTAMP
+            RETURNING id, student_id, course_id, lecture_id, is_completed, completed_at,
+                      first_completed_at, xp_awarded, last_position_seconds,
+                      total_duration_seconds, view_count, last_accessed_at;
+        """)
+        res = db.session.execute(upsert_view_sql, {
+            'student_id': str(student.id),
+            'course_id': course_id,
+            'lecture_id': lecture_id
+        }).fetchone()
+
+        # Update student_daily_activity touch (0 XP, 0 lessons, 0 minutes)
+        daily_touch_sql = text("""
+            INSERT INTO public.student_daily_activity (
+                id, student_id, activity_date, minutes_spent, lessons_completed, questions_practiced, xp_earned, last_active_at
+            )
+            VALUES (
+                gen_random_uuid(), :student_id, (CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Lagos')::date,
+                0, 0, 0, 0, CURRENT_TIMESTAMP
+            )
+            ON CONFLICT (student_id, activity_date)
+            DO UPDATE SET
+                last_active_at = CURRENT_TIMESTAMP;
+        """)
+        db.session.execute(daily_touch_sql, {
+            'student_id': str(student.id)
+        })
+
+        db.session.commit()
+
+        # Build clean progress dict from returning row
+        progress_data = {
+            'id': str(res[0]),
+            'student_id': str(res[1]),
+            'course_id': res[2],
+            'lecture_id': res[3],
+            'is_completed': res[4],
+            'completed_at': res[5].isoformat() if res[5] else None,
+            'first_completed_at': res[6].isoformat() if res[6] else None,
+            'xp_awarded': res[7],
+            'last_position_seconds': res[8],
+            'total_duration_seconds': res[9],
+            'view_count': res[10],
+            'last_accessed_at': res[11].isoformat() if res[11] else None
+        }
+
+        return jsonify({
+            'success': True,
+            'message': 'Lecture opened successfully.',
+            'progress': progress_data,
+            'xp_awarded_this_request': 0
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Open Lecture Error] Failed to record lecture opening for student {student.id}, lecture {lecture_id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to record lecture opening due to a database error.',
+            'code': 'PERSISTENCE_ERROR'
+        }), 500
+
+
+# ============================================================================
+# PHASE 6.4.3: REAL-TIME STUDY TIME TRACKING ENDPOINTS
+# ============================================================================
+
+@app.route('/api/student/study-session/start', methods=['POST'])
+@student_login_required
+def start_study_session(student):
+    """
+    Initializes a new study session for an authenticated student opening a lecture.
+    Enforces the primary clock mutex, generates a cryptographically secure session token,
+    and sets initial lease ownership if available.
+    """
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({
+            'success': False,
+            'message': 'Invalid request payload. Expected a JSON object.',
+            'code': 'INVALID_PAYLOAD'
+        }), 400
+
+    # 1. Reject client-supplied forbidden fields
+    if 'student_id' in data:
+        return jsonify({
+            'success': False,
+            'message': 'student_id cannot be supplied in request body; it is derived from session.',
+            'code': 'FORBIDDEN_FIELD'
+        }), 400
+
+    # 2. CSRF Token Verification
+    session_csrf = session.get('csrf_token')
+    req_csrf = request.headers.get('X-CSRF-Token') or request.headers.get('X-CSRFToken') or data.get('csrf_token')
+    if not session_csrf or not req_csrf or not secrets.compare_digest(str(req_csrf), str(session_csrf)):
+        return jsonify({
+            'success': False,
+            'message': 'Missing or invalid CSRF token. Please refresh and try again.',
+            'code': 'CSRF_FAILED'
+        }), 400
+
+    # 3. Validate course_id and lecture_id
+    raw_course_id = data.get('course_id')
+    raw_lecture_id = data.get('lecture_id')
+    if not isinstance(raw_course_id, str) or not raw_course_id.strip():
+        return jsonify({
+            'success': False,
+            'message': 'course_id must be a non-empty string.',
+            'code': 'INVALID_COURSE_ID'
+        }), 400
+    if not isinstance(raw_lecture_id, str) or not raw_lecture_id.strip():
+        return jsonify({
+            'success': False,
+            'message': 'lecture_id must be a non-empty string.',
+            'code': 'INVALID_LECTURE_ID'
+        }), 400
+
+    course_id = raw_course_id.strip()
+    lecture_id = raw_lecture_id.strip()
+
+    # 4. Verify course and lecture existence & publication status
+    course = Course.query.filter_by(id=course_id).first()
+    if not course or not course.is_published:
+        return jsonify({
+            'success': False,
+            'message': f'Course with ID "{course_id}" not found or is currently unpublished.',
+            'code': 'COURSE_NOT_FOUND'
+        }), 404
+
+    lecture = Lecture.query.filter_by(id=lecture_id).first()
+    if not lecture or not lecture.is_published:
+        return jsonify({
+            'success': False,
+            'message': f'Lecture with ID "{lecture_id}" not found or is currently unpublished.',
+            'code': 'LECTURE_NOT_FOUND'
+        }), 404
+
+    if lecture.course_id != course_id:
+        return jsonify({
+            'success': False,
+            'message': f'Lecture "{lecture_id}" belongs to course "{lecture.course_id}", not "{course_id}".',
+            'code': 'RELATIONAL_MISMATCH'
+        }), 400
+
+    session_token = f"tok_sess_{secrets.token_hex(24)}"
+    sess_id = uuid.uuid4()
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if client_ip and ',' in client_ip:
+        client_ip = client_ip.split(',')[0].strip()
+    user_agent = request.headers.get('User-Agent', '')
+
+    try:
+        sess = db.session() if callable(db.session) else db.session
+        tx = sess.begin_nested() if sess.in_transaction() else sess.begin()
+        with tx:
+            # Mutex 1: Lock student study clock first (global deterministic ordering)
+            clock = db.session.execute(text("""
+                SELECT student_id, active_session_id, active_lecture_id, lease_expires_at, last_credited_at
+                FROM public.student_study_clocks
+                WHERE student_id = :sid
+                FOR UPDATE;
+            """), {'sid': str(student.id)}).fetchone()
+
+            now = db.session.execute(text("SELECT clock_timestamp();")).scalar()
+
+            is_lease_free = False
+            if not clock:
+                db.session.execute(text("""
+                    INSERT INTO public.student_study_clocks (
+                        student_id, lease_expires_at, last_credited_at, updated_at
+                    ) VALUES (
+                        :sid, :now - interval '1 hour', :now - interval '1 hour', :now
+                    ) ON CONFLICT (student_id) DO NOTHING;
+                """), {'sid': str(student.id), 'now': now})
+                is_lease_free = True
+            else:
+                _, active_session_id, _, lease_expires_at, _ = clock
+                if active_session_id is None or lease_expires_at is None or lease_expires_at <= now:
+                    is_lease_free = True
+
+            # Mutex 2: Insert new active session record
+            db.session.execute(text("""
+                INSERT INTO public.student_study_sessions (
+                    id, student_id, course_id, lecture_id, session_token,
+                    started_at, last_heartbeat_at, expires_at, status,
+                    duration_seconds, active_seconds, total_seconds,
+                    last_sequence_number, last_credited_seconds, client_ip, user_agent
+                ) VALUES (
+                    :id, :sid, :cid, :lid, :token,
+                    :now, :now, :now + interval '35 seconds', 'ACTIVE',
+                    0, 0, 0, 0, 0, :ip, :ua
+                );
+            """), {
+                'id': str(sess_id),
+                'sid': str(student.id),
+                'cid': course_id,
+                'lid': lecture_id,
+                'token': session_token,
+                'now': now,
+                'ip': client_ip[:100] if client_ip else None,
+                'ua': user_agent[:500] if user_agent else None
+            })
+
+            # Mutex 3: If clock lease was unheld or expired, bind this session immediately
+            if is_lease_free:
+                db.session.execute(text("""
+                    UPDATE public.student_study_clocks
+                    SET active_session_id = :id,
+                        active_lecture_id = :lid,
+                        lease_expires_at = :now + interval '35 seconds',
+                        last_credited_at = :now,
+                        updated_at = :now
+                    WHERE student_id = :sid;
+                """), {
+                    'id': str(sess_id),
+                    'lid': lecture_id,
+                    'now': now,
+                    'sid': str(student.id)
+                })
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Study session started successfully.',
+            'session_token': session_token,
+            'session_id': str(sess_id),
+            'course_id': course_id,
+            'lecture_id': lecture_id,
+            'is_owner': is_lease_free
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Study Session Start Error] Student {student.id}, course {course_id}, lecture {lecture_id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to initialize study session due to a database error.',
+            'code': 'PERSISTENCE_ERROR'
+        }), 500
+
+
+@app.route('/api/student/study-session/heartbeat', methods=['POST'])
+@student_login_required
+def heartbeat_study_session(student):
+    """
+    Receives periodic study heartbeats from the course player.
+    Validates CSRF, monotonicity, and schema, delegating atomic state transitions
+    and time crediting to study_tracker.handle_heartbeat_transaction.
+    """
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({
+            'success': False,
+            'message': 'Invalid request payload. Expected a JSON object.',
+            'code': 'INVALID_PAYLOAD'
+        }), 400
+
+    # 1. Reject client-supplied forbidden fields
+    if 'student_id' in data:
+        return jsonify({
+            'success': False,
+            'message': 'student_id cannot be supplied in request body; it is derived from session.',
+            'code': 'FORBIDDEN_FIELD'
+        }), 400
+
+    # 2. CSRF Token Verification
+    session_csrf = session.get('csrf_token')
+    req_csrf = request.headers.get('X-CSRF-Token') or request.headers.get('X-CSRFToken') or data.get('csrf_token')
+    if not session_csrf or not req_csrf or not secrets.compare_digest(str(req_csrf), str(session_csrf)):
+        return jsonify({
+            'success': False,
+            'message': 'Missing or invalid CSRF token. Please refresh and try again.',
+            'code': 'CSRF_FAILED'
+        }), 400
+
+    # 3. Field validation
+    session_token = data.get('session_token')
+    course_id = data.get('course_id')
+    lecture_id = data.get('lecture_id')
+    seq = data.get('seq')
+    payload_hash = data.get('payload_hash')
+    is_active = data.get('is_active', True)
+    event_type = data.get('event_type', 'heartbeat')
+    user_notice = data.get('user_notice')
+
+    if not isinstance(session_token, str) or not session_token.strip():
+        return jsonify({
+            'success': False,
+            'message': 'session_token must be a non-empty string.',
+            'code': 'INVALID_TOKEN'
+        }), 400
+    if not isinstance(course_id, str) or not course_id.strip():
+        return jsonify({
+            'success': False,
+            'message': 'course_id must be a non-empty string.',
+            'code': 'INVALID_COURSE_ID'
+        }), 400
+    if not isinstance(lecture_id, str) or not lecture_id.strip():
+        return jsonify({
+            'success': False,
+            'message': 'lecture_id must be a non-empty string.',
+            'code': 'INVALID_LECTURE_ID'
+        }), 400
+    if not isinstance(seq, int) or seq <= 0:
+        return jsonify({
+            'success': False,
+            'message': 'seq must be a positive integer.',
+            'code': 'INVALID_SEQUENCE'
+        }), 400
+    if not isinstance(payload_hash, str) or not payload_hash.strip():
+        return jsonify({
+            'success': False,
+            'message': 'payload_hash must be a non-empty string.',
+            'code': 'INVALID_HASH'
+        }), 400
+    if not isinstance(is_active, bool):
+        return jsonify({
+            'success': False,
+            'message': 'is_active must be a genuine boolean value.',
+            'code': 'INVALID_ACTIVE_STATE'
+        }), 400
+    if not isinstance(event_type, str) or event_type not in ('heartbeat', 'takeover'):
+        return jsonify({
+            'success': False,
+            'message': 'event_type must be either "heartbeat" or "takeover".',
+            'code': 'INVALID_EVENT_TYPE'
+        }), 400
+
+    try:
+        from study_tracker import handle_heartbeat_transaction
+        resp = handle_heartbeat_transaction(
+            student_id=student.id,
+            session_token=session_token.strip(),
+            course_id=course_id.strip(),
+            lecture_id=lecture_id.strip(),
+            seq=seq,
+            payload_hash=payload_hash.strip(),
+            is_active=is_active,
+            event_type=event_type,
+            user_notice=str(user_notice)[:200] if user_notice else None
+        )
+        db.session.commit()
+        return resp
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Heartbeat Route Error] Student {student.id}, token {session_token}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to process heartbeat due to a database error.',
+            'code': 'PERSISTENCE_ERROR'
+        }), 500
+
+
+@app.route('/api/student/study-session/close', methods=['POST'])
+@student_login_required
+def close_study_session(student):
+    """
+    Terminates an active or displaced study session.
+    Releases the clock lease if this session currently held it.
+    """
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({
+            'success': False,
+            'message': 'Invalid request payload. Expected a JSON object.',
+            'code': 'INVALID_PAYLOAD'
+        }), 400
+
+    session_token = data.get('session_token')
+    if not isinstance(session_token, str) or not session_token.strip():
+        return jsonify({
+            'success': False,
+            'message': 'session_token must be a non-empty string.',
+            'code': 'INVALID_TOKEN'
+        }), 400
+
+    # CSRF Token Verification
+    session_csrf = session.get('csrf_token')
+    req_csrf = request.headers.get('X-CSRF-Token') or request.headers.get('X-CSRFToken') or data.get('csrf_token')
+    if not session_csrf or not req_csrf or not secrets.compare_digest(str(req_csrf), str(session_csrf)):
+        return jsonify({
+            'success': False,
+            'message': 'Missing or invalid CSRF token. Please refresh and try again.',
+            'code': 'CSRF_FAILED'
+        }), 400
+
+    close_reason = data.get('close_reason') or 'USER_NAVIGATION'
+
+    try:
+        sess = db.session() if callable(db.session) else db.session
+        tx = sess.begin_nested() if sess.in_transaction() else sess.begin()
+        with tx:
+            # 1. Primary Mutex: Lock clock first
+            db.session.execute(text("""
+                SELECT student_id FROM public.student_study_clocks
+                WHERE student_id = :sid FOR UPDATE;
+            """), {'sid': str(student.id)})
+
+            now = db.session.execute(text("SELECT clock_timestamp();")).scalar()
+
+            # 2. Update session to CLOSED
+            res = db.session.execute(text("""
+                UPDATE public.student_study_sessions
+                SET status = 'CLOSED',
+                    ended_at = :now,
+                    close_reason = :reason
+                WHERE session_token = :token AND student_id = :sid AND status != 'CLOSED'
+                RETURNING id;
+            """), {
+                'token': session_token.strip(),
+                'sid': str(student.id),
+                'now': now,
+                'reason': str(close_reason)[:50]
+            }).fetchone()
+
+            if res:
+                sess_id = res[0]
+                # 3. If session held the clock lease, release it
+                db.session.execute(text("""
+                    UPDATE public.student_study_clocks
+                    SET active_session_id = NULL,
+                        active_lecture_id = NULL,
+                        lease_expires_at = :now - interval '1 second',
+                        updated_at = :now
+                    WHERE student_id = :sid AND active_session_id = :sess_id;
+                """), {
+                    'sid': str(student.id),
+                    'sess_id': str(sess_id),
+                    'now': now
+                })
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Study session closed successfully.'
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Close Session Error] Student {student.id}, token {session_token}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to close study session due to a database error.',
+            'code': 'PERSISTENCE_ERROR'
+        }), 500
+
+
+@app.route('/api/student/dashboard-summary', methods=['GET'])
+@student_login_required
+def get_student_dashboard_summary(student):
+    """
+    Returns authenticated student's learning dashboard summary and automatically
+    enrolls the student into their target exam preparation course if not already enrolled.
+    """
+    try:
+        lagos_tz = ZoneInfo('Africa/Lagos')
+        lagos_today = datetime.now(lagos_tz).date()
+
+        # 1. Automatic Examination-Course Enrollment (idempotent, concurrency-safe)
+        target_course_id = resolve_exam_course(student.intended_exam)
+        target_course = Course.query.filter_by(id=target_course_id, is_published=True).first()
+
+        if target_course:
+            enroll_sql = text("""
+                INSERT INTO public.student_enrollments (
+                    id, student_id, course_id, enrolled_at, is_pinned, completed_at, last_accessed_at
+                )
+                VALUES (
+                    gen_random_uuid(), :student_id, :course_id, CURRENT_TIMESTAMP, TRUE, NULL, CURRENT_TIMESTAMP
+                )
+                ON CONFLICT (student_id, course_id) DO NOTHING;
+            """)
+            db.session.execute(enroll_sql, {
+                'student_id': str(student.id),
+                'course_id': target_course.id
+            })
+            db.session.commit()
+
+        # 2. Student Profile Section
+        student_profile = {
+            'full_name': student.full_name,
+            'email': student.email,
+            'education_level': student.education_level,
+            'intended_exam': student.intended_exam
+        }
+
+        # 3. Learning Statistics Section
+        # IMPORTANT XP RULE: total_xp = SUM(student_daily_activity.xp_earned) ONLY.
+        total_xp = db.session.query(
+            func.coalesce(func.sum(StudentDailyActivity.xp_earned), 0)
+        ).filter(
+            StudentDailyActivity.student_id == student.id
+        ).scalar() or 0
+
+        total_questions_practiced = db.session.query(
+            func.coalesce(func.sum(StudentDailyActivity.questions_practiced), 0)
+        ).filter(
+            StudentDailyActivity.student_id == student.id
+        ).scalar() or 0
+
+        total_lessons_completed = db.session.query(
+            func.count(StudentLessonProgress.id)
+        ).join(
+            Lecture, StudentLessonProgress.lecture_id == Lecture.id
+        ).filter(
+            StudentLessonProgress.student_id == student.id,
+            StudentLessonProgress.is_completed == True,
+            Lecture.is_published == True
+        ).scalar() or 0
+
+        # 4. Learning Streak Section (Africa/Lagos calendar date)
+        active_rows = db.session.query(
+            StudentDailyActivity.activity_date
+        ).filter(
+            StudentDailyActivity.student_id == student.id,
+            (StudentDailyActivity.xp_earned > 0) |
+            (StudentDailyActivity.lessons_completed > 0) |
+            (StudentDailyActivity.questions_practiced > 0) |
+            (StudentDailyActivity.seconds_spent > 0)
+        ).all()
+
+        active_dates = {r[0] for r in active_rows}
+        lagos_yesterday = lagos_today - timedelta(days=1)
+
+        current_streak = 0
+        if lagos_today in active_dates:
+            current_streak = 1
+            chk = lagos_today - timedelta(days=1)
+            while chk in active_dates:
+                current_streak += 1
+                chk = chk - timedelta(days=1)
+        elif lagos_yesterday in active_dates:
+            current_streak = 1
+            chk = lagos_yesterday - timedelta(days=1)
+            while chk in active_dates:
+                current_streak += 1
+                chk = chk - timedelta(days=1)
+        else:
+            current_streak = 0
+
+        sorted_dates = sorted(active_dates)
+        longest_streak = 0
+        if sorted_dates:
+            running_streak = 1
+            max_streak = 1
+            for i in range(1, len(sorted_dates)):
+                if sorted_dates[i] == sorted_dates[i - 1] + timedelta(days=1):
+                    running_streak += 1
+                    if running_streak > max_streak:
+                        max_streak = running_streak
+                elif sorted_dates[i] > sorted_dates[i - 1] + timedelta(days=1):
+                    running_streak = 1
+            longest_streak = max(max_streak, current_streak)
+
+        # 5. Weekly Activity Section (Current Lagos calendar week: Monday to Sunday)
+        monday = lagos_today - timedelta(days=lagos_today.weekday())
+        sunday = monday + timedelta(days=6)
+
+        weekly_rows = db.session.query(
+            StudentDailyActivity
+        ).filter(
+            StudentDailyActivity.student_id == student.id,
+            StudentDailyActivity.activity_date >= monday,
+            StudentDailyActivity.activity_date <= sunday
+        ).all()
+
+        weekly_map = {row.activity_date: row for row in weekly_rows}
+
+        weekly_activity = []
+        day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        for i in range(7):
+            day_date = monday + timedelta(days=i)
+            activity = weekly_map.get(day_date)
+            if activity:
+                xp = activity.xp_earned or 0
+                lessons = activity.lessons_completed or 0
+                questions = activity.questions_practiced or 0
+                sec = activity.seconds_spent or 0
+                mins = activity.minutes_spent or (sec // 60)
+                is_active = (xp > 0 or lessons > 0 or questions > 0 or sec > 0)
+            else:
+                xp = 0
+                lessons = 0
+                questions = 0
+                sec = 0
+                mins = 0
+                is_active = False
+
+            weekly_activity.append({
+                'date': day_date.isoformat(),
+                'day_name': day_names[i],
+                'xp_earned': xp,
+                'lessons_completed': lessons,
+                'questions_practiced': questions,
+                'seconds_spent': sec,
+                'minutes_spent': mins,
+                'is_active': is_active
+            })
+
+        # 6. Course Progress Section (Enrolled published courses)
+        enrollment_rows = db.session.query(
+            StudentEnrollment, Course
+        ).join(
+            Course, StudentEnrollment.course_id == Course.id
+        ).filter(
+            StudentEnrollment.student_id == student.id,
+            Course.is_published == True
+        ).order_by(
+            StudentEnrollment.enrolled_at.asc()
+        ).all()
+
+        enrolled_courses = []
+        for enrollment, course in enrollment_rows:
+            total_published_lectures = db.session.query(func.count(Lecture.id)).filter(
+                Lecture.course_id == course.id,
+                Lecture.is_published == True
+            ).scalar() or 0
+
+            completed_lectures = db.session.query(func.count(StudentLessonProgress.id)).join(
+                Lecture, StudentLessonProgress.lecture_id == Lecture.id
+            ).filter(
+                StudentLessonProgress.student_id == student.id,
+                StudentLessonProgress.course_id == course.id,
+                StudentLessonProgress.is_completed == True,
+                Lecture.is_published == True
+            ).scalar() or 0
+
+            if total_published_lectures > 0:
+                progress_percentage = int(round((completed_lectures / total_published_lectures) * 100))
+            else:
+                progress_percentage = 0
+
+            enrolled_courses.append({
+                'course_id': course.id,
+                'title': course.title,
+                'description': course.description or '',
+                'total_published_lectures': total_published_lectures,
+                'completed_lectures': completed_lectures,
+                'progress_percentage': progress_percentage,
+                'enrolled_at': enrollment.enrolled_at.isoformat() if enrollment.enrolled_at else None,
+                'is_pinned': enrollment.is_pinned
+            })
+
+        # 7. Recently Accessed Lessons (Max 5, Published Lectures Only, Genuine Openings view_count > 0)
+        recent_progress = db.session.query(
+            StudentLessonProgress, Lecture, Course
+        ).join(
+            Lecture, StudentLessonProgress.lecture_id == Lecture.id
+        ).join(
+            Course, StudentLessonProgress.course_id == Course.id
+        ).filter(
+            StudentLessonProgress.student_id == student.id,
+            StudentLessonProgress.view_count > 0,
+            Lecture.is_published == True,
+            Course.is_published == True
+        ).order_by(
+            StudentLessonProgress.last_accessed_at.desc()
+        ).limit(5).all()
+
+        recent_lessons = [
+            {
+                'course_id': course.id,
+                'course_title': course.title,
+                'lecture_id': lecture.id,
+                'lecture_title': lecture.title,
+                'last_accessed_at': prog.last_accessed_at.isoformat() if prog.last_accessed_at else None,
+                'is_completed': prog.is_completed,
+                'last_position_seconds': prog.last_position_seconds,
+                'total_duration_seconds': prog.total_duration_seconds,
+                'view_count': prog.view_count
+            }
+            for prog, lecture, course in recent_progress
+        ]
+
+        # 8. Latest Diagnostic Assessment
+        latest_diag = StudentDiagnosticHistory.query.filter_by(
+            student_id=student.id
+        ).order_by(
+            StudentDiagnosticHistory.attempt_number.desc()
+        ).first()
+
+        if latest_diag:
+            diagnostic_data = {
+                'subject': latest_diag.subject,
+                'score': latest_diag.score,
+                'max_score': latest_diag.max_score,
+                'percentage': latest_diag.percentage,
+                'topic_breakdown': latest_diag.topic_breakdown if isinstance(latest_diag.topic_breakdown, dict) else {},
+                'recommendations': latest_diag.recommendations if isinstance(latest_diag.recommendations, list) else [],
+                'attempt_number': latest_diag.attempt_number,
+                'submitted_at': latest_diag.completed_at.isoformat() if latest_diag.completed_at else None
+            }
+        else:
+            diagnostic_data = None
+
+        # 9. Real Study Time Accounting (Phase 6.4.3)
+        today_activity = weekly_map.get(lagos_today)
+        today_seconds = (today_activity.seconds_spent or 0) if today_activity else 0
+        today_minutes = (today_activity.minutes_spent or (today_seconds // 60)) if today_activity else 0
+
+        weekly_seconds = sum((row.seconds_spent or 0) for row in weekly_rows)
+        weekly_minutes = sum((row.minutes_spent or ((row.seconds_spent or 0) // 60)) for row in weekly_rows)
+
+        def _format_study_duration(seconds):
+            if not seconds or seconds <= 0:
+                return "0m"
+            h = seconds // 3600
+            m = (seconds % 3600) // 60
+            if h > 0:
+                return f"{h}h {m}m"
+            return f"{m}m"
+
+        study_time = {
+            'today_seconds': today_seconds,
+            'today_minutes': today_minutes,
+            'today_formatted': _format_study_duration(today_seconds),
+            'weekly_seconds': weekly_seconds,
+            'weekly_minutes': weekly_minutes,
+            'weekly_formatted': _format_study_duration(weekly_seconds),
+            'weekly_target_hours': 10,
+            'tracking_status': 'active'
+        }
+
+        # 10. Milestones & Achievements (Phase 6.5.4)
+        from achievement_service import get_student_achievements
+        achievements_data = get_student_achievements(db.session, student.id)
+
+        # Backward-compatible milestones list
+        milestones = []
+        for a in achievements_data['achievements']:
+            if a['is_earned']:
+                m_id = 'first_lesson_completed' if a['id'] == 'first_lesson' else a['id']
+                milestones.append({
+                    'id': m_id,
+                    'title': a['title'],
+                    'description': a['description'],
+                    'achieved_at': a['earned_at']
+                })
+
+        # Phase 6.5.2: Learning Analytics & Personalized Recommendations
+        from analytics_engine import (
+            get_student_topic_mastery,
+            get_student_study_habits,
+            get_student_diagnostic_analytics,
+            get_student_recommendations
+        )
+
+        topic_mastery = get_student_topic_mastery(db.session, student.id)
+        study_habits = get_student_study_habits(db.session, student.id)
+        diag_analytics = get_student_diagnostic_analytics(db.session, student.id)
+        recommendations = get_student_recommendations(db.session, student.id, student.intended_exam)
+
+        analytics_payload = {
+            'topic_mastery': topic_mastery,
+            'study_habits': study_habits
+        }
+
+        return jsonify({
+            'success': True,
+            'student': student_profile,
+            'stats': {
+                'total_xp': total_xp,
+                'current_streak': current_streak,
+                'longest_streak': longest_streak,
+                'total_lessons_completed': total_lessons_completed,
+                'total_questions_practiced': total_questions_practiced,
+                'weekly_activity': weekly_activity,
+                'weekly_activity_start': monday.isoformat(),
+                'weekly_activity_end': sunday.isoformat()
+            },
+            'enrolled_courses': enrolled_courses,
+            'recent_lessons': recent_lessons,
+            'latest_diagnostic': diagnostic_data,
+            'study_time': study_time,
+            'milestones': milestones,
+            'achievements': achievements_data,
+            'analytics': analytics_payload,
+            'recommendations': recommendations,
+            'diagnostic_progress': diag_analytics
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Dashboard Summary Error] Failed to generate dashboard summary for student {student.id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to retrieve student dashboard summary due to a server error.',
+            'code': 'DASHBOARD_RETRIEVAL_ERROR'
+        }), 500
+
+
+@app.route('/api/student/analytics/activity-history', methods=['GET'])
+@student_login_required
+def get_student_activity_history(student):
+    """
+    Phase 6.5.2: Returns dense chronological daily activity history over requested number of days (default 30, max 90).
+    Enforces @student_login_required and derives student identity exclusively from authenticated session.
+    """
+    try:
+        raw_days = request.args.get('days', default='30')
+        try:
+            days = int(raw_days)
+        except (ValueError, TypeError):
+            return jsonify({
+                'success': False,
+                'message': 'Parameter "days" must be an integer between 1 and 90.',
+                'code': 'INVALID_DAYS_PARAM'
+            }), 400
+
+        if days < 1 or days > 90:
+            return jsonify({
+                'success': False,
+                'message': 'Parameter "days" must be between 1 and 90.',
+                'code': 'DAYS_OUT_OF_RANGE'
+            }), 400
+
+        from analytics_engine import get_student_activity_history_data
+        data = get_student_activity_history_data(db.session, student.id, days=days)
+        return jsonify(data), 200
+    except Exception as e:
+        logging.error(f"[Activity History Error] Failed for student {student.id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to retrieve student activity history due to a server error.',
+            'code': 'ACTIVITY_HISTORY_ERROR'
+        }), 500
+
+
+# ============================================================================
+# PHASE 6.5.4: STUDENT ENGAGEMENT AND ACHIEVEMENT API
+# ============================================================================
+
+@app.route('/api/student/achievements', methods=['GET'])
+@student_login_required
+def get_student_achievements_route(student):
+    """
+    Phase 6.5.4: Returns authenticated student's engagement milestones and achievements
+    across Learning Progress, Study Consistency, Study Commitment, and Diagnostic Improvement.
+    Derives student identity strictly from authenticated session.
+    """
+    try:
+        from achievement_service import get_student_achievements
+        data = get_student_achievements(db.session, student.id)
+        return jsonify({
+            'success': True,
+            'summary': data['summary'],
+            'categories': data['categories'],
+            'achievements': data['achievements'],
+            'recent_unlocked': data['recent_unlocked']
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Achievements API Error] Failed for student {student.id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to retrieve student achievements due to a server error.',
+            'code': 'ACHIEVEMENTS_RETRIEVAL_ERROR'
+        }), 500
+
+
+
+# ============================================================================
+# PHASE 6.3.2 STAGE 5: STUDENT PROFILE UPDATE API
+# ============================================================================
+
+VALID_EDUCATION_LEVELS = {
+    'JSS 1', 'JSS 2', 'JSS 3', 'SS1', 'SS2', 'SS3', 'JAMB/UTME', 'Other supported programmes'
+}
+
+VALID_INTENDED_EXAMS = {
+    'WASSCE', 'WAEC', 'NECO', 'GCE', 'JAMB', 'UTME', 'JAMB/UTME', 'Post-UTME', 'POST-UTME',
+    'Senior Secondary', 'School Examination', 'Not yet decided'
+}
+
+PERMITTED_PROFILE_FIELDS = {'full_name', 'education_level', 'intended_exam', 'phone', 'avatar_url', 'csrf_token'}
+FORBIDDEN_PROFILE_FIELDS = {
+    'id', 'student_id', 'auth_user_id', 'email', 'password', 'password_hash',
+    'role', 'is_active', 'session_version', 'last_login', 'created_at', 'updated_at'
+}
+
+
+@app.route('/api/student/profile', methods=['PUT'])
+@student_login_required
+def update_student_profile(student):
+    """
+    Updates permitted profile information for the authenticated student.
+    Enforces strict field whitelisting, CSRF validation, and input sanitization.
+    """
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({
+            'success': False,
+            'message': 'Invalid request payload. Expected a JSON object.',
+            'code': 'INVALID_PAYLOAD'
+        }), 400
+
+    # 1. CSRF Token Verification
+    session_csrf = session.get('csrf_token')
+    req_csrf = request.headers.get('X-CSRF-Token') or request.headers.get('X-CSRFToken') or data.get('csrf_token')
+    if not session_csrf or not req_csrf or not secrets.compare_digest(str(req_csrf), str(session_csrf)):
+        return jsonify({
+            'success': False,
+            'message': 'Missing or invalid CSRF token. Please refresh and try again.',
+            'code': 'CSRF_FAILED'
+        }), 400
+
+    # 2. Check for forbidden or unknown fields
+    for key in data.keys():
+        if key in FORBIDDEN_PROFILE_FIELDS:
+            return jsonify({
+                'success': False,
+                'message': f'Cannot modify protected account field: "{key}".',
+                'code': 'PROTECTED_FIELD'
+            }), 400
+        if key not in PERMITTED_PROFILE_FIELDS:
+            return jsonify({
+                'success': False,
+                'message': f'Unknown or unsupported profile field: "{key}".',
+                'code': 'UNKNOWN_FIELD'
+            }), 400
+
+    # Filter down to editable fields provided
+    editable_keys = [k for k in data.keys() if k != 'csrf_token']
+    if not editable_keys:
+        return jsonify({
+            'success': False,
+            'message': 'No editable profile fields provided for update.',
+            'code': 'NO_FIELDS_PROVIDED'
+        }), 400
+
+    # 3. Field Validations
+    # full_name
+    if 'full_name' in data:
+        val = data.get('full_name')
+        if not isinstance(val, str):
+            return jsonify({
+                'success': False,
+                'message': 'full_name must be a string.',
+                'code': 'INVALID_FULL_NAME'
+            }), 400
+        cleaned_name = val.strip()
+        if len(cleaned_name) < 2 or len(cleaned_name) > 150:
+            return jsonify({
+                'success': False,
+                'message': 'full_name must be between 2 and 150 characters.',
+                'code': 'INVALID_FULL_NAME'
+            }), 400
+        student.full_name = cleaned_name
+        session['full_name'] = cleaned_name
+
+    # education_level
+    if 'education_level' in data:
+        val = data.get('education_level')
+        if not isinstance(val, str):
+            return jsonify({
+                'success': False,
+                'message': 'education_level must be a string.',
+                'code': 'INVALID_EDUCATION_LEVEL'
+            }), 400
+        cleaned_level = val.strip()
+        if cleaned_level not in VALID_EDUCATION_LEVELS:
+            return jsonify({
+                'success': False,
+                'message': f'Invalid education_level. Supported values: {sorted(list(VALID_EDUCATION_LEVELS))}.',
+                'code': 'INVALID_EDUCATION_LEVEL'
+            }), 400
+        student.education_level = cleaned_level
+
+    # intended_exam
+    if 'intended_exam' in data:
+        val = data.get('intended_exam')
+        if not isinstance(val, str):
+            return jsonify({
+                'success': False,
+                'message': 'intended_exam must be a string.',
+                'code': 'INVALID_INTENDED_EXAM'
+            }), 400
+        cleaned_exam = val.strip()
+        # Case-insensitive normalization against VALID_INTENDED_EXAMS
+        normalized_exam = None
+        for valid_e in VALID_INTENDED_EXAMS:
+            if valid_e.upper() == cleaned_exam.upper():
+                normalized_exam = valid_e
+                break
+        if not normalized_exam:
+            return jsonify({
+                'success': False,
+                'message': f'Invalid intended_exam. Supported values: {sorted(list(VALID_INTENDED_EXAMS))}.',
+                'code': 'INVALID_INTENDED_EXAM'
+            }), 400
+        student.intended_exam = normalized_exam
+
+    # phone
+    if 'phone' in data:
+        val = data.get('phone')
+        if val is None or (isinstance(val, str) and not val.strip()):
+            student.phone = None
+        elif isinstance(val, str):
+            cleaned_phone = val.strip()
+            if len(cleaned_phone) > 30:
+                return jsonify({
+                    'success': False,
+                    'message': 'phone cannot exceed 30 characters.',
+                    'code': 'INVALID_PHONE'
+                }), 400
+            if not re.match(r'^\+?[0-9\s\-\(\)]{7,30}$', cleaned_phone):
+                return jsonify({
+                    'success': False,
+                    'message': 'phone must contain a valid phone number (digits, spaces, dashes, parentheses, optional leading +).',
+                    'code': 'INVALID_PHONE'
+                }), 400
+            student.phone = cleaned_phone
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'phone must be a string or null.',
+                'code': 'INVALID_PHONE'
+            }), 400
+
+    # avatar_url
+    if 'avatar_url' in data:
+        val = data.get('avatar_url')
+        if val is None or (isinstance(val, str) and not val.strip()):
+            student.avatar_url = None
+        elif isinstance(val, str):
+            cleaned_url = val.strip()
+            if len(cleaned_url) > 500:
+                return jsonify({
+                    'success': False,
+                    'message': 'avatar_url cannot exceed 500 characters.',
+                    'code': 'INVALID_AVATAR_URL'
+                }), 400
+            lower_url = cleaned_url.lower()
+            if any(lower_url.startswith(scheme) for scheme in ['javascript:', 'data:', 'vbscript:', 'file:']):
+                return jsonify({
+                    'success': False,
+                    'message': 'avatar_url contains an unsafe or unsupported URL scheme.',
+                    'code': 'UNSAFE_AVATAR_URL'
+                }), 400
+            if not (lower_url.startswith('http://') or lower_url.startswith('https://') or lower_url.startswith('/')):
+                return jsonify({
+                    'success': False,
+                    'message': 'avatar_url must start with http://, https://, or a valid relative path starting with /.',
+                    'code': 'INVALID_AVATAR_URL'
+                }), 400
+            student.avatar_url = cleaned_url
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'avatar_url must be a string or null.',
+                'code': 'INVALID_AVATAR_URL'
+            }), 400
+
+    # 4. Commit update transaction
+    try:
+        student.updated_at = datetime.now(timezone.utc)
+        db.session.commit()
+
+        updated_profile = {
+            'full_name': student.full_name,
+            'email': student.email,
+            'education_level': student.education_level,
+            'intended_exam': student.intended_exam,
+            'phone': student.phone or '',
+            'avatar_url': student.avatar_url or ''
+        }
+
+        return jsonify({
+            'success': True,
+            'message': 'Profile updated successfully.',
+            'student': updated_profile
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"[Profile Update Error] Failed to update profile for student {student.id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to update student profile due to a database error.',
+            'code': 'PERSISTENCE_ERROR'
+        }), 500
+
 
 # ============================================================================
 # 4. STARTUP DATABASE INITIALIZATION & DEFAULT SEEDING
