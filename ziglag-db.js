@@ -21,12 +21,17 @@
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const baseUrl = getApiBaseUrl();
     const fullUrl = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
+    const csrfToken = (typeof window !== 'undefined' && window.ZIGLAG_ADMIN_CSRF_TOKEN) ||
+                      (typeof sessionStorage !== 'undefined' && (sessionStorage.getItem('ZIGLAG_ADMIN_CSRF') || sessionStorage.getItem('csrf_token')));
     const opts = {
       method: method,
       headers: {
         'Content-Type': 'application/json'
       }
     };
+    if (csrfToken && method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+      opts.headers['X-CSRF-Token'] = csrfToken;
+    }
     if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
       opts.body = JSON.stringify(body);
     }
@@ -610,8 +615,15 @@
       uploadPdf: async function (file) {
         const formData = new FormData();
         formData.append('file', file);
+        const csrfToken = (typeof window !== 'undefined' && window.ZIGLAG_ADMIN_CSRF_TOKEN) ||
+                          (typeof sessionStorage !== 'undefined' && (sessionStorage.getItem('ZIGLAG_ADMIN_CSRF') || sessionStorage.getItem('csrf_token')));
+        const headers = {};
+        if (csrfToken) {
+          headers['X-CSRF-Token'] = csrfToken;
+        }
         const res = await fetch('/api/upload/pdf', {
           method: 'POST',
+          headers: headers,
           body: formData
         });
         if (!res.ok) {

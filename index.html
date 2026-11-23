@@ -4,16 +4,171 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ziglag Institute | Understand the World. Think Mathematically.</title>
-  <meta name="description" content="Build strong foundations in Mathematics and Science through visual explanations, guided practice, interactive learning and expert 1-on-1 support for WASSCE, JAMB UTME, and secondary school scholars.">
+  <meta name="description" content="Discover a better way to learn Mathematics and Science, develop problem-solving skills, and prepare confidently for your examinations with Ziglag Institute.">
   <link rel="icon" type="image/png" href="ZIG logo transparent.png">
-  <link rel="stylesheet" href="style.css?v=4.1">
+  <link rel="stylesheet" href="style.css?v=4.2">
 </head>
 <body>
+
+  <!-- ======================================================================
+       NAVIGATION DRAWER OVERLAY & SLIDE-OUT DRAWER
+       ====================================================================== -->
+  <div class="nav-drawer-overlay" id="nav-drawer-overlay" aria-hidden="true"></div>
+
+  <aside class="nav-drawer" id="nav-drawer" aria-label="Navigation Drawer" aria-hidden="true">
+    <!-- Drawer Header -->
+    <div class="nav-drawer-header">
+      <a href="index.html" class="logo" aria-label="Ziglag Institute Home">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <button type="button" class="nav-drawer-close" aria-label="Close navigation menu">✕</button>
+    </div>
+
+    <!-- Drawer Navigation Body -->
+    <div class="nav-drawer-body">
+
+      <!-- Group 1: INSTITUTION -->
+      <div class="nav-drawer-group">
+        <div class="nav-drawer-group-title">INSTITUTION</div>
+        <a href="index.html" class="nav-drawer-link active">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🏛️</span>
+            <span>Home</span>
+          </span>
+        </a>
+        <a href="about.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📖</span>
+            <span>About Ziglag Institute</span>
+          </span>
+        </a>
+        <a href="#learning-approach" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🧭</span>
+            <span>Our Learning Approach</span>
+          </span>
+        </a>
+        <a href="contact.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">✉️</span>
+            <span>Contact</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- Group 2: ACADEMIC PROGRAMMES -->
+      <div class="nav-drawer-group">
+        <div class="nav-drawer-group-title">ACADEMIC PROGRAMMES</div>
+        <a href="courses.html?sphere=secondary" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📐</span>
+            <span>Junior Secondary</span>
+          </span>
+          <span class="nav-drawer-badge">JSS 1–3</span>
+        </a>
+        <a href="courses.html?sphere=secondary" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📊</span>
+            <span>Senior Secondary</span>
+          </span>
+          <span class="nav-drawer-badge">SSS 1–3</span>
+        </a>
+        <a href="courses.html?sphere=exams" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🎓</span>
+            <span>WASSCE / NECO</span>
+          </span>
+          <span class="nav-drawer-badge">National</span>
+        </a>
+        <a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">⚡</span>
+            <span>JAMB / UTME</span>
+          </span>
+          <span class="nav-drawer-badge" style="background: rgba(21, 154, 156, 0.12); color: var(--color-teal-text);">CBT Mock</span>
+        </a>
+        <a href="courses.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🔬</span>
+            <span>Mathematics and Science</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- Group 3: STUDENT PORTAL -->
+      <div class="nav-drawer-group">
+        <div class="nav-drawer-group-title">STUDENT PORTAL</div>
+        <a href="login.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🔑</span>
+            <span>Sign In</span>
+          </span>
+        </a>
+        <a href="register.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">✨</span>
+            <span>Create Account</span>
+          </span>
+        </a>
+        <a href="dashboard.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📈</span>
+            <span>Student Dashboard</span>
+          </span>
+          <span style="font-size: 0.72rem; color: var(--color-text-muted);">🔒 Protected</span>
+        </a>
+      </div>
+
+      <!-- Group 4: LEARNING RESOURCES -->
+      <div class="nav-drawer-group">
+        <div class="nav-drawer-group-title">LEARNING RESOURCES</div>
+        <a href="courses.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📚</span>
+            <span>Public Course Information</span>
+          </span>
+        </a>
+        <a href="tutoring.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">👨‍🏫</span>
+            <span>1-on-1 Tutoring</span>
+          </span>
+          <span class="nav-drawer-badge" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">Private</span>
+        </a>
+        <a href="vault.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🗄️</span>
+            <span>Resource Vault</span>
+          </span>
+        </a>
+        <a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">💻</span>
+            <span>CBT Mock Examination</span>
+          </span>
+        </a>
+        <a href="qa.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">💬</span>
+            <span>Q&A Hub</span>
+          </span>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Drawer Footer Actions -->
+    <div class="nav-drawer-footer">
+      <a href="register.html" class="btn btn-primary" style="width: 100%;">Get Started ➜</a>
+      <a href="login.html" class="btn btn-secondary" style="width: 100%;">Sign In</a>
+    </div>
+  </aside>
 
   <div class="app-container">
     
     <!-- ======================================================================
-         1. NAVIGATION BAR
+         1. MINIMAL TOP NAVIGATION BAR (Clean & Uncrowded)
          ====================================================================== -->
     <header class="navbar" id="app-nav">
       <a href="index.html" class="logo" aria-label="Ziglag Institute Home">
@@ -21,41 +176,28 @@
         <span>Ziglag Institute</span>
       </a>
 
-      <!-- Mobile Hamburger Button -->
-      <button class="mobile-nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
-        ☰
-      </button>
-
-      <!-- Navigation Links -->
-      <nav aria-label="Primary Navigation">
-        <ul class="nav-links">
-          <li><a href="index.html" class="active">Home</a></li>
-          <li><a href="dashboard.html">Dashboard</a></li>
-          <li><a href="courses.html">Courses</a></li>
-          <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
-          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
-          <li><a href="vault.html">Resource Vault</a></li>
-          <li><a href="qa.html">Q&A Hub</a></li>
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-
-      <!-- Navigation Actions -->
+      <!-- Minimal Header Actions Cluster -->
       <div class="navbar-actions">
         <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light or dark theme">☀️</button>
-        <a href="register.html" class="btn btn-secondary btn-sm">Register</a>
-        <a href="courses.html" class="btn btn-primary btn-sm">Start Learning</a>
+        <a href="login.html" class="btn btn-secondary btn-sm nav-signin-btn">Sign In</a>
+        <a href="register.html" class="btn btn-primary btn-sm nav-getstarted-btn">Get Started</a>
+        <button class="nav-drawer-toggle" id="nav-drawer-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-drawer">
+          <span>☰</span>
+        </button>
       </div>
     </header>
 
     <!-- ======================================================================
-         2. HERO SECTION (Editorial Style with Mathematical Visualisation)
+         2. WELCOMING ACADEMIC HERO SECTION
          ====================================================================== -->
     <main class="hero">
       <div class="hero-content">
-        <div class="hero-badge">
-          <span>📐</span> Modern STEM Learning & Examination Academy
+        <!-- Live Academic Season Status Pill (Inspired by Bibleway Live Status) -->
+        <div class="hero-status-pill">
+          <span class="status-dot-pulse"></span>
+          <span>2026 Academic Season Active</span>
+          <span class="hero-status-divider">•</span>
+          <span style="color: var(--color-amber-text); font-weight: 700;">WAEC · NECO · JAMB Calibrated</span>
         </div>
 
         <h1 class="hero-title">
@@ -64,15 +206,15 @@
         </h1>
 
         <p class="hero-description">
-          Build strong foundations in Mathematics and Science through visual explanations, guided practice, interactive learning and expert support. Designed specifically for secondary students, WASSCE and JAMB UTME candidates.
+          Discover a better way to learn Mathematics and Science, develop problem-solving skills, and prepare confidently for your examinations.
         </p>
 
         <div class="hero-actions">
-          <a href="courses.html" class="btn btn-primary btn-lg">Start Learning ➜</a>
-          <a href="#pathways" class="btn btn-secondary btn-lg">Explore Student Pathways</a>
+          <a href="register.html" class="btn btn-primary btn-lg">Get Started ➜</a>
+          <a href="login.html" class="btn btn-secondary btn-lg">Sign In</a>
         </div>
 
-        <!-- Trust Badges -->
+        <!-- Academic Trust Metrics Bar -->
         <div class="hero-trust-bar">
           <div class="hero-trust-item">
             <span>🎯</span>
@@ -89,7 +231,7 @@
         </div>
       </div>
 
-      <!-- Engaging Mathematical Visualisation -->
+      <!-- Sophisticated Mathematical Visualisation Card -->
       <div class="hero-visual">
         <div class="math-visual-card">
           <!-- Card Header & Interactive Curve Switcher -->
@@ -105,7 +247,7 @@
             </div>
           </div>
 
-          <!-- Sophisticated Cartesian Coordinate Plane SVG -->
+          <!-- Cartesian Coordinate Plane SVG -->
           <div style="position: relative; width: 100%; aspect-ratio: 16/10; background: var(--color-bg); border-radius: var(--radius-sm); border: 1px solid var(--color-border); overflow: hidden;">
             <svg id="hero-math-svg" viewBox="0 0 500 300" width="100%" height="100%" style="display: block;">
               <defs>
@@ -134,14 +276,14 @@
               <!-- Axis Labels -->
               <text x="475" y="142" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#102A43">x</text>
               <text x="258" y="24" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#102A43">y</text>
-              <text x="238" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="#627D98">0</text>
+              <text x="238" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--color-text-muted)">0</text>
 
               <!-- Axis Numeric Ticks -->
-              <text x="125" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="#627D98" text-anchor="middle">-π</text>
-              <text x="187.5" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="#627D98" text-anchor="middle">-π/2</text>
-              <text x="312.5" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="#627D98" text-anchor="middle">π/2</text>
-              <text x="375" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="#627D98" text-anchor="middle">π</text>
-              <text x="437.5" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="#627D98" text-anchor="middle">2π</text>
+              <text x="125" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--color-text-muted)" text-anchor="middle">-π</text>
+              <text x="187.5" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--color-text-muted)" text-anchor="middle">-π/2</text>
+              <text x="312.5" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--color-text-muted)" text-anchor="middle">π/2</text>
+              <text x="375" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--color-text-muted)" text-anchor="middle">π</text>
+              <text x="437.5" y="165" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--color-text-muted)" text-anchor="middle">2π</text>
 
               <!-- Shaded Integral Area -->
               <path id="svg-integral-area" d="M 250 150 C 275 90, 300 80, 312.5 80 C 330 80, 355 110, 375 150 Z" fill="url(#curve-area-gradient)"/>
@@ -152,7 +294,7 @@
               <!-- Tangent Line at Peak (Orange) -->
               <line id="svg-tangent-line" x1="250" y1="80" x2="375" y2="80" stroke="#F28C28" stroke-width="2" stroke-dasharray="4,4"/>
 
-              <!-- Interactive / Animated Point of Tangency P(x0, y0) -->
+              <!-- Interactive Point of Tangency P(x0, y0) -->
               <circle id="svg-tracer-point" cx="312.5" cy="80" r="5.5" fill="#F28C28" stroke="#FFFFFF" stroke-width="2">
                 <animate attributeName="r" values="5;7;5" dur="2s" repeatCount="indefinite"/>
               </circle>
@@ -165,8 +307,8 @@
 
               <!-- Geometric Triangle Accents -->
               <g id="svg-geometric-shape" opacity="0.65">
-                <polygon points="250,150 312.5,150 312.5,80" fill="none" stroke="#627D98" stroke-width="1.2" stroke-dasharray="3,3"/>
-                <rect x="302.5" y="140" width="10" height="10" fill="none" stroke="#627D98" stroke-width="1"/>
+                <polygon points="250,150 312.5,150 312.5,80" fill="none" stroke="var(--color-text-muted)" stroke-width="1.2" stroke-dasharray="3,3"/>
+                <rect x="302.5" y="140" width="10" height="10" fill="none" stroke="var(--color-text-muted)" stroke-width="1"/>
               </g>
             </svg>
           </div>
@@ -174,8 +316,8 @@
           <!-- Mathematical Expressions Strip -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--color-border); flex-wrap: wrap; gap: 0.5rem; font-size: 0.8rem;">
             <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <span class="hub-xp-chip" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;">Derivative: f'(x) = cos(x)</span>
-              <span class="hub-xp-chip" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; background: var(--color-orange-soft); color: var(--color-orange);">Slope m = 0.0</span>
+              <span class="hub-xp-chip" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; color: var(--color-teal-text);">Derivative: f'(x) = cos(x)</span>
+              <span class="hub-xp-chip" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; background: var(--color-orange-soft); color: var(--color-amber-text);">Slope m = 0.0</span>
             </div>
             <span style="font-family: var(--font-mono); color: var(--color-text-secondary); font-size: 0.75rem;">∫ sin(x) dx = -cos(x) + C</span>
           </div>
@@ -184,21 +326,20 @@
     </main>
 
     <!-- ======================================================================
-         3. LEARNING BENEFITS (Understand, Learn Visually, Practise, Excel)
+         3. INTRODUCTION TO ZIGLAG INSTITUTE
          ====================================================================== -->
-    <section class="section-wrapper" id="benefits" style="padding-top: 1rem;">
+    <section class="section-wrapper" id="introduction" style="padding-top: 2rem;">
       <div class="section-header">
         <div class="section-title-wrap">
-          <span class="section-subtitle">Why Ziglag Works</span>
-          <h2>Designed for Deep Mathematical Mastery</h2>
+          <span class="section-subtitle">Institutional Mission</span>
+          <h2>An Academic Academy Engineered for Mathematical Intelligence</h2>
         </div>
-        <p style="max-width: 480px; text-align: right;" class="text-muted">
-          We move students past surface memorisation into permanent conceptual mastery and analytical confidence.
+        <p style="max-width: 520px; text-align: right;" class="text-muted">
+          We move students past surface memorisation into permanent conceptual mastery, analytical confidence, and examination distinction.
         </p>
       </div>
 
       <div class="benefits-grid">
-        <!-- Benefit 1 -->
         <div class="benefit-card">
           <div class="benefit-icon-box">🧠</div>
           <h3>Understand Concepts Deeply</h3>
@@ -207,16 +348,14 @@
           </p>
         </div>
 
-        <!-- Benefit 2 -->
         <div class="benefit-card">
-          <div class="benefit-icon-box" style="color: var(--color-orange); background: var(--color-orange-soft); border-color: rgba(242, 140, 40, 0.25);">📐</div>
+          <div class="benefit-icon-box" style="color: var(--color-amber-text); background: var(--color-orange-soft); border-color: rgba(242, 140, 40, 0.25);">📐</div>
           <h3>Learn Through Visual Explanations</h3>
           <p>
             Complex algebraic transformations and geometric theorems come alive through dynamic graphs, coordinate diagrams, and clear step-by-step whiteboard derivations.
           </p>
         </div>
 
-        <!-- Benefit 3 -->
         <div class="benefit-card">
           <div class="benefit-icon-box">⚡</div>
           <h3>Practise with Confidence</h3>
@@ -225,7 +364,6 @@
           </p>
         </div>
 
-        <!-- Benefit 4 -->
         <div class="benefit-card">
           <div class="benefit-icon-box" style="color: #10B981; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.25);">🎓</div>
           <h3>Prepare Effectively for Examinations</h3>
@@ -237,12 +375,59 @@
     </section>
 
     <!-- ======================================================================
-         4. LEARNING PATHWAYS (Junior, Senior, WASSCE, UTME, Physics)
+         4. OUR LEARNING APPROACH (4-Step Learning Architecture)
          ====================================================================== -->
-    <section class="section-wrapper" id="pathways">
+    <section class="section-wrapper" id="learning-approach" style="background: var(--color-surface-subtle); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); border-radius: var(--radius-xl); padding-top: 4rem; padding-bottom: 4rem;">
+      <div class="section-header" style="text-align: center; justify-content: center; flex-direction: column; align-items: center; margin-bottom: 1.5rem;">
+        <span class="section-subtitle">Our Learning Approach</span>
+        <h2 style="margin-top: 0.5rem;">How Learning Works at Ziglag Institute</h2>
+        <p style="max-width: 620px; margin: 0.75rem auto 0 auto; text-align: center;" class="text-muted">
+          Our systematic 4-step framework takes each student from diagnostic baseline to verified mathematical confidence and examination readiness.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number-pill">STEP 01</div>
+          <h3>Assess Your Understanding</h3>
+          <p>
+            Take a focused diagnostic quiz to establish your baseline proficiency and evaluate your current knowledge across topics.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number-pill" style="color: var(--color-amber-text); background: var(--color-orange-soft); border-color: rgba(242, 140, 40, 0.25);">STEP 02</div>
+          <h3>Identify Knowledge Gaps</h3>
+          <p>
+            Pinpoint exact concept roadblocks—whether algebraic manipulation, trigonometric identities, speed pacing, or proof structure.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number-pill">STEP 03</div>
+          <h3>Learn Through Explanations</h3>
+          <p>
+            Master concepts through visual explanations, whiteboard video lectures, and structured PDF notes that build from first principles.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number-pill" style="color: #10B981; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.25);">STEP 04</div>
+          <h3>Practise & Measure Growth</h3>
+          <p>
+            Reinforce skills through timed CBT tests, study streaks, and detailed derivation breakdowns until exam day excellence is assured.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         5. ACADEMIC PROGRAMMES AND PATHWAYS
+         ====================================================================== -->
+    <section class="section-wrapper" id="programmes">
       <div class="section-header">
         <div class="section-title-wrap">
-          <span class="section-subtitle">Student Pathways</span>
+          <span class="section-subtitle">Academic Programmes</span>
           <h2>Tailored Curricula for Every Academic Stage</h2>
         </div>
         <p style="max-width: 480px; text-align: right;" class="text-muted">
@@ -272,7 +457,7 @@
         <!-- Pathway 2: Senior Secondary -->
         <div class="pathway-card">
           <div>
-            <span class="pathway-badge" style="background: var(--color-teal-soft); color: var(--color-teal); border-color: rgba(21, 154, 156, 0.25);">Senior High (SSS 1–3)</span>
+            <span class="pathway-badge" style="background: var(--color-teal-soft); color: var(--color-teal-text); border-color: rgba(21, 154, 156, 0.25);">Senior High (SSS 1–3)</span>
             <h3>Senior Secondary Mathematics</h3>
             <p>
               Rigorous high school syllabus covering quadratic functions, coordinate geometry, circle theorems, trigonometry, and calculus introductions.
@@ -287,10 +472,10 @@
           <a href="courses.html?sphere=secondary" class="btn btn-secondary btn-sm" style="width: 100%;">Explore Senior Syllabus ➜</a>
         </div>
 
-        <!-- Pathway 3: WASSCE / WAEC / NECO -->
+        <!-- Pathway 3: WASSCE / NECO -->
         <div class="pathway-card">
           <div>
-            <span class="pathway-badge" style="background: var(--color-orange-soft); color: var(--color-orange); border-color: rgba(242, 140, 40, 0.25);">National Exam Prep</span>
+            <span class="pathway-badge" style="background: var(--color-orange-soft); color: var(--color-amber-text); border-color: rgba(242, 140, 40, 0.25);">National Exam Prep</span>
             <h3>WASSCE & NECO Preparation</h3>
             <p>
               Master WAEC and NECO theory and objective formats with complete past question solutions, step-by-step marking rubrics, and exam endurance drills.
@@ -308,7 +493,7 @@
         <!-- Pathway 4: JAMB UTME -->
         <div class="pathway-card">
           <div>
-            <span class="pathway-badge" style="background: rgba(239, 68, 68, 0.1); color: #EF4444; border-color: rgba(239, 68, 68, 0.25);">Speed & CBT Mastery</span>
+            <span class="pathway-badge" style="background: rgba(239, 68, 68, 0.1); color: #DC2626; border-color: rgba(239, 68, 68, 0.25);">Speed & CBT Mastery</span>
             <h3>JAMB / UTME Preparation</h3>
             <p>
               High-speed problem solving shortcuts, speed-run strategies, and computer-based examination training with authentic 40-question countdown timers.
@@ -344,60 +529,9 @@
     </section>
 
     <!-- ======================================================================
-         5. HOW LEARNING WORKS (4-Step Learning Architecture)
+         6. MATHEMATICS AND SCIENCE LEARNING (Interactive Demonstrations)
          ====================================================================== -->
-    <section class="section-wrapper" id="how-it-works" style="background: var(--color-surface-subtle); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); border-radius: var(--radius-xl); padding-top: 4rem; padding-bottom: 4rem;">
-      <div class="section-header" style="text-align: center; justify-content: center; flex-direction: column; align-items: center; margin-bottom: 1.5rem;">
-        <span class="section-subtitle">Proven Methodology</span>
-        <h2 style="margin-top: 0.5rem;">How Learning Works at Ziglag Institute</h2>
-        <p style="max-width: 620px; margin: 0.75rem auto 0 auto; text-align: center;" class="text-muted">
-          Our systematic 4-step framework takes each student from diagnostic baseline to verified mathematical confidence and examination readiness.
-        </p>
-      </div>
-
-      <div class="steps-grid">
-        <!-- Step 1 -->
-        <div class="step-card">
-          <div class="step-number-pill">STEP 01</div>
-          <h3>Assess Your Understanding</h3>
-          <p>
-            Take a focused diagnostic quiz to establish your baseline proficiency and evaluate your current knowledge across topics.
-          </p>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="step-card">
-          <div class="step-number-pill" style="color: var(--color-orange); background: var(--color-orange-soft); border-color: rgba(242, 140, 40, 0.25);">STEP 02</div>
-          <h3>Identify Knowledge Gaps</h3>
-          <p>
-            Pinpoint exact concept roadblocks—whether algebraic manipulation, trigonometric identities, speed pacing, or proof structure.
-          </p>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="step-card">
-          <div class="step-number-pill">STEP 03</div>
-          <h3>Learn Through Explanations</h3>
-          <p>
-            Master concepts through visual explanations, whiteboard video lectures, and structured PDF notes that build from first principles.
-          </p>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="step-card">
-          <div class="step-number-pill" style="color: #10B981; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.25);">STEP 04</div>
-          <h3>Practise & Measure Growth</h3>
-          <p>
-            Reinforce skills through timed CBT tests, study streaks, and detailed derivation breakdowns until exam day excellence is assured.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================================================================
-         6. FEATURED LEARNING EXPERIENCE (Interactive Practice & Sandbox)
-         ====================================================================== -->
-    <section class="section-wrapper" id="experience">
+    <section class="section-wrapper" id="mathematics-and-science">
       <div class="section-header">
         <div class="section-title-wrap">
           <span class="section-subtitle">Interactive Learning</span>
@@ -409,18 +543,17 @@
       </div>
 
       <div class="experience-layout">
-        <!-- Left Column: Key Features & Interactive Drill -->
+        <!-- Left: Interactive CBT Question Challenge -->
         <div>
           <div class="glass-card" style="padding: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-              <span class="hub-xp-chip" style="font-size: 0.8rem;">⚡ Interactive Diagnostic Drill</span>
-              <span style="font-size: 0.78rem; color: var(--color-text-secondary);">+50 XP Challenge</span>
+              <span class="hub-xp-chip" style="font-size: 0.8rem; color: var(--color-teal-text);">⚡ Interactive Diagnostic Drill</span>
+              <span style="font-size: 0.78rem; color: var(--color-text-secondary); font-weight: 600;">+50 XP Challenge</span>
             </div>
 
-            <!-- CBT Interactive Drill Question -->
             <div id="hero-cbt-drill">
               <p style="font-size: 1.05rem; font-weight: 600; color: var(--color-navy); margin-bottom: 1rem;">
-                Evaluate for real variable <span style="font-family: var(--font-mono); color: var(--color-teal);">y</span>: <strong style="color: var(--color-navy);">log₂(y² - 1) = 3</strong>
+                Evaluate for real variable <span style="font-family: var(--font-mono); color: var(--color-teal-text);">y</span>: <strong style="color: var(--color-navy);">log₂(y² - 1) = 3</strong>
               </p>
 
               <div class="cbt-options-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
@@ -434,35 +567,34 @@
               <div id="hero-cbt-feedback" style="display: none; padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-surface-subtle); font-size: 0.9rem; line-height: 1.5;"></div>
             </div>
 
-            <!-- Features List -->
             <div class="experience-feature-list">
               <div class="experience-feature-item">
                 <div class="experience-icon-wrap">✨</div>
                 <div>
                   <h4 style="font-size: 0.95rem; margin-bottom: 0.2rem; color: var(--color-navy);">Step-by-Step Derivations</h4>
-                  <p style="font-size: 0.85rem; margin: 0;">Every problem comes with complete mathematical proofs and intermediate steps.</p>
+                  <p style="font-size: 0.85rem; margin: 0; color: var(--color-text-secondary);">Every problem comes with complete mathematical proofs and intermediate steps.</p>
                 </div>
               </div>
 
               <div class="experience-feature-item">
-                <div class="experience-icon-wrap" style="color: var(--color-orange); background: var(--color-orange-soft);">📈</div>
+                <div class="experience-icon-wrap" style="color: var(--color-amber-text); background: var(--color-orange-soft);">📈</div>
                 <div>
                   <h4 style="font-size: 0.95rem; margin-bottom: 0.2rem; color: var(--color-navy);">Progress & Streak Tracking</h4>
-                  <p style="font-size: 0.85rem; margin: 0;">Measure syllabus completion, earn study XP, and maintain continuous revision streaks.</p>
+                  <p style="font-size: 0.85rem; margin: 0; color: var(--color-text-secondary);">Measure syllabus completion, earn study XP, and maintain continuous revision streaks.</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Right Column: Interactive Math Formula Sandbox -->
+        <!-- Right: Mathematical Notation Sandbox -->
         <div>
           <div class="glass-card" style="padding: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
               <h3 style="font-size: 1.15rem; margin: 0; color: var(--color-navy);">Mathematical Notation Sandbox</h3>
-              <span class="hub-level-chip" style="font-size: 0.72rem;">Live Typesetter</span>
+              <span class="hub-level-chip" style="font-size: 0.72rem; color: var(--color-teal-text);">Live Typesetter</span>
             </div>
-            <p style="font-size: 0.88rem; margin-bottom: 1.25rem;">
+            <p style="font-size: 0.88rem; margin-bottom: 1.25rem; color: var(--color-text-secondary);">
               Click below to observe how mathematical formulas are typeset with rigor, clarity, and precision:
             </p>
 
@@ -499,11 +631,10 @@
     </section>
 
     <!-- ======================================================================
-         7. PERSONALIZED 1-ON-1 TUTORING SECTION
+         7. EXAMINATION PREPARATION & 1-ON-1 TUTORING
          ====================================================================== -->
     <section class="section-wrapper" id="tutoring">
       <div class="tutoring-banner-card">
-        <!-- Left: Tutoring Value Proposition -->
         <div>
           <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-pill); padding: 0.3rem 0.8rem; font-size: 0.8rem; font-weight: 700; color: #10B981; margin-bottom: 1rem;">
             <span>🟢</span> Accepting Students for 2026 Academic Season
@@ -521,13 +652,13 @@
             <div style="background: var(--color-white); border: 1px solid var(--color-border); padding: 1rem; border-radius: var(--radius-sm);">
               <strong style="color: var(--color-navy); display: block; font-size: 0.925rem;">🇳🇬 Local Curricula</strong>
               <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Secondary, JAMB UTME, WASSCE</span>
-              <div style="margin-top: 0.4rem; font-weight: 700; color: var(--color-teal); font-size: 1rem;">$15 / hour</div>
+              <div style="margin-top: 0.4rem; font-weight: 700; color: var(--color-teal-text); font-size: 1rem;">$15 / hour</div>
             </div>
 
             <div style="background: var(--color-white); border: 1px solid var(--color-border); padding: 1rem; border-radius: var(--radius-sm);">
               <strong style="color: var(--color-navy); display: block; font-size: 0.925rem;">🌍 International Curricula</strong>
               <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Cambridge GCSE, IGCSE & A-Levels</span>
-              <div style="margin-top: 0.4rem; font-weight: 700; color: var(--color-teal); font-size: 1rem;">$25 / hour</div>
+              <div style="margin-top: 0.4rem; font-weight: 700; color: var(--color-teal-text); font-size: 1rem;">$25 / hour</div>
             </div>
           </div>
 
@@ -537,7 +668,7 @@
           </div>
         </div>
 
-        <!-- Right: Educator Profile Card (Optimized Avatar Thumbnail) -->
+        <!-- Educator Profile Card -->
         <div class="tutor-profile-badge">
           <div class="tutor-avatar-frame">
             <picture>
@@ -548,12 +679,12 @@
 
           <div>
             <h3 style="font-size: 1.25rem; margin-bottom: 0.25rem; color: var(--color-navy);">Mr. Isaac Olusola</h3>
-            <div style="font-size: 0.85rem; color: var(--color-teal); font-weight: 700;">MSc in Applied Mathematics</div>
-            <p style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;">Founder & Lead STEM Educator with over 5 years of mathematics pedagogy.</p>
+            <div style="font-size: 0.85rem; color: var(--color-teal-text); font-weight: 700;">MSc in Applied Mathematics</div>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0; color: var(--color-text-secondary);">Founder & Lead STEM Educator with over 5 years of mathematics pedagogy.</p>
           </div>
 
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-top: 0.25rem;">
-            <span class="hub-level-chip" style="font-size: 0.72rem;">⭐ 5.0 Rating</span>
+            <span class="hub-level-chip" style="font-size: 0.72rem; color: var(--color-teal-text);">⭐ 5.0 Rating</span>
             <span class="hub-level-chip" style="font-size: 0.72rem; background: var(--color-navy-soft); color: var(--color-navy);">Mon – Sat Slots</span>
           </div>
         </div>
@@ -561,9 +692,9 @@
     </section>
 
     <!-- ======================================================================
-         8. INSTITUTIONAL TRUST & EDUCATIONAL STANDARDS
+         8. WHY STUDENTS SHOULD LEARN WITH ZIGLAG INSTITUTE
          ====================================================================== -->
-    <section class="section-wrapper" id="trust">
+    <section class="section-wrapper" id="why-ziglag">
       <div class="section-header">
         <div class="section-title-wrap">
           <span class="section-subtitle">Academic Integrity</span>
@@ -575,30 +706,27 @@
       </div>
 
       <div class="trust-grid">
-        <!-- Trust Pillar 1 -->
         <div class="trust-card">
-          <div style="font-size: 1.75rem; color: var(--color-teal);">🏛️</div>
+          <div style="font-size: 1.75rem; color: var(--color-teal-text);">🏛️</div>
           <h4>Curriculum-Calibrated Standards</h4>
           <p>
             All video lectures, syllabus modules, and past question solutions are calibrated strictly to NERDC national standards, WAEC theory requirements, and JAMB UTME testing blueprints.
           </p>
         </div>
 
-        <!-- Trust Pillar 2 -->
         <div class="trust-card">
-          <div style="font-size: 1.75rem; color: var(--color-orange);">👨‍🏫</div>
+          <div style="font-size: 1.75rem; color: var(--color-amber-text);">👨‍🏫</div>
           <h4>Direct Educator Accountability</h4>
           <p>
             Instruction is led directly by qualified mathematicians and experienced educators. Questions receive verified, academically vetted responses rather than unvetted crowdsourced guesses.
           </p>
         </div>
 
-        <!-- Trust Pillar 3 -->
         <div class="trust-card">
           <div style="font-size: 1.75rem; color: #10B981;">🤝</div>
           <h4>Transparent Channels & Student Care</h4>
           <p>
-            We maintain open communication with parents and students. Inquiries, tutoring requirements, and feedback are handled directly via verified email at <a href="mailto:ziglaginstitute@gmail.com" style="color: var(--color-teal); font-weight: 600;">ziglaginstitute@gmail.com</a>.
+            We maintain open communication with parents and students. Inquiries, tutoring requirements, and feedback are handled directly via verified email at <a href="mailto:ziglaginstitute@gmail.com" style="color: var(--color-teal-text); font-weight: 600;">ziglaginstitute@gmail.com</a>.
           </p>
         </div>
       </div>
@@ -614,8 +742,8 @@
           Take the first step toward effortless mathematical confidence and examination distinction. Explore our syllabus courses or book a private 1-on-1 whiteboard coaching session today.
         </p>
         <div class="cta-banner-actions">
-          <a href="courses.html" class="btn btn-primary btn-lg">Start Learning Today ➜</a>
-          <a href="tutoring.html" class="btn btn-secondary btn-lg" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #FFFFFF;">Book 1-on-1 Tutoring</a>
+          <a href="register.html" class="btn btn-primary btn-lg">Get Started Today ➜</a>
+          <a href="login.html" class="btn btn-secondary btn-lg" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #FFFFFF;">Sign In to Student Portal</a>
         </div>
       </div>
     </section>
@@ -631,7 +759,7 @@
             <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
             <span>Ziglag Institute</span>
           </a>
-          <p style="font-size: 0.925rem; color: #9FB3C8; line-height: 1.6; margin-top: 0.5rem;">
+          <p style="font-size: 0.925rem; color: #CBD5E1; line-height: 1.6; margin-top: 0.5rem;">
             An academic institution engineered to empower learners with cutting-edge mathematical education, examination confidence, and practical scientific intuition.
           </p>
           <div class="footer-socials" style="margin-top: 1rem; display: flex; gap: 1rem;">
@@ -674,15 +802,15 @@
             <li><a href="about.html">About Ziglag</a></li>
             <li><a href="about.html#people">Academic Faculty</a></li>
             <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="mailto:ziglaginstitute@gmail.com" style="color: var(--color-orange);">ziglaginstitute@gmail.com</a></li>
-            <li><span style="font-size: 0.85rem; color: #829AB1;">9, Oriade Close, Lagos, Nigeria</span></li>
+            <li><a href="mailto:ziglaginstitute@gmail.com" style="color: var(--color-amber-text);">ziglaginstitute@gmail.com</a></li>
+            <li><span style="font-size: 0.85rem; color: #94A3B8;">9, Oriade Close, Lagos, Nigeria</span></li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <p style="color: #829AB1; font-size: 0.875rem;">&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
-        <p style="color: #829AB1; font-size: 0.875rem;">Premium Modern Educational Technology Platform</p>
+        <p style="color: #94A3B8; font-size: 0.875rem;">&copy; 2026 Ziglag Institute. Minds in Motion, Futures in Focus.</p>
+        <p style="color: #94A3B8; font-size: 0.875rem;">Premium Modern Educational Technology Platform</p>
       </div>
     </footer>
 

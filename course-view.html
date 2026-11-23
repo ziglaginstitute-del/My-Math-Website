@@ -518,235 +518,8 @@
     }
 
     // Comprehensive Course Lectures Data with YouTube Videos & Rich Content
-    const DETAILED_COURSE_DATA = {
-      'wassce-gce-neco-prep': {
-        lectures: [
-          {
-            title: "L1: Introduction and Conversion to Base 10",
-            length: "05:15",
-            topic: "Number Bases",
-            videoUrl: "https://youtu.be/GEQUHlVc8r0",
-            notes: `
-              <h3>Introduction to Number Bases & Place Value</h3>
-              <p>In mathematics, the <strong>base</strong> (or radix) of a number system specifies the number of unique digits used to represent numbers. The standard system used in everyday life is the <strong>Decimal System (Base 10)</strong>, which utilizes ten digits: $0, 1, 2, 3, 4, 5, 6, 7, 8, 9$.</p>
-              
-              <div class="notes-callout-definition">
-                <strong>Place Value Expansion Formula:</strong>
-                <p>Any integer in base $b$ represented by digits $d_n d_{n-1} \\dots d_1 d_0$ can be expanded into Base 10 using powers of $b$:</p>
-                $$\\text{Value}_{10} = d_n \\cdot b^n + d_{n-1} \\cdot b^{n-1} + \\dots + d_1 \\cdot b^1 + d_0 \\cdot b^0$$
-              </div>
-
-              <h3>Common Number Bases in WASSCE & NECO:</h3>
-              <ul>
-                <li><strong>Base 2 (Binary):</strong> Uses digits $\\{0, 1\\}$. Fundamental to computing and digital electronics.</li>
-                <li><strong>Base 8 (Octal):</strong> Uses digits $\\{0, 1, 2, 3, 4, 5, 6, 7\\}$.</li>
-                <li><strong>Base 10 (Denary/Decimal):</strong> Uses digits $\\{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\\}$.</li>
-                <li><strong>Base 16 (Hexadecimal):</strong> Uses digits $\\{0, 1, \\dots, 9, A=10, B=11, C=12, D=13, E=14, F=15\\}$.</li>
-              </ul>
-
-              <div class="notes-callout-formula">
-                <strong>Fractional Base Expansion:</strong>
-                <p>For fractional numbers with a radix point in base $b$:</p>
-                $$\\text{Value}_{10} = d_{-1} \\cdot b^{-1} + d_{-2} \\cdot b^{-2} + d_{-3} \\cdot b^{-3} + \\dots$$
-              </div>
-            `,
-            examples: [
-              {
-                examTag: "WAEC WASSCE 2022 Core",
-                problem: "Convert the binary number $11011_2$ into a base 10 (decimal) number.",
-                steps: [
-                  { label: "Step 1: Write out the powers of 2 for each place value", math: "11011_2 = (1 \\cdot 2^4) + (1 \\cdot 2^3) + (0 \\cdot 2^2) + (1 \\cdot 2^1) + (1 \\cdot 2^0)", explanation: "Assign power 0 to the rightmost bit, increasing by 1 as you move left." },
-                  { label: "Step 2: Evaluate the power terms", math: "= (1 \\cdot 16) + (1 \\cdot 8) + (0 \\cdot 4) + (1 \\cdot 2) + (1 \\cdot 1)", explanation: "Compute $2^4 = 16$, $2^3 = 8$, $2^2 = 4$, $2^1 = 2$, and $2^0 = 1$." },
-                  { label: "Step 3: Sum the terms", math: "= 16 + 8 + 0 + 2 + 1 = 27_{10}", explanation: "Therefore, $11011_2 = 27$ in the decimal system." }
-                ]
-              },
-              {
-                examTag: "NECO SSCE Senior Paper",
-                problem: "Convert the fractional binary number $10.101_2$ into a decimal number.",
-                steps: [
-                  { label: "Step 1: Expand the integer part", math: "10_2 = (1 \\cdot 2^1) + (0 \\cdot 2^0) = 2 + 0 = 2", explanation: "Evaluate the place values before the binary point." },
-                  { label: "Step 2: Expand the fractional part using negative powers", math: "0.101_2 = (1 \\cdot 2^{-1}) + (0 \\cdot 2^{-2}) + (1 \\cdot 2^{-3}) = \\frac{1}{2} + 0 + \\frac{1}{8} = 0.5 + 0.125 = 0.625", explanation: "Each successive position after the point represents $\\frac{1}{2^k}$." },
-                  { label: "Step 3: Combine integer and fractional parts", math: "= 2 + 0.625 = 2.625_{10}", explanation: "Thus, $10.101_2 = 2.625_{10}$." }
-                ]
-              }
-            ],
-            quiz: {
-              prompt: "What is the decimal (Base 10) equivalent of the binary number $10110_2$?",
-              mathFormula: "10110_2 \\longrightarrow (?)_{10}",
-              options: ["18", "22", "26", "20"],
-              correctIndex: 1,
-              explanation: "Expanding $10110_2 = 1(2^4) + 0(2^3) + 1(2^2) + 1(2^1) + 0(2^0) = 16 + 0 + 4 + 2 + 0 = 22_{10}$."
-            }
-          },
-          {
-            title: "L2: Conversion from Base 10 to Other Bases",
-            length: "02:46",
-            topic: "Number Bases",
-            videoUrl: "https://youtu.be/wpDJwLx-eRw",
-            notes: `
-              <h3>Repeated Division Method (Base 10 to Base $b$)</h3>
-              <p>To convert any integer from Base 10 into another base $b$, apply the <strong>Repeated Division Algorithm</strong>:</p>
-              <ol>
-                <li>Divide the decimal number by the target base $b$.</li>
-                <li>Record the quotient and the remainder.</li>
-                <li>Divide the resulting quotient by $b$ again, recording the new remainder.</li>
-                <li>Repeat this process until the quotient becomes $0$.</li>
-                <li>Read all remainders from the <strong>bottom to the top</strong> (last remainder is the Most Significant Digit).</li>
-              </ol>
-            `,
-            examples: [
-              {
-                examTag: "WAEC Past Question Drill",
-                problem: "Convert $75_{10}$ to an octal number (Base 8).",
-                steps: [
-                  { label: "Step 1: First division by 8", math: "75 \\div 8 = 9 \\quad \\text{remainder } 3", explanation: "75 divided by 8 is 9 with a remainder of 3." },
-                  { label: "Step 2: Second division by 8", math: "9 \\div 8 = 1 \\quad \\text{remainder } 1", explanation: "9 divided by 8 is 1 with a remainder of 1." },
-                  { label: "Step 3: Final division by 8", math: "1 \\div 8 = 0 \\quad \\text{remainder } 1", explanation: "1 divided by 8 is 0 with a remainder of 1." },
-                  { label: "Step 4: Read remainders upwards", math: "\\text{Result} = 113_8", explanation: "Reading bottom to top gives $113_8$." }
-                ]
-              }
-            ],
-            quiz: {
-              prompt: "Convert $43_{10}$ into a binary (Base 2) number:",
-              mathFormula: "43_{10} = (?)_{2}",
-              options: ["101011_2", "110101_2", "101101_2", "111001_2"],
-              correctIndex: 0,
-              explanation: "43/2 = 21 R 1, 21/2 = 10 R 1, 10/2 = 5 R 0, 5/2 = 2 R 1, 2/2 = 1 R 0, 1/2 = 0 R 1. Reading upwards: 101011_2."
-            }
-          },
-          {
-            title: "L3: Interconversions Between Bases",
-            length: "02:03",
-            topic: "Number Bases",
-            videoUrl: "https://youtu.be/S_V3UZb1xv4",
-            notes: `
-              <h3>General Base Interconversions ($b_1 \\rightarrow b_2$)</h3>
-              <p>When converting from Base $p$ to Base $q$ where neither base is 10, the universal and most reliable approach is using <strong>Base 10 as an intermediate bridge</strong>:</p>
-              $$\\text{Base } p \\xrightarrow{\\text{Expansion}} \\text{Base 10} \\xrightarrow{\\text{Repeated Division}} \\text{Base } q$$
-            `,
-            examples: [
-              {
-                examTag: "WASSCE Theory Standard",
-                problem: "Convert $324_5$ into a base 7 numeral.",
-                steps: [
-                  { label: "Step 1: Convert $324_5$ to Base 10", math: "3(5^2) + 2(5^1) + 4(5^0) = 3(25) + 10 + 4 = 75 + 10 + 4 = 89_{10}", explanation: "Expand powers of 5." },
-                  { label: "Step 2: Convert $89_{10}$ to Base 7 by repeated division", math: "89 \\div 7 = 12 \\text{ R } 5; \\quad 12 \\div 7 = 1 \\text{ R } 5; \\quad 1 \\div 7 = 0 \\text{ R } 1", explanation: "Divide successively by 7." },
-                  { label: "Step 3: Read remainders upwards", math: "\\text{Result} = 155_7", explanation: "Therefore, $324_5 = 155_7$." }
-                ]
-              }
-            ],
-            quiz: {
-              prompt: "What is $25_8$ expressed in Base 5?",
-              mathFormula: "25_8 = (?)_{5}",
-              options: ["41_5", "36_5", "42_5", "102_5"],
-              correctIndex: 0,
-              explanation: "25_8 = 2(8) + 5 = 21_10. Then 21/5 = 4 R 1, 4/5 = 0 R 4. Reading upwards gives 41_5."
-            }
-          },
-          {
-            title: "L4: Specific Base System and Direct Conversions",
-            length: "02:18",
-            topic: "Number Bases",
-            videoUrl: "https://youtu.be/_dfRw3wOpDU",
-            notes: `
-              <h3>Direct Power-of-Two Conversions</h3>
-              <p>When bases are powers of each other ($2^k$), we can convert directly without passing through base 10:</p>
-              <ul>
-                <li><strong>Base 2 to Base 8 ($2^3$):</strong> Group binary digits into blocks of 3 from right to left.</li>
-                <li><strong>Base 2 to Base 16 ($2^4$):</strong> Group binary digits into blocks of 4 from right to left.</li>
-              </ul>
-            `,
-            examples: [
-              {
-                examTag: "JAMB Speed Drill",
-                problem: "Convert $11010111_2$ directly into octal (Base 8).",
-                steps: [
-                  { label: "Step 1: Group bits into triplets from right", math: "11 \\mid 010 \\mid 111", explanation: "Pad left with zero if necessary: $011 \\mid 010 \\mid 111$." },
-                  { label: "Step 2: Convert each triplet to decimal", math: "011_2 = 3; \\quad 010_2 = 2; \\quad 111_2 = 7", explanation: "Translate each 3-bit chunk." },
-                  { label: "Step 3: Combine octal digits", math: "= 327_8", explanation: "Thus, $11010111_2 = 327_8$ directly." }
-                ]
-              }
-            ],
-            quiz: {
-              prompt: "Convert $101110_2$ directly to octal:",
-              mathFormula: "101110_2 = (?)_{8}",
-              options: ["56_8", "46_8", "54_8", "65_8"],
-              correctIndex: 0,
-              explanation: "Group as 101 | 110. 101_2 = 5, 110_2 = 6. Combined: 56_8."
-            }
-          },
-          {
-            title: "L5: Operations in Base 2",
-            length: "07:06",
-            topic: "Number Bases",
-            videoUrl: "https://youtu.be/bYrY_PAx4BA",
-            notes: `
-              <h3>Binary Arithmetic Rules</h3>
-              <div class="notes-callout-formula">
-                <strong>Binary Addition Rules:</strong>
-                <ul>
-                  <li>$0 + 0 = 0$</li>
-                  <li>$0 + 1 = 1$</li>
-                  <li>$1 + 0 = 1$</li>
-                  <li>$1 + 1 = 10_2$ (write 0 and carry 1)</li>
-                  <li>$1 + 1 + 1 = 11_2$ (write 1 and carry 1)</li>
-                </ul>
-              </div>
-            `,
-            examples: [
-              {
-                examTag: "WASSCE Past Paper Core",
-                problem: "Evaluate $1101_2 + 1011_2$.",
-                steps: [
-                  { label: "Step 1: Align digits vertically", math: "\\begin{array}{r@{\\quad}l} 1101_2 \\\\ + 1011_2 \\\\ \\hline \\end{array}", explanation: "Align by place values." },
-                  { label: "Step 2: Add column by column from right", math: "1+1 = 10_2 \\text{ (0 carry 1)}; \\quad 1+0+1 = 10_2 \\text{ (0 carry 1)}; \\quad 1+1+0 = 10_2 \\text{ (0 carry 1)}; \\quad 1+1+1 = 11_2", explanation: "Manage carries across each binary bit." },
-                  { label: "Step 3: Result", math: "= 11000_2", explanation: "Verification in base 10: $13 + 11 = 24_{10} = 11000_2$." }
-                ]
-              }
-            ],
-            quiz: {
-              prompt: "What is the product of $101_2 \\times 11_2$?",
-              mathFormula: "101_2 \\times 11_2 = ?",
-              options: ["1111_2", "1001_2", "1101_2", "1011_2"],
-              correctIndex: 0,
-              explanation: "101_2 is 5, 11_2 is 3. 5 * 3 = 15_10 = 1111_2."
-            }
-          },
-          {
-            title: "L6: Algebraic Equations in Number Bases",
-            length: "04:26",
-            topic: "Number Bases",
-            videoUrl: "https://youtu.be/9cZdSc4SW_Q",
-            notes: `
-              <h3>Solving Equations with Unknown Bases</h3>
-              <p>Equations where the base $n$ or $x$ is unknown are solved by converting both sides into standard <strong>Base 10 polynomials</strong> and solving for the positive integer base.</p>
-              <div class="notes-callout-definition">
-                <strong>Condition for Base $n$:</strong>
-                <p>The base $n$ must always be strictly greater than any individual digit appearing in the equation.</p>
-              </div>
-            `,
-            examples: [
-              {
-                examTag: "WAEC WASSCE Objective Drill",
-                problem: "If $24_n = 18_{10}$, find the value of $n$.",
-                steps: [
-                  { label: "Step 1: Expand $24_n$ in Base 10", math: "2(n^1) + 4(n^0) = 18", explanation: "Write place values using $n$." },
-                  { label: "Step 2: Simplify equation", math: "2n + 4 = 18 \\implies 2n = 14", explanation: "Subtract 4 from both sides." },
-                  { label: "Step 3: Solve for $n$", math: "n = 7", explanation: "The base is 7. Since digits are 2 and 4, $7 > 4$ is satisfied." }
-                ]
-              }
-            ],
-            quiz: {
-              prompt: "If $102_n = 42_{10}$, find the base $n$:",
-              mathFormula: "102_n = 42_{10}",
-              options: ["n = 6", "n = 5", "n = 7", "n = 4"],
-              correctIndex: 0,
-              explanation: "1(n^2) + 0(n) + 2 = 42 -> n^2 + 2 = 42 -> n^2 = 40? Wait: if n=6: 1(36) + 0 + 2 = 38. If n=6, 1(36)+0+2=38. Wait, if 102_n = 42_10: 1*n^2 + 2 = 42 -> n^2 = 40. Wait, for 102_n: if n=6, 102_6 = 38. If 112_n = 42 -> n^2 + n + 2 = 42 -> n^2 + n - 40 = 0. If 106_n: If 102_n = 42_10: let's test options: 6^2 + 6 = 42! That is 110_6! For 102_6 = 38. The question prompt: If 110_n = 42_10: n^2 + n = 42 -> n=6."
-            }
-          }
-        ]
-      }
-    };
+    // Course lecture data is loaded dynamically from authenticated backend GET /api/lectures (AUTH-02)
+    const DETAILED_COURSE_DATA = {};
 
     // Fallback template for any other course
     function generateFallbackLectures(course) {
@@ -791,21 +564,22 @@
       }));
     }
 
-    // Returns currently active playlist of lectures
+    // Returns currently active playlist of lectures (AUTH-02)
     function getActiveLectures() {
       if (courseLectures && courseLectures.length > 0) {
         return courseLectures;
       }
-      if (activeCourse && DETAILED_COURSE_DATA[activeCourse.id] && DETAILED_COURSE_DATA[activeCourse.id].lectures) {
-        return DETAILED_COURSE_DATA[activeCourse.id].lectures;
-      }
-      return generateFallbackLectures(activeCourse);
+      return [];
     }
 
     // Initialize Study Room
     document.addEventListener("DOMContentLoaded", async () => {
       const params = new URLSearchParams(window.location.search);
-      const courseId = params.get("id") || "wassce-gce-neco-prep";
+      const courseId = params.get("id") || params.get("course_id");
+      if (!courseId) {
+        window.location.replace("dashboard.html");
+        return;
+      }
       
       const courses = (window.MATH_DATABASE && window.MATH_DATABASE.courses) ? window.MATH_DATABASE.courses : [];
       activeCourse = courses.find(c => c.id === courseId) || courses[0] || { id: courseId, title: "Course Study Room" };
@@ -891,27 +665,26 @@
         }
       }
 
-      // 3. Merge backend database lecture records with rich local content
+      // 3. Populate courseLectures from genuine backend database lecture records (AUTH-02)
       if (backendLectures.length > 0) {
         courseLectures = backendLectures.map((dbLec, idx) => {
-          const detailed = detailedList.find(d => d.title === dbLec.title) || detailedList[idx] || fallbackList[idx] || {};
           return {
             id: dbLec.id,
             course_id: dbLec.course_id || activeCourse.id,
-            title: dbLec.title || detailed.title,
-            topic: dbLec.topic || dbLec.topic_category || detailed.topic || "Core Mathematics",
-            length: dbLec.duration || dbLec.length || detailed.length || "15:00",
-            duration: dbLec.duration || detailed.length || "15:00",
-            videoUrl: dbLec.video_url || dbLec.videoUrl || detailed.videoUrl,
-            order_index: dbLec.order_index,
-            notes: detailed.notes || `<p>Review lecture material for ${escapeHtml(dbLec.title)}.</p>`,
-            examples: detailed.examples || [],
-            quiz: detailed.quiz || null
+            title: dbLec.title || `Lesson ${idx + 1}`,
+            topic: dbLec.topic || dbLec.topic_category || "Core Mathematics",
+            length: dbLec.duration || dbLec.length || "30 mins",
+            duration: dbLec.duration || dbLec.length || "30 mins",
+            videoUrl: dbLec.video_url || dbLec.videoUrl || "",
+            order_index: dbLec.order_index || (idx + 1),
+            notes: dbLec.description ? `<p>${escapeHtml(dbLec.description)}</p>` : `<p>Comprehensive lecture notes and derivations for ${escapeHtml(dbLec.title)}.</p>`,
+            examples: [],
+            quiz: null
           };
         });
         backendLecturesLoaded = true;
       } else {
-        courseLectures = detailedList.length > 0 ? detailedList : fallbackList;
+        courseLectures = [];
       }
 
       // 4. Resolve starting lecture from URL parameter (?lec=... or ?lecture_id=...)

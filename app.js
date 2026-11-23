@@ -1263,8 +1263,79 @@ document.addEventListener("DOMContentLoaded", () => {
   initDiscreetAdminAccess();
 });
 
-// Mobile Navigation Toggle Handler
+// Navigation Drawer & Menu Handler (Phase 8.2 Redesign)
 function initMobileNavigation() {
+  const drawer = document.getElementById("nav-drawer");
+  const overlay = document.getElementById("nav-drawer-overlay");
+  const drawerToggles = document.querySelectorAll(".nav-drawer-toggle, .mobile-nav-toggle");
+  const closeBtn = document.querySelector(".nav-drawer-close");
+
+  if (drawer && overlay) {
+    // New Slide-Out Navigation Drawer Pattern
+    function openDrawer() {
+      drawer.classList.add("is-open");
+      overlay.classList.add("is-open");
+      document.body.classList.add("drawer-open");
+      drawer.setAttribute("aria-hidden", "false");
+      drawerToggles.forEach(btn => {
+        btn.setAttribute("aria-expanded", "true");
+      });
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove("is-open");
+      overlay.classList.remove("is-open");
+      document.body.classList.remove("drawer-open");
+      drawer.setAttribute("aria-hidden", "true");
+      drawerToggles.forEach(btn => {
+        btn.setAttribute("aria-expanded", "false");
+      });
+    }
+
+    drawerToggles.forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = drawer.classList.contains("is-open");
+        if (isOpen) {
+          closeDrawer();
+        } else {
+          openDrawer();
+        }
+      });
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeDrawer();
+      });
+    }
+
+    overlay.addEventListener("click", () => {
+      closeDrawer();
+    });
+
+    // Close on Escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && drawer.classList.contains("is-open")) {
+        closeDrawer();
+        const activeToggle = document.querySelector(".nav-drawer-toggle, .mobile-nav-toggle");
+        if (activeToggle) activeToggle.focus();
+      }
+    });
+
+    // Close when clicking any link inside the drawer
+    drawer.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        closeDrawer();
+      });
+    });
+
+    return;
+  }
+
+  // Legacy Fallback for pages without drawer markup
   const navbar = document.querySelector(".navbar");
   const navLinks = document.querySelector(".nav-links");
   if (!navbar || !navLinks) return;

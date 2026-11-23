@@ -896,13 +896,11 @@
         <div class="glass-card" style="padding: 2.25rem;">
           <h3 style="margin: 0 0 0.5rem 0;">Administrator Master PIN</h3>
           <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
-            Update the security PIN required to unlock this CMS portal.
+            Administrator security credentials are authenticated server-side and managed via the <code>ADMIN_PIN</code> environment variable in your production deployment configuration.
           </p>
-          <div style="display: flex; gap: 1rem; max-width: 400px;">
-            <input type="password" id="new-pin-input" class="admin-input" placeholder="Enter New 4-8 Digit PIN" style="letter-spacing: 0.15em;">
-            <button class="btn btn-primary" onclick="changeAdminPin()">Update PIN</button>
+          <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.25); border-radius: var(--radius-md); padding: 1rem 1.25rem; font-size: 0.875rem; color: #38bdf8;">
+            🔒 <strong>Server-Side Security Enforced:</strong> The master PIN is never stored in client-side storage or HTML. To rotate or update the administrator PIN, update the <code>ADMIN_PIN</code> environment variable in Render and restart the service.
           </div>
-          <span id="pin-change-status" style="display: none; color: #10b981; font-size: 0.85rem; margin-top: 0.5rem;">PIN successfully updated!</span>
         </div>
 
         <!-- Standalone PrepCBT Integration -->
@@ -1273,7 +1271,6 @@
     // ========================================================================
     // ADMIN STATE & AUTHENTICATION
     // ========================================================================
-    const DEFAULT_ADMIN_PIN = "ziglag2026";
     let CURRENT_COURSES = [];
     let CURRENT_LECTURES = [];
     let CURRENT_VAULT = [];
@@ -1286,28 +1283,57 @@
       checkStoredAuth();
     });
 
-    function checkStoredAuth() {
-      const isAuth = sessionStorage.getItem("ZIGLAG_ADMIN_AUTH") === "true";
-      if (isAuth) {
-        unlockAdminView();
-      } else {
-        document.getElementById("passcode-overlay").style.display = "flex";
-        document.getElementById("admin-app").style.display = "none";
-      }
+    async function checkStoredAuth() {
+      try {
+        const res = await fetch("/api/admin/status");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.is_admin) {
+            sessionStorage.setItem("ZIGLAG_ADMIN_AUTH", "true");
+            if (data.csrf_token) {
+              window.ZIGLAG_ADMIN_CSRF_TOKEN = data.csrf_token;
+              sessionStorage.setItem("ZIGLAG_ADMIN_CSRF", data.csrf_token);
+            }
+            unlockAdminView();
+            return;
+          }
+        }
+      } catch (_) {}
+      sessionStorage.removeItem("ZIGLAG_ADMIN_AUTH");
+      sessionStorage.removeItem("ZIGLAG_ADMIN_CSRF");
+      window.ZIGLAG_ADMIN_CSRF_TOKEN = null;
+      document.getElementById("passcode-overlay").style.display = "flex";
+      document.getElementById("admin-app").style.display = "none";
     }
 
-    function handleAuthSubmit(e) {
+    async function handleAuthSubmit(e) {
       e.preventDefault();
       const entered = document.getElementById("admin-pin-input").value.trim();
-      const storedPin = localStorage.getItem("ZIGLAG_ADMIN_PIN") || DEFAULT_ADMIN_PIN;
+      const err = document.getElementById("pin-error-msg");
+      err.style.display = "none";
 
-      if (entered === storedPin) {
-        sessionStorage.setItem("ZIGLAG_ADMIN_AUTH", "true");
-        unlockAdminView();
-      } else {
-        const err = document.getElementById("pin-error-msg");
+      try {
+        const res = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ admin_pin: entered })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          sessionStorage.setItem("ZIGLAG_ADMIN_AUTH", "true");
+          if (data.csrf_token) {
+            window.ZIGLAG_ADMIN_CSRF_TOKEN = data.csrf_token;
+            sessionStorage.setItem("ZIGLAG_ADMIN_CSRF", data.csrf_token);
+          }
+          unlockAdminView();
+        } else {
+          err.textContent = data.message || "Incorrect PIN or administrator access not configured.";
+          err.style.display = "block";
+          document.getElementById("admin-pin-input").value = "";
+        }
+      } catch (ex) {
+        err.textContent = "Network error connecting to administrator service.";
         err.style.display = "block";
-        document.getElementById("admin-pin-input").value = "";
       }
     }
 
@@ -1317,25 +1343,22 @@
       initAdminData();
     }
 
-    function lockAdminSession() {
+    async function lockAdminSession() {
+      try {
+        const csrfToken = (typeof window !== 'undefined' && window.ZIGLAG_ADMIN_CSRF_TOKEN) ||
+                          (typeof sessionStorage !== 'undefined' && sessionStorage.getItem("ZIGLAG_ADMIN_CSRF"));
+        await fetch("/api/admin/logout", {
+          method: "POST",
+          headers: csrfToken ? { "X-CSRF-Token": csrfToken } : {}
+        });
+      } catch (_) {}
       sessionStorage.removeItem("ZIGLAG_ADMIN_AUTH");
+      sessionStorage.removeItem("ZIGLAG_ADMIN_CSRF");
+      window.ZIGLAG_ADMIN_CSRF_TOKEN = null;
       document.getElementById("admin-app").style.display = "none";
       document.getElementById("passcode-overlay").style.display = "flex";
       document.getElementById("admin-pin-input").value = "";
       document.getElementById("pin-error-msg").style.display = "none";
-    }
-
-    function changeAdminPin() {
-      const val = document.getElementById("new-pin-input").value.trim();
-      if (val.length < 4) {
-        alert("PIN must be at least 4 characters.");
-        return;
-      }
-      localStorage.setItem("ZIGLAG_ADMIN_PIN", val);
-      document.getElementById("new-pin-input").value = "";
-      const status = document.getElementById("pin-change-status");
-      status.style.display = "block";
-      setTimeout(() => status.style.display = "none", 3000);
     }
 
     // ========================================================================

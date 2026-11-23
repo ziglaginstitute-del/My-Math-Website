@@ -3,6 +3,7 @@ import json
 import uuid
 import logging
 import urllib.request
+from urllib.parse import quote
 import secrets
 import hashlib
 import re
@@ -905,6 +906,256 @@ def home():
 def index():
     return _safe_send_html('index.html')
 
+
+def student_login_required(f):
+    """
+    Decorator protecting student-only routes.
+    Validates session existence, checks student live status against Neon PostgreSQL,
+    and invalidates sessions when session_version changes.
+    Preserves target path and query parameters for post-login return.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        student_id = session.get('student_id')
+        session_ver = session.get('session_version')
+        if not student_id:
+            if request.is_json or request.path.startswith('/api/'):
+                return jsonify({'success': False, 'message': 'Authentication required. Please sign in.', 'code': 'UNAUTHORIZED'}), 401
+            target = request.full_path.rstrip('?') if request.query_string else request.path
+            return redirect(f'/login.html?next={quote(target, safe="")}')
+
+        try:
+            student = Student.query.filter_by(id=uuid.UUID(str(student_id))).first()
+        except Exception as e:
+            logging.error(f"[Auth Error] Failed to resolve student session: {e}")
+            student = None
+
+        if not student:
+            session.clear()
+            if request.is_json or request.path.startswith('/api/'):
+                return jsonify({'success': False, 'message': 'Account not found or session expired.', 'code': 'UNAUTHORIZED'}), 401
+            target = request.full_path.rstrip('?') if request.query_string else request.path
+            return redirect(f'/login.html?next={quote(target, safe="")}')
+
+        if not student.is_active:
+            session.clear()
+            if request.is_json or request.path.startswith('/api/'):
+                return jsonify({'success': False, 'message': 'Your account has been deactivated. Please contact administration.', 'code': 'FORBIDDEN'}), 403
+            return redirect('/login.html?error=deactivated')
+
+        if session_ver is not None and student.session_version != session_ver:
+            session.clear()
+            if request.is_json or request.path.startswith('/api/'):
+                return jsonify({'success': False, 'message': 'Your session has been invalidated. Please sign in again.', 'code': 'UNAUTHORIZED'}), 401
+            return redirect('/login.html?error=session_invalidated')
+
+        return f(student, *args, **kwargs)
+    return decorated_function
+
+
+ADMIN_IDLE_TIMEOUT_SECONDS = 1800  # 30-minute administrator idle session timeout (ADMIN-SESSION-01)
+
+
+def verify_admin_session_and_csrf(require_csrf=True):
+    """
+    Validates administrator session, enforces 30-minute idle timeout (ADMIN-SESSION-01),
+    and enforces constant-time CSRF validation for mutating HTTP methods (ADMIN-CSRF-01).
+    Returns (error_response, status_code) on failure, or (None, None) on success.
+    """
+    if session.get('is_admin') is not True:
+        if request.accept_mimetypes.accept_html and not request.is_json and request.path.endswith('.html'):
+            return redirect('/admin.html', code=302), None
+        return jsonify({
+            'success': False,
+            'message': 'Administrator authentication required.',
+            'code': 'ADMIN_AUTH_REQUIRED'
+        }), 401
+
+    # 1. Enforce 30-minute idle session timeout (ADMIN-SESSION-01)
+    last_act = session.get('admin_last_activity') or session.get('admin_authenticated_at')
+    if last_act:
+        try:
+            last_act_dt = datetime.fromisoformat(last_act)
+            if last_act_dt.tzinfo is None:
+                last_act_dt = last_act_dt.replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) - last_act_dt > timedelta(seconds=ADMIN_IDLE_TIMEOUT_SECONDS):
+                session.pop('is_admin', None)
+                session.pop('admin_csrf_token', None)
+                session.pop('csrf_token', None)
+                session.pop('admin_authenticated_at', None)
+                session.pop('admin_last_activity', None)
+                if request.accept_mimetypes.accept_html and not request.is_json and request.path.endswith('.html'):
+                    return redirect('/admin.html?error=session_expired', code=302), None
+                return jsonify({
+                    'success': False,
+                    'message': 'Administrator session has expired due to inactivity. Please sign in again.',
+                    'code': 'ADMIN_SESSION_EXPIRED'
+                }), 401
+        except Exception as e:
+            logging.error(f"[Admin Session Timeout Check Error] {e}")
+
+    # 2. Enforce CSRF protection for state-changing HTTP methods (ADMIN-CSRF-01)
+    if require_csrf and request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
+        session_csrf = session.get('admin_csrf_token') or session.get('csrf_token')
+        req_csrf = request.headers.get('X-CSRF-Token') or request.headers.get('X-CSRFToken')
+        if not req_csrf:
+            data = request.get_json(silent=True) if request.is_json else None
+            if isinstance(data, dict):
+                req_csrf = data.get('csrf_token')
+            elif request.form:
+                req_csrf = request.form.get('csrf_token')
+        if not session_csrf or not req_csrf or not secrets.compare_digest(str(req_csrf), str(session_csrf)):
+            return jsonify({
+                'success': False,
+                'message': 'Missing or invalid CSRF token. Please refresh and try again.',
+                'code': 'CSRF_FAILED'
+            }), 403
+
+    # Update activity timestamp only after successful authorized validation
+    session['admin_last_activity'] = datetime.now(timezone.utc).isoformat()
+    return None, None
+
+
+def admin_login_required(f):
+    """
+    Decorator protecting administrative CMS routes (SEC-01, SEC-02, ADMIN-CSRF-01, ADMIN-SESSION-01).
+    Validates active server-side admin session, enforces 30-min idle timeout, and validates CSRF tokens.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        err_resp, status_code = verify_admin_session_and_csrf(require_csrf=True)
+        if err_resp:
+            return err_resp if status_code is None else (err_resp, status_code)
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+@app.route('/api/admin/login', methods=['POST'])
+def admin_login():
+    """
+    Server-side administrator authentication (SEC-01, ADMIN-RATE-01, ADMIN-SESSION-01).
+    Validates entered PIN against the protected server environment variable ADMIN_PIN.
+    Applies proxy-aware IP rate limiting (max 5 failed attempts, 15-minute lockout).
+    Clears pre-existing session state and generates fresh CSRF token.
+    Fails closed if ADMIN_PIN is unset or empty.
+    """
+    client_ip = get_client_ip()
+
+    # Rate limiting: max 5 failed attempts, 15-minute window, 15-minute (900s) lockout
+    allowed, retry_sec, limit_msg = check_auth_rate_limit(
+        'admin_login', client_ip, identifier=None,
+        max_attempts=5, window_seconds=900, lockout_seconds=900
+    )
+    if not allowed:
+        resp = jsonify({
+            'success': False,
+            'error': 'TOO_MANY_REQUESTS',
+            'message': limit_msg or 'Too many failed administrator login attempts. Please try again later.',
+            'retry_after': retry_sec,
+            'code': 'RATE_LIMITED'
+        })
+        resp.headers['Retry-After'] = str(retry_sec)
+        return resp, 429
+
+    data = request.get_json(silent=True) or {}
+    entered_pin = str(data.get('admin_pin') or '').strip()
+    if not entered_pin:
+        return jsonify({
+            'success': False,
+            'message': 'Administrator PIN is required.',
+            'code': 'PIN_REQUIRED'
+        }), 400
+
+    configured_pin = (os.getenv('ADMIN_PIN') or '').strip()
+    if not configured_pin:
+        logging.error("[Security Warning] Administrator login attempted but ADMIN_PIN is not configured.")
+        return jsonify({
+            'success': False,
+            'message': 'Administrator access is not configured on this server.',
+            'code': 'ADMIN_NOT_CONFIGURED'
+        }), 401
+
+    if not secrets.compare_digest(entered_pin, configured_pin):
+        record_auth_failure('admin_login', client_ip, lockout_seconds=900)
+        return jsonify({
+            'success': False,
+            'message': 'Invalid administrator PIN.',
+            'code': 'INVALID_CREDENTIALS'
+        }), 401
+
+    # Clear rate limit failure counter upon success
+    clear_auth_limits('admin_login', client_ip)
+
+    # Clear pre-existing session state (session fixation defense & cross-account hygiene)
+    session.clear()
+
+    # Generate fresh cryptographically secure CSRF token and timestamps
+    admin_csrf = secrets.token_hex(32)
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    session['is_admin'] = True
+    session['admin_csrf_token'] = admin_csrf
+    session['csrf_token'] = admin_csrf
+    session['admin_authenticated_at'] = now_iso
+    session['admin_last_activity'] = now_iso
+
+    return jsonify({
+        'success': True,
+        'message': 'Administrator session authenticated successfully.',
+        'csrf_token': admin_csrf
+    }), 200
+
+
+@app.route('/api/admin/logout', methods=['POST'])
+def admin_logout():
+    """
+    Terminates the active administrator session (SEC-01 & ADMIN-SESSION-01).
+    Removes administrator claims, CSRF tokens, and activity timestamps.
+    """
+    session.pop('is_admin', None)
+    session.pop('admin_csrf_token', None)
+    session.pop('csrf_token', None)
+    session.pop('admin_authenticated_at', None)
+    session.pop('admin_last_activity', None)
+    return jsonify({
+        'success': True,
+        'message': 'Administrator session logged out.'
+    }), 200
+
+
+@app.route('/api/admin/status', methods=['GET'])
+def admin_status():
+    """
+    Checks the status of the current administrator session (SEC-01, ADMIN-CSRF-01, ADMIN-SESSION-01).
+    Enforces idle timeout and supplies CSRF token only to authenticated administrators.
+    """
+    if session.get('is_admin') is True:
+        last_act = session.get('admin_last_activity') or session.get('admin_authenticated_at')
+        if last_act:
+            try:
+                last_act_dt = datetime.fromisoformat(last_act)
+                if last_act_dt.tzinfo is None:
+                    last_act_dt = last_act_dt.replace(tzinfo=timezone.utc)
+                if datetime.now(timezone.utc) - last_act_dt > timedelta(seconds=ADMIN_IDLE_TIMEOUT_SECONDS):
+                    session.pop('is_admin', None)
+                    session.pop('admin_csrf_token', None)
+                    session.pop('csrf_token', None)
+                    session.pop('admin_authenticated_at', None)
+                    session.pop('admin_last_activity', None)
+                    return jsonify({'success': True, 'is_admin': False, 'message': 'Session expired'}), 200
+            except Exception:
+                pass
+        return jsonify({
+            'success': True,
+            'is_admin': True,
+            'csrf_token': session.get('admin_csrf_token') or session.get('csrf_token')
+        }), 200
+
+    return jsonify({
+        'success': True,
+        'is_admin': False
+    }), 200
+
 @app.route('/dashboard.html')
 @app.route('/dashboard')
 def dashboard_page():
@@ -962,11 +1213,71 @@ def tutoring():
     return _safe_send_html('tutoring.html')
 
 @app.route('/vault.html')
-def vault():
+@app.route('/vault')
+@student_login_required
+def vault(student):
     return _safe_send_html('vault.html')
 
 @app.route('/course-view.html')
-def course_view():
+@app.route('/course-view')
+@student_login_required
+def course_view(student):
+    course_id = (request.args.get('id') or request.args.get('course_id') or '').strip()
+    if not course_id:
+        if request.headers.get('Accept') == 'application/json' or (request.is_json and not request.path.endswith('.html')):
+            return jsonify({
+                'success': False,
+                'message': 'Missing course identifier. Please select a course from your dashboard.',
+                'code': 'MISSING_COURSE_ID'
+            }), 400
+        return redirect('/dashboard.html', code=302)
+
+    if course_id:
+        course = Course.query.filter_by(id=course_id).first()
+        if not course or not course.is_published:
+            return jsonify({'success': False, 'message': f'Course with ID "{course_id}" not found or unpublished.', 'code': 'COURSE_NOT_FOUND'}), 404
+
+        # Enforce enrolment authorization
+        is_enrolled = StudentEnrollment.query.filter_by(
+            student_id=student.id,
+            course_id=course_id
+        ).first() is not None
+
+        if not is_enrolled:
+            if request.headers.get('Accept') == 'application/json' or (request.is_json and not request.path.endswith('.html')):
+                return jsonify({
+                    'success': False,
+                    'message': f'Access denied. You are not enrolled in course "{course_id}".',
+                    'code': 'ENROLMENT_REQUIRED'
+                }), 403
+            return ("""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Course Enrolment Required • Ziglag Institute</title>
+  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--color-bg,#F5F8FA);font-family:'Plus Jakarta Sans',sans-serif;margin:0;padding:1.5rem;box-sizing:border-box;">
+  <div style="background:var(--color-surface,#FFFFFF);padding:2.5rem 2rem;border-radius:16px;box-shadow:0 10px 30px rgba(16,42,67,0.08);border:1px solid var(--color-border,#E2E8F0);max-width:480px;text-align:center;">
+    <div style="width:64px;height:64px;border-radius:50%;background:rgba(242,140,40,0.12);color:#F28C28;font-size:2rem;display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.25rem;">🔒</div>
+    <h2 style="color:var(--color-navy,#102A43);margin:0 0 0.5rem 0;font-size:1.45rem;">Course Enrolment Required</h2>
+    <p style="color:var(--color-text-secondary,#334E68);font-size:0.925rem;line-height:1.5;margin:0 0 1.75rem 0;">
+      You are not currently enrolled in <strong>""" + str(course.title) + """</strong>. Please return to your student dashboard to review active enrolments or contact your academic advisor.
+    </p>
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+      <a href="/dashboard.html" class="btn btn-primary btn-sm" style="background:#F28C28;color:#102A43;font-weight:700;padding:0.65rem 1.25rem;text-decoration:none;border-radius:24px;">Return to Dashboard</a>
+      <a href="/courses.html" class="btn btn-secondary btn-sm" style="color:#102A43;border:1px solid var(--color-border,#CBD5E1);padding:0.65rem 1.25rem;text-decoration:none;border-radius:24px;">Browse Catalog</a>
+    </div>
+  </div>
+</body>
+</html>""", 403, {'Content-Type': 'text/html'})
+            return jsonify({
+                'success': False,
+                'message': f'Access denied. You are not enrolled in course "{course_id}".',
+                'code': 'ENROLMENT_REQUIRED'
+            }), 403
+
     return _safe_send_html('course-view.html')
 
 @app.route('/contact.html')
@@ -1020,47 +1331,7 @@ def validate_email_format(email):
         return False
     return bool(re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email))
 
-def student_login_required(f):
-    """
-    Decorator protecting student-only routes.
-    Validates session existence, checks student live status against Neon PostgreSQL,
-    and invalidates sessions when session_version changes.
-    """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        student_id = session.get('student_id')
-        session_ver = session.get('session_version')
-        if not student_id:
-            if request.is_json or request.path.startswith('/api/'):
-                return jsonify({'success': False, 'message': 'Authentication required. Please sign in.', 'code': 'UNAUTHORIZED'}), 401
-            return redirect(f'/login.html?next={request.path}')
-        
-        try:
-            student = Student.query.filter_by(id=uuid.UUID(str(student_id))).first()
-        except Exception as e:
-            logging.error(f"[Auth Error] Failed to resolve student session: {e}")
-            student = None
-
-        if not student:
-            session.clear()
-            if request.is_json or request.path.startswith('/api/'):
-                return jsonify({'success': False, 'message': 'Account not found or session expired.', 'code': 'UNAUTHORIZED'}), 401
-            return redirect('/login.html')
-
-        if not student.is_active:
-            session.clear()
-            if request.is_json or request.path.startswith('/api/'):
-                return jsonify({'success': False, 'message': 'Your account has been deactivated. Please contact administration.', 'code': 'FORBIDDEN'}), 403
-            return redirect('/login.html?error=deactivated')
-
-        if session_ver is not None and student.session_version != session_ver:
-            session.clear()
-            if request.is_json or request.path.startswith('/api/'):
-                return jsonify({'success': False, 'message': 'Your session has been invalidated. Please sign in again.', 'code': 'UNAUTHORIZED'}), 401
-            return redirect('/login.html?error=session_invalidated')
-
-        return f(student, *args, **kwargs)
-    return decorated_function
+# student_login_required defined above for early route decoration
 
 
 # ============================================================================
@@ -1235,7 +1506,7 @@ def auth_register():
     hashes password using Werkzeug scrypt, and inserts record into public.students.
     """
     data = request.get_json(silent=True) or {}
-    
+
     fullname = (data.get('fullname') or data.get('full_name') or '').strip()
     raw_email = (data.get('email') or '').strip()
     norm_email = raw_email.lower()
@@ -1347,7 +1618,7 @@ def auth_login():
 
     try:
         student = Student.query.filter_by(email=norm_email).first()
-        
+
         # Constant-time comparison & generic rejection to prevent user enumeration
         if not student or not check_password_hash(student.password_hash, password):
             record_auth_failure('login', client_ip, identifier=norm_email, lockout_seconds=300)
@@ -1738,19 +2009,19 @@ def neon_ai_math_assistant():
     """Real-time STEM / Math AI assistant for JAMB & WASSCE questions."""
     if not NEON_AI_GATEWAY_BASE_URL or not NEON_AI_GATEWAY_TOKEN:
         return jsonify({'success': False, 'message': 'AI Gateway credentials not configured'}), 500
-    
+
     data = request.get_json() or {}
     question = data.get('question', '').strip()
     if not question:
         return jsonify({'success': False, 'message': 'Question prompt required.'}), 400
-        
+
     model = data.get('model', 'gemini-2.5-flash')
     system_instruction = (
         "You are Ziglag AI, an expert mathematics, physics, and STEM tutor for Nigerian JAMB UTME "
         "and WASSCE candidates. Give concise, step-by-step explanations, highlighting formula derivations "
         "and final answers clearly."
     )
-    
+
     payload = {
         'model': model,
         'messages': [
@@ -1759,7 +2030,7 @@ def neon_ai_math_assistant():
         ],
         'temperature': 0.2
     }
-    
+
     try:
         body = json.dumps(payload).encode('utf-8')
         req = urllib.request.Request(
@@ -1778,7 +2049,7 @@ def neon_ai_math_assistant():
         # If no prepaid credits on free tier, handle gracefully
         err_str = str(e)
         return jsonify({
-            'success': False, 
+            'success': False,
             'error': err_str,
             'note': 'Neon AI Gateway is connected. Prepaid credits can be activated at https://console.neon.tech/app/org-proud-scene-10289145/billing'
         }), 500
@@ -1868,11 +2139,11 @@ def handle_subjects():
         sub_id = (data.get('id') or name.lower().replace(' ', '_')).strip()
         if not name:
             return jsonify({'success': False, 'message': 'Subject name is required.'}), 400
-        
+
         existing = Subject.query.filter_by(id=sub_id).first()
         if existing:
             return jsonify({'success': True, 'subject': existing.to_dict(), 'message': 'Already exists'})
-            
+
         new_sub = Subject(
             id=sub_id,
             name=name,
@@ -1885,7 +2156,7 @@ def handle_subjects():
         db.session.add(new_sub)
         db.session.commit()
         return jsonify({'success': True, 'subject': new_sub.to_dict()})
-        
+
     subs = Subject.query.order_by(Subject.name.asc()).all()
     return jsonify([s.to_dict() for s in subs])
 
@@ -1907,7 +2178,7 @@ def bulk_register_candidates():
         data = payload
     else:
         return jsonify({'success': False, 'message': 'Array of candidates expected'}), 400
-        
+
     saved = []
     for item in data:
         name = (item.get('full_name') or item.get('name') or '').strip()
@@ -1918,7 +2189,7 @@ def bulk_register_candidates():
         if existing:
             saved.append(existing.to_dict())
             continue
-            
+
         cand = Candidate(
             id=item.get('id') or f"cand_{int(datetime.utcnow().timestamp())}_{os.urandom(3).hex()}",
             full_name=name,
@@ -1935,7 +2206,7 @@ def bulk_register_candidates():
         )
         db.session.add(cand)
         saved.append(cand.to_dict())
-        
+
     db.session.commit()
     return jsonify({'success': True, 'count': len(saved), 'candidates': saved})
 
@@ -1966,12 +2237,12 @@ def handle_single_question(q_id):
     q = Question.query.filter_by(id=q_id).first()
     if not q:
         return jsonify({'success': False, 'message': 'Question not found'}), 404
-        
+
     if request.method == 'DELETE':
         db.session.delete(q)
         db.session.commit()
         return jsonify({'success': True, 'message': 'Question deleted'})
-        
+
     data = request.get_json() or {}
     q.subject = (data.get('subject') or q.subject).lower()
     q.topic = data.get('topic', q.topic)
@@ -2002,14 +2273,14 @@ def export_questions():
 def import_questions():
     data = request.get_json() or {}
     q_list = data.get('questions', []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
-    
+
     count = 0
     for q_data in q_list:
         q_id = q_data.get('id') or f"q_{int(datetime.utcnow().timestamp())}_{os.urandom(3).hex()}"
         existing = Question.query.filter_by(id=q_id).first()
         opts = q_data.get('options') or []
         opts_json = json.dumps(opts) if isinstance(opts, list) else opts
-        
+
         if existing:
             existing.question_text = q_data.get('question_text') or q_data.get('question', existing.question_text)
             existing.options = opts_json
@@ -2033,7 +2304,7 @@ def import_questions():
             )
             db.session.add(new_q)
         count += 1
-        
+
     db.session.commit()
     return jsonify({'success': True, 'count': count})
 
@@ -2042,12 +2313,12 @@ def handle_single_exam(exam_id):
     exam = ScheduledExam.query.filter_by(id=exam_id).first()
     if not exam:
         return jsonify({'success': False, 'message': 'Mock exam not found'}), 404
-        
+
     if request.method == 'DELETE':
         db.session.delete(exam)
         db.session.commit()
         return jsonify({'success': True, 'message': 'Mock exam deleted'})
-        
+
     data = request.get_json() or {}
     if 'is_active' in data:
         exam.is_active = bool(data.get('is_active'))
@@ -2153,6 +2424,7 @@ def handle_questions():
     return jsonify([q.to_dict() for q in questions])
 
 @app.route('/api/questions/bulk', methods=['POST'])
+@admin_login_required
 def bulk_insert_questions():
     data = request.get_json() or []
     if not isinstance(data, list):
@@ -2188,6 +2460,9 @@ def bulk_insert_questions():
 @app.route('/api/exams', methods=['GET', 'POST'])
 def handle_exams():
     if request.method == 'POST':
+        err_resp, status_code = verify_admin_session_and_csrf(require_csrf=True)
+        if err_resp:
+            return err_resp if status_code is None else (err_resp, status_code)
         data = request.get_json() or {}
         exam_id = data.get('id') or f"mock_{int(datetime.utcnow().timestamp())}"
         subjs = data.get('subject_ids', ["english", "mathematics", "physics", "chemistry"])
@@ -2241,9 +2516,99 @@ def get_exam_history():
     return jsonify([h.to_dict() for h in history])
 
 # COURSES & LECTURES API
+# PUBLIC COURSE PREVIEW API (Phase 8.3)
+@app.route('/api/courses/preview', methods=['GET'])
+def get_courses_preview():
+    """
+    Public Course Preview API (Phase 8.3).
+    Allows prospective students and unauthenticated visitors to explore safe academic
+    curriculum metadata without exposing protected video streams, lesson resources, or student records.
+    """
+    course_id = request.args.get('course_id') or request.args.get('id')
+
+    EXAM_PATHWAY_MAP = {
+        'wassce-gce-neco-prep': 'WAEC / WASSCE & NECO Senior Secondary Certification',
+        'jamb-prep': 'JAMB / UTME Tertiary Matriculation Examination',
+        'cambridge-igcse-extended-math': 'Cambridge IGCSE Extended & Additional Mathematics',
+        'cambridge-as-a-level-math': 'Cambridge International AS & A Level Mathematics',
+        'cambridge-checkpoint-math': 'Cambridge Secondary 1 Checkpoint Mathematics',
+        'junior-secondary-math-prep': 'Junior Secondary (BECE / JSCE) Foundation',
+        'general-science-discovery': 'Integrated Junior Science Foundation & Discovery',
+        'senior-secondary-physics': 'Senior Secondary Physics (WAEC, NECO & UTME)'
+    }
+
+    def build_preview(c):
+        try:
+            syl = json.loads(c.syllabus_json) if c.syllabus_json else []
+        except Exception:
+            syl = []
+        syllabus_outline = syl if (isinstance(syl, list) and len(syl) > 0) else [
+            'Foundational Concepts & Principles',
+            'Analytical & Algebraic Methods',
+            'Worked Problem Sets & Step-by-Step Proofs',
+            'Curriculum Exam Walkthrough & Mastery Assessment'
+        ]
+        weeks = c.duration_weeks or 6
+        dur_display = f"{weeks * 5} Hours"
+        pathway = EXAM_PATHWAY_MAP.get(c.id, c.subcategory or c.category or 'Standard Academic Pathway')
+
+        learning_objectives = [
+            f"Master core theoretical concepts and problem-solving techniques in {c.title}",
+            "Develop structured mathematical reasoning and computational precision",
+            "Prepare confidently for standardized curriculum and national/international examinations"
+        ]
+
+        return {
+            'id': c.id,
+            'title': c.title,
+            'slug': c.slug,
+            'subject': c.category,
+            'category': c.category,
+            'education_level': c.badge or 'Senior Secondary',
+            'level': c.badge or 'Senior Secondary',
+            'examination_pathway': pathway,
+            'pathway': pathway,
+            'description': c.description or '',
+            'learning_objectives': learning_objectives,
+            'syllabus_outline': syllabus_outline,
+            'duration_weeks': weeks,
+            'duration': dur_display,
+            'icon': c.icon or '📐',
+            'instructor': c.instructor or 'Mr. Isaac Olusola',
+            'is_published': c.is_published,
+            'lecture_count': db.session.query(func.count(Lecture.id)).filter(
+                Lecture.course_id == c.id,
+                Lecture.is_published == True
+            ).scalar() or 0
+        }
+
+    if course_id:
+        course = Course.query.filter_by(id=course_id, is_published=True).first()
+        if not course:
+            return jsonify({
+                'success': False,
+                'message': f'Course with ID "{course_id}" not found or unpublished.',
+                'code': 'COURSE_NOT_FOUND'
+            }), 404
+        return jsonify({
+            'success': True,
+            'course': build_preview(course)
+        })
+
+    courses = Course.query.filter_by(is_published=True).order_by(Course.display_order.asc()).all()
+    previews = [build_preview(c) for c in courses]
+    return jsonify({
+        'success': True,
+        'count': len(previews),
+        'courses': previews
+    })
+
 @app.route('/api/courses', methods=['GET', 'POST'])
 def handle_courses():
     if request.method == 'POST':
+        err_resp, status_code = verify_admin_session_and_csrf(require_csrf=True)
+        if err_resp:
+            return err_resp if status_code is None else (err_resp, status_code)
         data = request.get_json() or {}
         cid = data.get('id') or f"course_{int(datetime.utcnow().timestamp())}"
         slug = data.get('slug') or data.get('title', '').lower().replace(' ', '-')
@@ -2273,6 +2638,9 @@ def handle_courses():
 @app.route('/api/lectures', methods=['GET', 'POST'])
 def handle_lectures():
     if request.method == 'POST':
+        err_resp, status_code = verify_admin_session_and_csrf(require_csrf=True)
+        if err_resp:
+            return err_resp if status_code is None else (err_resp, status_code)
         data = request.get_json() or {}
         lid = data.get('id') or f"lec_{int(datetime.utcnow().timestamp())}"
         topic_cat = data.get('topic_category') or data.get('group') or data.get('topic') or 'General'
@@ -2291,17 +2659,76 @@ def handle_lectures():
         db.session.commit()
         return jsonify({'success': True, 'lecture': lec.to_dict()})
 
+    # GET /api/lectures - Require authenticated student session or genuine administrator session (SEC-01)
+    is_admin = bool(session.get('is_admin') is True)
+
+    student = None
+    if not is_admin:
+        student_id = session.get('student_id')
+        session_ver = session.get('session_version')
+        if not student_id:
+            return jsonify({'success': False, 'message': 'Authentication required. Please sign in.', 'code': 'UNAUTHORIZED'}), 401
+
+        try:
+            student = Student.query.filter_by(id=uuid.UUID(str(student_id))).first()
+        except Exception as e:
+            logging.error(f"[Auth Error] Failed to resolve student session: {e}")
+            student = None
+
+        if not student:
+            session.clear()
+            return jsonify({'success': False, 'message': 'Account not found or session expired.', 'code': 'UNAUTHORIZED'}), 401
+
+        if not student.is_active:
+            session.clear()
+            return jsonify({'success': False, 'message': 'Your account has been deactivated. Please contact administration.', 'code': 'FORBIDDEN'}), 403
+
+        if session_ver is not None and student.session_version != session_ver:
+            session.clear()
+            return jsonify({'success': False, 'message': 'Your session has been invalidated. Please sign in again.', 'code': 'UNAUTHORIZED'}), 401
+
     course_id = request.args.get('course_id')
     query = Lecture.query
+
     if course_id:
+        course = Course.query.filter_by(id=course_id).first()
+        if not course or not course.is_published:
+            return jsonify({'success': False, 'message': f'Course with ID "{course_id}" not found or unpublished.', 'code': 'COURSE_NOT_FOUND'}), 404
+
+        # Enforce enrolment authorization for non-admin students
+        if not is_admin:
+            is_enrolled = StudentEnrollment.query.filter_by(
+                student_id=student.id,
+                course_id=course_id
+            ).first() is not None
+            if not is_enrolled:
+                return jsonify({
+                    'success': False,
+                    'message': f'Access denied. You are not enrolled in course "{course_id}".',
+                    'code': 'ENROLMENT_REQUIRED'
+                }), 403
+
         query = query.filter_by(course_id=course_id)
-    lectures = query.order_by(Lecture.order_index.asc()).all()
+    else:
+        # If no course_id provided, students only see lectures for their enrolled courses
+        if not is_admin:
+            enrolled_cids = [
+                e.course_id for e in StudentEnrollment.query.filter_by(student_id=student.id).all()
+            ]
+            if not enrolled_cids:
+                return jsonify([])
+            query = query.filter(Lecture.course_id.in_(enrolled_cids))
+
+    lectures = query.filter_by(is_published=True).order_by(Lecture.order_index.asc()).all()
     return jsonify([l.to_dict() for l in lectures])
 
-# VAULT RESOURCES API
+# VAULT RESOURCES API (VAULT-01 & SEC-02)
 @app.route('/api/vault', methods=['GET', 'POST'])
 def handle_vault():
     if request.method == 'POST':
+        err_resp, status_code = verify_admin_session_and_csrf(require_csrf=True)
+        if err_resp:
+            return err_resp if status_code is None else (err_resp, status_code)
         data = request.get_json() or {}
         rid = data.get('id') or f"res_{int(datetime.utcnow().timestamp())}"
         res = VaultResource(
@@ -2318,6 +2745,36 @@ def handle_vault():
         db.session.commit()
         return jsonify({'success': True, 'resource': res.to_dict()})
 
+    # GET: Require authenticated student session or administrator session
+    is_admin = bool(session.get('is_admin') is True)
+    if not is_admin:
+        student_id = session.get('student_id')
+        session_ver = session.get('session_version')
+        if not student_id:
+            return jsonify({
+                'success': False,
+                'message': 'Authentication required. Please sign in to access the Resource Vault.',
+                'code': 'UNAUTHORIZED'
+            }), 401
+        try:
+            student = Student.query.filter_by(id=uuid.UUID(str(student_id))).first()
+        except Exception:
+            student = None
+        if not student or not student.is_active:
+            session.clear()
+            return jsonify({
+                'success': False,
+                'message': 'Active student account required.',
+                'code': 'UNAUTHORIZED'
+            }), 401
+        if session_ver is not None and student.session_version != session_ver:
+            session.clear()
+            return jsonify({
+                'success': False,
+                'message': 'Your session has been invalidated. Please sign in again.',
+                'code': 'UNAUTHORIZED'
+            }), 401
+
     resources = VaultResource.query.order_by(VaultResource.created_at.desc()).all()
     return jsonify([r.to_dict() for r in resources])
 
@@ -2327,17 +2784,18 @@ def handle_vault():
 # ============================================================================
 
 @app.route('/api/courses/<cid>', methods=['DELETE', 'PUT'])
+@admin_login_required
 def course_detail(cid):
     course = Course.query.get(cid)
     if not course:
         return jsonify({'success': False, 'message': 'Course not found'}), 404
-    
+
     if request.method == 'DELETE':
         Lecture.query.filter_by(course_id=cid).delete()
         db.session.delete(course)
         db.session.commit()
         return jsonify({'success': True, 'message': f'Course {cid} and its lectures deleted'})
-    
+
     data = request.get_json() or {}
     if 'title' in data: course.title = data['title']
     if 'category' in data: course.category = data['category']
@@ -2356,16 +2814,17 @@ def course_detail(cid):
     return jsonify({'success': True, 'course': course.to_dict()})
 
 @app.route('/api/lectures/<lid>', methods=['DELETE', 'PUT'])
+@admin_login_required
 def lecture_detail(lid):
     lec = Lecture.query.get(lid)
     if not lec:
         return jsonify({'success': False, 'message': 'Lecture not found'}), 404
-    
+
     if request.method == 'DELETE':
         db.session.delete(lec)
         db.session.commit()
         return jsonify({'success': True, 'message': f'Lecture {lid} deleted'})
-    
+
     data = request.get_json() or {}
     if 'title' in data: lec.title = data['title']
     if 'description' in data: lec.description = data['description']
@@ -2380,16 +2839,17 @@ def lecture_detail(lid):
     return jsonify({'success': True, 'lecture': lec.to_dict()})
 
 @app.route('/api/vault/<rid>', methods=['DELETE', 'PUT'])
+@admin_login_required
 def vault_detail(rid):
     res = VaultResource.query.get(rid)
     if not res:
         return jsonify({'success': False, 'message': 'Resource not found'}), 404
-    
+
     if request.method == 'DELETE':
         db.session.delete(res)
         db.session.commit()
         return jsonify({'success': True, 'message': f'Vault resource {rid} deleted'})
-    
+
     data = request.get_json() or {}
     if 'title' in data: res.title = data['title']
     if 'category' in data: res.category = data['category']
@@ -2403,31 +2863,32 @@ def vault_detail(rid):
     return jsonify({'success': True, 'resource': res.to_dict()})
 
 @app.route('/api/upload/pdf', methods=['POST'])
+@admin_login_required
 def upload_pdf():
     if 'file' not in request.files:
         return jsonify({'success': False, 'message': 'No file part in request'}), 400
     f = request.files['file']
     if not f or f.filename == '':
         return jsonify({'success': False, 'message': 'No file selected'}), 400
-    
+
     filename = secure_filename(f.filename)
     if not filename.lower().endswith('.pdf'):
         return jsonify({'success': False, 'message': 'Only PDF (.pdf) files are supported'}), 400
-    
+
     upload_dir = VAULT_UPLOADS_DIR
     try:
         os.makedirs(upload_dir, exist_ok=True)
     except Exception:
         pass
-    
+
     safe_name = f"{int(datetime.utcnow().timestamp())}_{filename}"
     filepath = os.path.join(upload_dir, safe_name)
     f.save(filepath)
-    
+
     size_bytes = os.path.getsize(filepath)
     size_str = f"{size_bytes / (1024*1024):.1f} MB" if size_bytes >= 1024*1024 else f"{size_bytes / 1024:.0f} KB"
     clean_title = filename.replace('.pdf', '').replace('_', ' ').replace('-', ' ').title()
-    
+
     return jsonify({
         'success': True,
         'filename': safe_name,
@@ -2438,14 +2899,49 @@ def upload_pdf():
 
 @app.route('/assets/vault_pdfs/<path:filename>')
 def serve_vault_pdf(filename):
-    if os.path.exists(os.path.join(VAULT_UPLOADS_DIR, filename)):
-        return send_from_directory(VAULT_UPLOADS_DIR, filename)
+    # Enforce student or administrator authentication (VAULT-01)
+    is_admin = bool(session.get('is_admin') is True)
+    student_id = session.get('student_id')
+    if not is_admin and not student_id:
+        if request.accept_mimetypes.accept_html and not request.is_json:
+            target = request.full_path.rstrip('?') if request.query_string else request.path
+            return redirect(f'/login.html?next={quote(target, safe="")}', code=302)
+        return jsonify({
+            'success': False,
+            'message': 'Authentication required to access learning resources.',
+            'code': 'UNAUTHORIZED'
+        }), 401
+
+    if not is_admin:
+        try:
+            student = Student.query.filter_by(id=uuid.UUID(str(student_id))).first()
+        except Exception:
+            student = None
+        if not student or not student.is_active:
+            return jsonify({
+                'success': False,
+                'message': 'Active student account required.',
+                'code': 'UNAUTHORIZED'
+            }), 401
+
+    # Path traversal protection
+    clean_name = secure_filename(os.path.basename(filename))
+    if not clean_name or '..' in filename or filename.startswith('/') or filename.startswith('\\'):
+        return jsonify({'success': False, 'message': 'Invalid file path.', 'code': 'INVALID_PATH'}), 400
+
+    upload_path = os.path.join(VAULT_UPLOADS_DIR, clean_name)
     fallback_dir = os.path.join(BASE_DIR, 'assets', 'vault_pdfs')
-    if os.path.exists(os.path.join(fallback_dir, filename)):
-        return send_from_directory(fallback_dir, filename)
-    return jsonify({'error': 'File not found'}), 404
+    fallback_path = os.path.join(fallback_dir, clean_name)
+
+    if os.path.exists(upload_path):
+        return send_from_directory(VAULT_UPLOADS_DIR, clean_name)
+    if os.path.exists(fallback_path):
+        return send_from_directory(fallback_dir, clean_name)
+
+    return jsonify({'success': False, 'message': 'File not found.', 'code': 'FILE_NOT_FOUND'}), 404
 
 @app.route('/api/people/update', methods=['POST'])
+@admin_login_required
 def update_founder_profile():
     data = request.get_json() or {}
     isaac = Member.query.filter(Member.name.like('%Isaac%')).first()
@@ -2471,7 +2967,7 @@ def update_founder_profile():
         if 'linkedin' in data: isaac.linkedin = data['linkedin']
         if 'github' in data: isaac.github = data['github']
         if 'youtube' in data: isaac.youtube = data['youtube']
-    
+
     db.session.commit()
     return jsonify({
         'success': True,
@@ -2506,6 +3002,7 @@ def get_contact_submissions():
     return jsonify(out)
 
 @app.route('/api/contact/submissions/<int:sub_id>', methods=['DELETE'])
+@admin_login_required
 def delete_contact_submission(sub_id):
     sub = ContactSubmission.query.get(sub_id)
     if not sub:
@@ -2517,6 +3014,9 @@ def delete_contact_submission(sub_id):
 @app.route('/api/site-content', methods=['GET', 'POST'])
 def handle_site_content():
     if request.method == 'POST':
+        err_resp, status_code = verify_admin_session_and_csrf(require_csrf=True)
+        if err_resp:
+            return err_resp if status_code is None else (err_resp, status_code)
         data = request.get_json() or {}
         for key, val in data.items():
             str_val = json.dumps(val) if isinstance(val, (dict, list)) else str(val)
@@ -2562,6 +3062,7 @@ def handle_site_content():
 
 # WORD & PDF QUESTION PARSER ENDPOINT
 @app.route('/api/admin/parse-questions', methods=['POST'])
+@admin_login_required
 def parse_questions_endpoint():
     try:
         from question_parser import extract_text_from_file, parse_questions_from_text
@@ -3040,6 +3541,7 @@ def book_tutoring_session():
 
 
 @app.route('/api/tutoring/bookings', methods=['GET'])
+@admin_login_required
 def get_tutoring_bookings():
     try:
         bookings = TutoringBooking.query.order_by(TutoringBooking.created_at.desc()).all()
@@ -3049,6 +3551,7 @@ def get_tutoring_bookings():
 
 
 @app.route('/api/tutoring/bookings/<bid>', methods=['DELETE'])
+@admin_login_required
 def delete_tutoring_booking(bid):
     booking = TutoringBooking.query.get(bid)
     if not booking:
@@ -3363,6 +3866,7 @@ def upvote_community_answer(aid):
 
 
 @app.route('/api/community/questions/<qid>', methods=['DELETE'])
+@admin_login_required
 def delete_community_question(qid):
     question = CommunityQuestion.query.get(qid)
     if not question:
@@ -3377,6 +3881,7 @@ def delete_community_question(qid):
 
 
 @app.route('/api/community/answers/<aid>', methods=['DELETE'])
+@admin_login_required
 def delete_community_answer(aid):
     answer = CommunityAnswer.query.get(aid)
     if not answer:
@@ -3743,6 +4248,18 @@ def toggle_lesson_progress(student):
             'code': 'COURSE_NOT_FOUND'
         }), 404
 
+    # Enforce enrolment authorization (Phase 8.3.1)
+    is_enrolled = StudentEnrollment.query.filter_by(
+        student_id=student.id,
+        course_id=course_id
+    ).first() is not None
+    if not is_enrolled:
+        return jsonify({
+            'success': False,
+            'message': f'Access denied. You are not enrolled in course "{course_id}".',
+            'code': 'ENROLMENT_REQUIRED'
+        }), 403
+
     lecture = Lecture.query.filter_by(id=lecture_id).first()
     if not lecture or not lecture.is_published:
         return jsonify({
@@ -3920,6 +4437,30 @@ def open_lecture(student):
             'code': 'COURSE_NOT_FOUND'
         }), 404
 
+    # Enforce enrolment authorization (Phase 8.3.1)
+    is_enrolled = StudentEnrollment.query.filter_by(
+        student_id=student.id,
+        course_id=course_id
+    ).first() is not None
+    if not is_enrolled:
+        return jsonify({
+            'success': False,
+            'message': f'Access denied. You are not enrolled in course "{course_id}".',
+            'code': 'ENROLMENT_REQUIRED'
+        }), 403
+
+    # Enforce enrolment authorization (Phase 8.3.1)
+    is_enrolled = StudentEnrollment.query.filter_by(
+        student_id=student.id,
+        course_id=course_id
+    ).first() is not None
+    if not is_enrolled:
+        return jsonify({
+            'success': False,
+            'message': f'Access denied. You are not enrolled in course "{course_id}".',
+            'code': 'ENROLMENT_REQUIRED'
+        }), 403
+
     lecture = Lecture.query.filter_by(id=lecture_id).first()
     if not lecture or not lecture.is_published:
         return jsonify({
@@ -4079,6 +4620,18 @@ def start_study_session(student):
             'message': f'Course with ID "{course_id}" not found or is currently unpublished.',
             'code': 'COURSE_NOT_FOUND'
         }), 404
+
+    # Enforce enrolment authorization (Phase 8.3.1)
+    is_enrolled = StudentEnrollment.query.filter_by(
+        student_id=student.id,
+        course_id=course_id
+    ).first() is not None
+    if not is_enrolled:
+        return jsonify({
+            'success': False,
+            'message': f'Access denied. You are not enrolled in course "{course_id}".',
+            'code': 'ENROLMENT_REQUIRED'
+        }), 403
 
     lecture = Lecture.query.filter_by(id=lecture_id).first()
     if not lecture or not lecture.is_published:
@@ -5091,7 +5644,7 @@ if not IS_VERCEL:
             db.session.add(demo_candidate2)
             db.session.commit()
 
-    
+
         # Seed Default Nigerian Subjects if empty
         if not Subject.query.first():
             default_subs = [
