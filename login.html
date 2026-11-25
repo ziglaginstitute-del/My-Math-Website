@@ -10,40 +10,181 @@
 </head>
 <body>
 
+  <!-- ======================================================================
+       Slide-Out Navigation Drawer & Overlay (Institutional Redesign)
+       ====================================================================== -->
+  <div class="nav-drawer-overlay" id="nav-drawer-overlay" aria-hidden="true"></div>
+
+  <aside class="nav-drawer" id="nav-drawer" aria-label="Navigation Drawer" aria-hidden="true">
+    <!-- Drawer Header -->
+    <div class="nav-drawer-header">
+      <a href="index.html" class="logo" aria-label="Ziglag Institute Home">
+        <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
+        <span>Ziglag Institute</span>
+      </a>
+      <button type="button" class="nav-drawer-close" aria-label="Close navigation menu">✕</button>
+    </div>
+
+    <!-- Drawer Navigation Body -->
+    <div class="nav-drawer-body">
+
+      <!-- Group 1: INSTITUTION -->
+      <div class="nav-drawer-group">
+        <div class="nav-drawer-group-title">INSTITUTION</div>
+        <a href="index.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🏛️</span>
+            <span>Home</span>
+          </span>
+        </a>
+        <a href="about.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📖</span>
+            <span>About Ziglag Institute</span>
+          </span>
+        </a>
+        <a href="index.html#learning-approach" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🧭</span>
+            <span>Our Learning Approach</span>
+          </span>
+        </a>
+        <a href="contact.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">✉️</span>
+            <span>Contact</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- Group 2: ACADEMIC PROGRAMMES -->
+      <div class="nav-drawer-group">
+        <div class="nav-drawer-group-title">ACADEMIC PROGRAMMES</div>
+        <a href="courses.html?level=jss" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📐</span>
+            <span>Junior Secondary</span>
+          </span>
+          <span class="nav-drawer-badge">JSS 1–3</span>
+        </a>
+        <a href="courses.html?level=sss" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📊</span>
+            <span>Senior Secondary</span>
+          </span>
+          <span class="nav-drawer-badge">SSS 1–3</span>
+        </a>
+        <a href="courses.html?level=wassce" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🎓</span>
+            <span>WASSCE / NECO</span>
+          </span>
+          <span class="nav-drawer-badge">National</span>
+        </a>
+        <a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">⚡</span>
+            <span>JAMB / UTME</span>
+          </span>
+          <span class="nav-drawer-badge" style="background: rgba(21, 154, 156, 0.12); color: var(--color-teal-text);">CBT Mock</span>
+        </a>
+        <a href="courses.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🔬</span>
+            <span>Mathematics and Science</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- Group 3: STUDENT PORTAL -->
+      <div class="nav-drawer-group">
+        <div class="nav-drawer-group-title">STUDENT PORTAL</div>
+        <a href="login.html" class="nav-drawer-link active">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🔑</span>
+            <span>Sign In</span>
+          </span>
+        </a>
+        <a href="register.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">✨</span>
+            <span>Create Account</span>
+          </span>
+        </a>
+        <a href="dashboard.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📈</span>
+            <span>Student Dashboard</span>
+          </span>
+          <span style="font-size: 0.72rem; color: var(--color-text-muted);">🔒 Protected</span>
+        </a>
+      </div>
+
+      <!-- Group 4: LEARNING RESOURCES -->
+      <div class="nav-drawer-group">
+        <div class="nav-drawer-group-title">LEARNING RESOURCES</div>
+        <a href="courses.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">📚</span>
+            <span>Public Course Information</span>
+          </span>
+        </a>
+        <a href="tutoring.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">👨‍🏫</span>
+            <span>1-on-1 Tutoring</span>
+          </span>
+          <span class="nav-drawer-badge" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">Private</span>
+        </a>
+        <a href="vault.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">🗄️</span>
+            <span>Resource Vault</span>
+          </span>
+        </a>
+        <a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">💻</span>
+            <span>CBT Mock Examination</span>
+          </span>
+        </a>
+        <a href="qa.html" class="nav-drawer-link">
+          <span class="nav-drawer-link-meta">
+            <span class="nav-drawer-link-icon">💬</span>
+            <span>Q&A Hub</span>
+          </span>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Drawer Footer Actions -->
+    <div class="nav-drawer-footer">
+      <a href="register.html" class="btn btn-primary" style="width: 100%;">Create Account ➜</a>
+      <a href="index.html" class="btn btn-secondary" style="width: 100%;">Back to Home</a>
+    </div>
+  </aside>
+
   <!-- Ambient Background Orbs -->
   <div class="glow-orb glow-orb-primary" style="top: 10%; right: 8%;"></div>
   <div class="glow-orb glow-orb-secondary" style="top: 55%; left: 4%;"></div>
 
   <div class="app-container">
     
-    <!-- Navbar -->
+    <!-- Navbar (Clean Authentication Redesign) -->
     <header class="navbar" id="app-nav">
       <a href="index.html" class="logo" aria-label="Ziglag Institute Home">
         <img src="ZIG logo transparent.png" alt="Ziglag Institute Logo" class="logo-img">
         <span>Ziglag Institute</span>
       </a>
 
-      <!-- Mobile Hamburger Button -->
-      <button class="mobile-nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
-        ☰
-      </button>
-
-      <nav aria-label="Primary Navigation">
-        <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="dashboard.html">Dashboard</a></li>
-          <li><a href="courses.html">Courses</a></li>
-          <li><a href="https://cbt-jamb-website-ziglaginstitute-8370s-projects.vercel.app" target="_blank" rel="noopener noreferrer">CBT Mock Exam</a></li>
-          <li><a href="tutoring.html">1-on-1 Tutoring</a></li>
-          <li><a href="vault.html">Resource Vault</a></li>
-          <li><a href="qa.html">Q&A Hub</a></li>
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
+      <!-- Minimal Header Actions Cluster -->
       <div class="navbar-actions">
-        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle light or dark theme">☀️</button>
         <a href="register.html" class="btn btn-primary btn-sm">Create Account</a>
+        <button class="nav-drawer-toggle" id="nav-drawer-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-drawer">
+          <span>☰</span>
+        </button>
       </div>
     </header>
 
